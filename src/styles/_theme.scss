@@ -1,0 +1,187 @@
+@use 'sass:color';
+@use 'sass:list';
+
+// Light / dark palettes. Switched by <html data-theme="...">.
+// Global (not component-scoped) so the selectors work with Angular's view encapsulation.
+
+// ---------------- Customer menu + Login/Register: LIGHT (frosted glass, green) ----------------
+.customer-shell,
+.auth-page {
+  --color-bg: #eef4ee;
+  --color-text: #0f2a1f;
+  --color-muted: #4f655a;
+  --color-border: rgba(15, 42, 31, 0.14);
+  --color-surface: #ffffff;
+  --color-accent: #1b6b50;
+  --color-accent-dark: #14523d;
+  --color-dark-green: #166534;
+  --color-veg-green: #16a34a;
+  --color-danger: #b91c1c;
+
+  --accent-gradient: linear-gradient(135deg, #218062, #14523d);
+  --accent-glow: rgba(20, 82, 61, 0.35);
+
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.55));
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 30px rgba(31, 70, 52, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --glass-blur: blur(18px) saturate(160%);
+
+  --field-bg: rgba(255, 255, 255, 0.6);
+  --field-border: rgba(255, 255, 255, 0.9);
+  --sticky-bg: linear-gradient(180deg, rgba(238, 244, 238, 0.7), rgba(238, 244, 238, 0.25));
+
+  --tag-bg: rgba(249, 115, 22, 0.15);
+  --tag-text: #c2410c;
+  --nav-active: #14523d;
+  --nav-active-bg: rgba(33, 128, 98, 0.16);
+
+  --scrim: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(244, 250, 244, 0.34) 100%);
+  --bg-blur: 2px;
+
+  // Order status colours (meaning, not brand): placed / preparing / served / cancelled
+  --status-placed: #2563eb;
+  --status-preparing: #b45309;
+  --status-served: #15803d;
+  --status-cancelled: #b91c1c;
+}
+
+// ---------------- Customer menu: DARK (glass, orange) ----------------
+[data-theme='dark'] .customer-shell,
+[data-theme='dark'] .auth-page {
+  --color-bg: #120d0a;
+  --color-text: #fff7ef;
+  --color-muted: rgba(255, 247, 239, 0.7);
+  --color-border: rgba(255, 255, 255, 0.2);
+  --color-surface: #221913;
+  --color-accent: #ea580c;
+  --color-accent-dark: #c2410c;
+  --color-dark-green: #4ade80;
+  --color-veg-green: #22c55e;
+  --color-danger: #fca5a5;
+
+  --accent-gradient: linear-gradient(135deg, #f97316, #ea580c);
+  --accent-glow: rgba(234, 88, 12, 0.45);
+
+  --glass-bg: linear-gradient(135deg, rgba(28, 20, 15, 0.58), rgba(28, 20, 15, 0.4));
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --glass-blur: blur(18px) saturate(140%);
+
+  --field-bg: rgba(20, 14, 10, 0.45);
+  --field-border: rgba(255, 255, 255, 0.25);
+  --sticky-bg: linear-gradient(180deg, rgba(10, 7, 5, 0.5), rgba(10, 7, 5, 0.12));
+
+  --tag-bg: rgba(185, 28, 28, 0.92);
+  --tag-text: #ffffff;
+  --nav-active: #ff7a2f;
+  --nav-active-bg: rgba(255, 122, 47, 0.16);
+
+  --scrim: linear-gradient(180deg, rgba(10, 7, 5, 0.16) 0%, rgba(10, 7, 5, 0.4) 100%);
+  --bg-blur: 0px;
+
+  --status-placed: #60a5fa;
+  --status-preparing: #fbbf24;
+  --status-served: #4ade80;
+  --status-cancelled: #f87171;
+}
+
+.customer-shell {
+  // Existing components use the shared card mixin: make every card glass here.
+  --card-bg: var(--glass-bg);
+  --card-border: var(--glass-border);
+  --card-radius: 20px;
+  --card-shadow: var(--glass-shadow);
+  --card-blur: var(--glass-blur);
+}
+
+// ---------------- Admin: DARK (LIGHT lives in _admin-theme.scss) ----------------
+[data-theme='dark'] .admin-shell {
+  --admin-sidebar-bg: rgba(20, 15, 12, 0.7);
+  --admin-sidebar-bg-hover: rgba(255, 255, 255, 0.08);
+  --admin-sidebar-text: #cfc6bd;
+  --admin-sidebar-text-active: #ffffff;
+  --admin-sidebar-brand: #ffffff;
+  --admin-sidebar-border: rgba(255, 255, 255, 0.1);
+  --admin-sidebar-section-label: #8a8178;
+
+  --admin-bg: #120d0a;
+  --admin-page-bg: radial-gradient(circle at 12% 8%, rgba(234, 88, 12, 0.22), transparent 42%),
+    radial-gradient(circle at 90% 92%, rgba(180, 60, 20, 0.18), transparent 48%), #120d0a;
+  --admin-scrim: linear-gradient(180deg, rgba(14, 10, 8, 0.45) 0%, rgba(14, 10, 8, 0.66) 100%);
+  --admin-bg-blur: 1px;
+  --admin-surface: rgba(38, 30, 25, 0.88);
+  --admin-border: rgba(255, 255, 255, 0.12);
+  --admin-text: #fff7ef;
+  --admin-muted: #b5aaa0;
+
+  --admin-accent: #ea580c;
+  --admin-accent-dark: #c2410c;
+  --admin-accent-soft: rgba(234, 88, 12, 0.2);
+  --admin-accent-ring: rgba(234, 88, 12, 0.35);
+
+  --admin-info-soft: rgba(37, 99, 235, 0.22);
+  --admin-info-text: #93c5fd;
+  --admin-warning-soft: rgba(217, 119, 6, 0.22);
+  --admin-warning-text: #fcd34d;
+  --admin-success-soft: rgba(34, 197, 94, 0.18);
+  --admin-success-text: #86efac;
+  --admin-completed-soft: rgba(255, 255, 255, 0.08);
+  --admin-completed-text: #d6d3d1;
+  --admin-danger: #f87171;
+  --admin-danger-soft: rgba(239, 68, 68, 0.18);
+  --admin-danger-text: #fca5a5;
+  --admin-status-bill-soft: rgba(124, 58, 237, 0.24);
+  --admin-status-bill-text: #c4b5fd;
+
+  --admin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --admin-shadow-md: 0 8px 28px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+// ---------------- Brand colour palettes (one per ThemeColors key) ----------------
+// Placed last so they win over the default accent set by the light / dark blocks above.
+// Applied through <div data-accent="ocean"> on the customer menu, admin panel and login.
+$accents: (
+  'masala': (#c2410c, #9a3412),
+  'ocean': (#2563eb, #1d4ed8),
+  'purple': (#7c3aed, #6d28d9),
+  'emerald': (#059669, #047857),
+  'sunset': (#ea580c, #c2410c),
+  'ruby': (#dc2626, #b91c1c),
+  'rose': (#e11d48, #be123c),
+  'cyan': (#0891b2, #0e7490),
+  'amber': (#d97706, #b45309)
+);
+
+@each $name, $pair in $accents {
+  $base: list.nth($pair, 1);
+  $deep: list.nth($pair, 2);
+  $light: color.adjust($base, $lightness: 7%);
+
+  .customer-shell[data-accent='#{$name}'],
+  .auth-page[data-accent='#{$name}'] {
+    --color-accent: #{$base};
+    --color-accent-dark: #{$deep};
+    --accent-gradient: linear-gradient(135deg, #{$light}, #{$base});
+    --accent-glow: #{color.change($base, $alpha: 0.4)};
+    --tag-bg: #{color.change($base, $alpha: 0.16)};
+    --tag-text: #{$deep};
+    --nav-active: #{$deep};
+    --nav-active-bg: #{color.change($base, $alpha: 0.16)};
+  }
+
+  [data-theme='dark'] .customer-shell[data-accent='#{$name}'],
+  [data-theme='dark'] .auth-page[data-accent='#{$name}'] {
+    --tag-bg: #{$base};
+    --tag-text: #fff;
+    --nav-active: #{color.mix($base, #fff, 62%)};
+    --nav-active-bg: #{color.change($base, $alpha: 0.22)};
+  }
+
+  .admin-shell[data-accent='#{$name}'] {
+    --admin-accent: #{$base};
+    --admin-accent-dark: #{$deep};
+    --admin-accent-soft: #{color.change($base, $alpha: 0.14)};
+    --admin-accent-ring: #{color.change($base, $alpha: 0.3)};
+  }
+}

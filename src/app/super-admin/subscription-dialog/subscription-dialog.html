@@ -1,0 +1,223 @@
+<div class="sub-dialog__backdrop" (click)="close.emit()">
+  <div class="sub-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="sub-dialog-title" (click)="$event.stopPropagation()">
+    <div class="sub-dialog__header">
+      <div>
+        <h2 id="sub-dialog-title">Plan · {{ restaurantName() }}</h2>
+        <span class="sub-dialog__muted">Changes apply immediately.</span>
+      </div>
+      <button type="button" class="sub-dialog__close" aria-label="Close" (click)="close.emit()">×</button>
+    </div>
+
+    @if (details(); as d) {
+      <div class="sub-dialog__summary">
+        <div>
+          <span class="sub-dialog__label">Plan</span>
+          <strong>{{ d.current.planName }}</strong>
+        </div>
+        <div>
+          <span class="sub-dialog__label">Status</span>
+          <span class="sub-dialog__pill sub-dialog__pill--{{ d.current.status.toLowerCase() }}">{{ statusLabels[d.current.status] }}</span>
+        </div>
+        <div>
+          <span class="sub-dialog__label">Ends</span>
+          <strong>{{ d.current.expiresAt ? (d.current.expiresAt | date: 'd MMM y') : 'Never (lifetime)' }}</strong>
+        </div>
+        <div>
+          <span class="sub-dialog__label">Ordering</span>
+          <strong>
+            @if (!d.current.canTakeOrders) {
+              Stopped
+            } @else if (d.current.daysLeft === null) {
+              On
+            } @else {
+              On · {{ d.current.daysLeft }} day{{ d.current.daysLeft === 1 ? '' : 's' }} left
+            }
+          </strong>
+        </div>
+      </div>
+
+      @if (d.current.status === 'Grace') {
+        <p class="sub-dialog__notice">
+          The plan ended on {{ d.current.expiresAt | date: 'd MMM y' }}. Ordering keeps working until
+          {{ d.current.graceEndsAt | date: 'd MMM y' }} ({{ d.current.graceDays }}-day grace period).
+        </p>
+      }
+
+      <div class="sub-dialog__tabs" role="tablist">
+        <button type="button" role="tab" [attr.aria-selected]="tab() === 'payment'" [class.sub-dialog__tab--active]="tab() === 'payment'" (click)="selectTab('payment')">Record payment</button>
+        <button type="button" role="tab" [attr.aria-selected]="tab() === 'free'" [class.sub-dialog__tab--active]="tab() === 'free'" (click)="selectTab('free')">Give free</button>
+        <button type="button" role="tab" [attr.aria-selected]="tab() === 'extend'" [class.sub-dialog__tab--active]="tab() === 'extend'" (click)="selectTab('extend')">Extend</button>
+        <button type="button" role="tab" [attr.aria-selected]="tab() === 'cancel'" [class.sub-dialog__tab--active]="tab() === 'cancel'" (click)="selectTab('cancel')">Cancel</button>
+      </div>
+
+      @if (error()) {
+        <p class="sub-dialog__error" role="alert">{{ error() }}</p>
+      }
+      @if (success()) {
+        <p class="sub-dialog__success" role="status">{{ success() }}</p>
+      }
+
+      @switch (tab()) {
+        @case ('payment') {
+          <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()" class="sub-dialog__form">
+            <div class="sub-dialog__row">
+              <div class="form-field">
+                <label for="sd-plan">Plan</label>
+                <select id="sd-plan" formControlName="pricingPlanId" (change)="suggestAmount()">
+                  @for (p of plans(); track p.id) {
+                    <option [value]="p.id">{{ p.name }} · {{ durationLabel(p.durationMonths) }} · ₹{{ p.price | number: '1.0-2' }}{{ p.isActive ? '' : ' (inactive)' }}</option>
+                  }
+                </select>
+                @if (plans().length === 0) {
+                  <span class="form-field__error">No plans yet — create one under Plans first.</span>
+                }
+              </div>
+              <div class="form-field">
+                <label for="sd-periods">How many times</label>
+                <input id="sd-periods" type="number" min="1" max="36" formControlName="periods" (input)="suggestAmount()" />
+              </div>
+              <div class="form-field">
+                <label for="sd-amount">Amount (₹)</label>
+                <input id="sd-amount" type="number" min="1" step="0.01" formControlName="amount" />
+                @if (paymentForm.controls.amount.touched && paymentForm.controls.amount.invalid) {
+                  <span class="form-field__error">Enter the amount received.</span>
+                }
+              </div>
+            </div>
+            <div class="sub-dialog__row">
+              <div class="form-field">
+                <label for="sd-method">Payment method</label>
+                <select id="sd-method" formControlName="paymentMethod">
+                  @for (m of paymentMethods; track m.value) {
+                    <option [value]="m.value">{{ m.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-field sub-dialog__grow">
+                <label for="sd-ref">Reference (UTR / txn id)</label>
+                <input id="sd-ref" type="text" maxlength="100" formControlName="paymentReference" />
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="sd-pnote">Internal note (optional)</label>
+              <input id="sd-pnote" type="text" maxlength="500" formControlName="note" />
+            </div>
+            <p class="sub-dialog__hint">
+              Renewing a paid plan that is still running continues from its current end date, so no paid days are lost.
+              Otherwise the plan starts today.
+            </p>
+            <button type="submit" class="btn-admin-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Record payment' }}</button>
+          </form>
+        }
+
+        @case ('free') {
+          <form [formGroup]="freeForm" (ngSubmit)="submitFree()" class="sub-dialog__form">
+            <label class="sub-dialog__check">
+              <input type="checkbox" formControlName="lifetime" />
+              Lifetime (no end date)
+            </label>
+            @if (!freeForm.controls.lifetime.value) {
+              <div class="form-field">
+                <label for="sd-funtil">Free until</label>
+                <input id="sd-funtil" type="date" [min]="minDate" formControlName="until" />
+              </div>
+            }
+            <div class="form-field">
+              <label for="sd-fnote">Internal note (optional)</label>
+              <input id="sd-fnote" type="text" maxlength="500" formControlName="note" />
+            </div>
+            <p class="sub-dialog__hint">This replaces the current plan, including any paid plan.</p>
+            <button type="submit" class="btn-admin-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Give free plan' }}</button>
+          </form>
+        }
+
+        @case ('extend') {
+          @if (d.current.status === 'Cancelled') {
+            <p class="sub-dialog__hint">This plan was cancelled. Record a payment or give a free plan to start a new one.</p>
+          } @else if (!d.current.expiresAt) {
+            <p class="sub-dialog__hint">This plan has no end date, so there is nothing to extend.</p>
+          } @else {
+            <form [formGroup]="extendForm" (ngSubmit)="submitExtend()" class="sub-dialog__form">
+              <div class="form-field">
+                <label for="sd-euntil">New end date</label>
+                <input id="sd-euntil" type="date" [min]="minDate" formControlName="until" />
+                <span class="form-field__hint">Currently ends {{ d.current.expiresAt | date: 'd MMM y' }}. No payment is recorded.</span>
+              </div>
+              <div class="form-field">
+                <label for="sd-enote">Internal note (optional)</label>
+                <input id="sd-enote" type="text" maxlength="500" formControlName="note" />
+              </div>
+              <button type="submit" class="btn-admin-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Extend plan' }}</button>
+            </form>
+          }
+        }
+
+        @case ('cancel') {
+          @if (d.current.status === 'Cancelled') {
+            <p class="sub-dialog__hint">This plan is already cancelled.</p>
+          } @else {
+            <form [formGroup]="cancelForm" (ngSubmit)="submitCancel()" class="sub-dialog__form">
+              <p class="sub-dialog__hint">
+                Ordering stops immediately, with no grace period. The owner can still sign in and see the menu admin.
+              </p>
+              <div class="form-field">
+                <label for="sd-cnote">Reason (internal, optional)</label>
+                <input id="sd-cnote" type="text" maxlength="500" formControlName="note" />
+              </div>
+              <button type="submit" class="btn-admin-secondary sub-dialog__danger" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Cancel plan' }}</button>
+            </form>
+          }
+        }
+      }
+
+      <h3 class="sub-dialog__history-title">History</h3>
+      <div class="sub-dialog__history">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Change</th>
+              <th>Plan / ends</th>
+              <th class="sub-dialog__num">Amount</th>
+              <th>Payment</th>
+              <th>By</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of d.history; track e.id) {
+              <tr>
+                <td>{{ e.createdAt | date: 'd MMM y, h:mm a' }}</td>
+                <td>
+                  {{ actionLabels[e.action] }}
+                  @if (e.note) {
+                    <span class="sub-dialog__sub">{{ e.note }}</span>
+                  }
+                </td>
+                <td>
+                  {{ e.planName }}
+                  <span class="sub-dialog__sub">{{ e.expiresAt ? (e.expiresAt | date: 'd MMM y') : 'No end date' }}</span>
+                </td>
+                <td class="sub-dialog__num">{{ e.amount !== null ? '₹' + (e.amount | number: '1.0-2') : '—' }}</td>
+                <td>
+                  {{ e.paymentMethod ? methodLabel(e.paymentMethod) : '—' }}
+                  @if (e.paymentReference) {
+                    <span class="sub-dialog__sub">{{ e.paymentReference }}</span>
+                  }
+                </td>
+                <td class="sub-dialog__sub-cell">{{ e.performedBy }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="sub-dialog__empty">No changes yet.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else if (error()) {
+      <p class="sub-dialog__error" role="alert">{{ error() }}</p>
+    } @else {
+      <p class="sub-dialog__muted">Loading…</p>
+    }
+  </div>
+</div>

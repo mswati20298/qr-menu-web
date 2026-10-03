@@ -1,0 +1,389 @@
+@use 'styles/admin-theme' as *;
+
+.orders-page {
+  position: relative;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 26px;
+      font-family: var(--admin-font-heading);
+    }
+  }
+
+  &__export {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__export-select {
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: var(--admin-radius-control);
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font-size: 13.5px;
+  }
+
+  &__export-btn {
+    min-height: 40px;
+    font-size: 13.5px;
+  }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  &__view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-control);
+    overflow: hidden;
+  }
+
+  &__view-btn {
+    min-height: 38px;
+    padding: 0 16px;
+    border: none;
+    background: var(--admin-surface);
+    color: var(--admin-muted);
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+
+    &--active {
+      background: var(--admin-accent);
+      color: white;
+    }
+  }
+
+  &__cancelled-toggle {
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-muted);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+
+    &--active {
+      background: var(--admin-danger-soft);
+      border-color: var(--admin-danger);
+      color: var(--admin-danger-text);
+    }
+  }
+
+  &__kitchen-btn {
+    min-height: 38px;
+    font-size: 13px;
+    margin-left: auto;
+  }
+
+  &__empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--admin-muted);
+  }
+
+  // --- Board ---
+
+  &__board {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+
+    @media (max-width: 720px) {
+      scroll-snap-type: x mandatory;
+    }
+  }
+
+  &__column {
+    flex: 1 1 270px;
+    min-width: 270px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    @media (max-width: 720px) {
+      min-width: 85vw;
+      scroll-snap-align: start;
+    }
+  }
+
+  &__column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 0 2px;
+  }
+
+  &__column-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--admin-muted);
+  }
+
+  &__column-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__column-empty {
+    text-align: center;
+    color: var(--admin-muted);
+    font-size: 12.5px;
+    padding: 16px 0;
+  }
+
+  &__cancelled-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 420px;
+  }
+
+  // --- List view ---
+
+  &__filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+
+  &__filter-btn {
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-muted);
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+
+    &--active {
+      background: var(--admin-accent);
+      border-color: var(--admin-accent);
+      color: white;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__card {
+    @include admin-card;
+    overflow: hidden;
+
+    &--new {
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 1px var(--admin-accent), var(--admin-shadow-sm);
+    }
+  }
+
+  &__new-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: white;
+    background: var(--admin-accent);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  &__card-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  &__card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__table {
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+
+  &__time,
+  &__customer {
+    font-size: 12.5px;
+    color: var(--admin-muted);
+  }
+
+  &__card-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__total {
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+
+  &__details {
+    padding: 0 18px 18px;
+    border-top: 1px solid var(--admin-border);
+  }
+
+  &__items {
+    list-style: none;
+    margin: 14px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13.5px;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  &__addons {
+    color: var(--admin-muted);
+    font-size: 12px;
+    justify-content: flex-start !important;
+    padding-left: 12px;
+  }
+
+  &__bill {
+    border-top: 1px dashed var(--admin-border);
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--admin-muted);
+
+    div {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  &__bill-total {
+    font-weight: 700;
+    color: var(--admin-text);
+    font-size: 14.5px;
+    margin-top: 4px;
+  }
+
+  &__payment,
+  &__billing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  &__pay-pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger-text);
+    font-size: 12px;
+    font-weight: 700;
+
+    &--paid {
+      background: var(--admin-success-soft);
+      color: var(--admin-success-text);
+    }
+
+    &--claimed {
+      background: var(--admin-warning-soft);
+      color: var(--admin-warning-text);
+    }
+  }
+
+  &__pay-ref {
+    color: var(--admin-muted);
+    font-size: 13px;
+  }
+
+  &__action-error {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger-text);
+    font-size: 13px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  // --- Undo toast ---
+
+  &__undo-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--admin-text);
+    color: white;
+    padding: 12px 18px;
+    border-radius: var(--admin-radius-control);
+    box-shadow: var(--admin-shadow-md);
+    font-size: 13.5px;
+    font-weight: 600;
+    z-index: 200;
+
+    button {
+      border: none;
+      background: none;
+      color: var(--admin-accent-soft);
+      font-weight: 700;
+      cursor: pointer;
+    }
+  }
+}

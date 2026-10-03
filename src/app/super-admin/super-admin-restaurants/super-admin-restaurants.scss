@@ -1,0 +1,164 @@
+@use 'styles/admin-theme' as *;
+
+.sa-restaurants {
+  &__header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    h1 {
+      font-size: 26px;
+      font-family: var(--font-heading);
+    }
+  }
+
+  &__count {
+    color: var(--admin-muted);
+    font-size: 14px;
+  }
+
+  &__toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  &__search,
+  &__filter {
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font: inherit;
+    font-size: 14px;
+  }
+
+  &__search {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  &__error {
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger-text);
+    font-size: 13px;
+  }
+
+  &__table-wrap {
+    @include admin-card;
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--admin-border);
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--admin-muted);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+  }
+
+  &__num {
+    text-align: right !important;
+  }
+
+  &__link,
+  &__sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 12.5px;
+    color: var(--admin-muted);
+  }
+
+  &__link {
+    color: var(--admin-accent);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--admin-success-soft);
+    color: var(--admin-success-text);
+    font-size: 12px;
+    font-weight: 700;
+
+    &--off {
+      background: var(--admin-danger-soft);
+      color: var(--admin-danger-text);
+    }
+  }
+
+  &__actions {
+    text-align: right;
+    white-space: nowrap;
+
+    button + button {
+      margin-left: 6px;
+    }
+  }
+
+  &__plan-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 4px;
+    border-radius: 50%;
+    vertical-align: middle;
+    background: var(--admin-success);
+
+    &--grace {
+      background: var(--admin-warning);
+    }
+
+    &--expired,
+    &--cancelled {
+      background: var(--admin-danger);
+    }
+  }
+
+  &__empty {
+    text-align: center !important;
+    color: var(--admin-muted);
+    padding: 28px 14px !important;
+  }
+
+  &__pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--admin-muted);
+  }
+}

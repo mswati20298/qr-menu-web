@@ -1,0 +1,192 @@
+.admin-shell {
+  // Sidebar
+  --admin-sidebar-bg: rgba(255, 255, 255, 0.58);
+  --admin-sidebar-bg-hover: rgba(27, 107, 80, 0.09);
+  --admin-sidebar-text: #3f5a4d;
+  --admin-sidebar-text-active: #0f2a1f;
+  --admin-sidebar-brand: #0f2a1f;
+  --admin-sidebar-border: rgba(255, 255, 255, 0.75);
+  --admin-sidebar-section-label: #7b8f84;
+
+  // Surfaces
+  --admin-bg: #eef4ee;
+  --admin-page-bg: linear-gradient(135deg, #e4f0e8 0%, #f4efe3 55%, #e8eff4 100%);
+  --admin-blur: blur(14px) saturate(150%);
+  --admin-scrim: linear-gradient(180deg, rgba(238, 244, 238, 0.46) 0%, rgba(238, 244, 238, 0.64) 100%);
+  --admin-bg-blur: 2px;
+  --admin-surface: rgba(255, 255, 255, 0.84);
+  --admin-border: rgba(20, 60, 45, 0.12);
+  --admin-text: #10261c;
+  --admin-muted: #5a6f64;
+
+  // Brand / primary action
+  --admin-accent: #1b6b50;
+  --admin-accent-dark: #14523d;
+  --admin-accent-soft: #dff0e7;
+  --admin-accent-ring: rgba(27, 107, 80, 0.22);
+
+  // Status — order lifecycle
+  --admin-info: #2563eb;
+  --admin-info-soft: #dbeafe;
+  --admin-info-text: #1e3a8a;
+  --admin-warning: #d97706;
+  --admin-warning-soft: #fef3c7;
+  --admin-warning-text: #78350f;
+  --admin-success: #15803d;
+  --admin-success-soft: #dcfce7;
+  --admin-success-text: #14532d;
+  --admin-completed: #78716c;
+  --admin-completed-soft: #f5f5f4;
+  --admin-completed-text: #44403c;
+  --admin-danger: #b91c1c;
+  --admin-danger-soft: #fee2e2;
+  --admin-danger-text: #7f1d1d;
+
+  // Table status (Bill requested, etc.)
+  --admin-status-bill: #7c3aed;
+  --admin-status-bill-soft: #ede9fe;
+  --admin-status-bill-text: #4c1d95;
+
+  // Food markers
+  --admin-veg: #15803d;
+  --admin-nonveg: #b91c1c;
+
+  --admin-radius-card: 12px;
+  --admin-radius-control: 8px;
+
+  --admin-shadow-sm: 0 1px 3px rgba(20, 60, 45, 0.08);
+  --admin-shadow-md: 0 8px 28px rgba(20, 60, 45, 0.14);
+
+  --admin-font-heading: 'Fraunces', serif;
+  --admin-font-body: 'Inter', sans-serif;
+
+  background: var(--admin-page-bg);
+  background-attachment: fixed;
+  color: var(--admin-text);
+  font-family: var(--admin-font-body);
+  font-variant-numeric: tabular-nums;
+  min-height: 100vh;
+
+  h1, h2, h3, h4 {
+    font-family: var(--admin-font-heading);
+  }
+
+  input[type='checkbox'] {
+    accent-color: var(--admin-accent);
+  }
+}
+
+@mixin admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-card);
+  box-shadow: var(--admin-shadow-sm);
+  -webkit-backdrop-filter: var(--admin-blur, none);
+  backdrop-filter: var(--admin-blur, none);
+}
+
+@mixin admin-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--admin-radius-control);
+  border: none;
+  background: var(--admin-accent);
+  color: white;
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--admin-accent-dark);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin admin-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--admin-radius-control);
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--admin-bg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.admin-shell .btn-admin-primary {
+  @include admin-button-primary;
+}
+
+.admin-shell .btn-admin-secondary {
+  @include admin-button-secondary;
+}
+
+.admin-shell .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--admin-text);
+  }
+
+  input,
+  textarea,
+  select {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: var(--admin-radius-control);
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font-size: 14px;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 3px var(--admin-accent-ring);
+    }
+  }
+
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  .form-field__error {
+    font-size: 12.5px;
+    color: var(--admin-danger);
+  }
+
+  .form-field__hint {
+    font-size: 12px;
+    color: var(--admin-muted);
+  }
+}

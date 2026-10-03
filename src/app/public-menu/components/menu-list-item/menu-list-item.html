@@ -1,0 +1,42 @@
+<article class="menu-list-item" [class.menu-list-item--sold-out]="!item().isAvailable" (click)="onRowClick()">
+  <div class="menu-list-item__body">
+    <div class="menu-list-item__title-row">
+      <app-veg-badge [isVeg]="item().isVeg" />
+      @if (item().tag) { <span class="menu-list-item__tag">{{ item().tag }}</span> }
+    </div>
+    <h3 class="menu-list-item__name">{{ item().name }}</h3>
+    <span class="menu-list-item__price">{{ priceLabel() }}</span>
+    @if (item().description) {
+      <p class="menu-list-item__description">{{ item().description }}</p>
+    }
+    @if (!item().isAvailable) {
+      <span class="menu-list-item__sold-out">Out of stock</span>
+    }
+  </div>
+
+  <div class="menu-list-item__photo-wrap">
+    @if (imageUrl()) {
+      <img class="menu-list-item__image" [src]="imageUrl()" [alt]="item().name" loading="lazy" />
+    } @else {
+      <div class="menu-list-item__image menu-list-item__image--placeholder"></div>
+    }
+
+    @if (item().isAvailable && !disabled()) {
+      @if (hasVariants()) {
+        <button type="button" class="menu-list-item__add-btn" (click)="onQuickAddClick($event)" aria-label="Choose options for {{ item().name }}">
+          Add +
+        </button>
+      } @else if (qty() === 0) {
+        <button type="button" class="menu-list-item__add-btn" (click)="onQuickAddClick($event)" aria-label="Add {{ item().name }} to cart">
+          Add +
+        </button>
+      } @else {
+        <div class="menu-list-item__stepper" role="group" aria-label="Quantity for {{ item().name }}">
+          <button type="button" (click)="onDecrementClick($event)" aria-label="Decrease quantity">−</button>
+          <span>{{ qty() }}</span>
+          <button type="button" (click)="onIncrementClick($event)" aria-label="Increase quantity">+</button>
+        </div>
+      }
+    }
+  </div>
+</article>

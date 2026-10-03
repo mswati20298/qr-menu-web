@@ -1,0 +1,240 @@
+@use 'styles/admin-theme' as *;
+
+.settings-page {
+  max-width: 620px;
+
+  h1 {
+    font-size: 26px;
+    font-family: var(--font-heading);
+    margin-bottom: 20px;
+  }
+
+  &__card {
+    @include admin-card;
+    padding: 20px;
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 17px;
+      margin-bottom: 4px;
+    }
+  }
+
+  &__hint {
+    color: var(--admin-muted);
+    font-size: 13px;
+    margin: 4px 0 16px;
+    line-height: 1.5;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  &__charge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+  }
+
+  &__percent-field {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 90px;
+
+    input {
+      width: 60px;
+    }
+  }
+
+  &__legal-note {
+    font-size: 12px;
+    color: var(--admin-muted);
+    line-height: 1.5;
+    margin: 0 0 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--admin-border);
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  &__switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+
+    input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    &--block {
+      margin: 14px 0;
+    }
+  }
+
+  &__switch-track {
+    width: 40px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--admin-border);
+    position: relative;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
+  }
+
+  &__switch-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.15s ease;
+    box-shadow: var(--admin-shadow-sm);
+  }
+
+  &__switch input:checked + &__switch-track {
+    background: var(--admin-accent);
+  }
+
+  &__switch input:checked + &__switch-track &__switch-knob {
+    transform: translateX(18px);
+  }
+
+  &__uploading {
+    font-size: 12.5px;
+    color: var(--admin-muted);
+  }
+
+  &__logo-preview {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 8px;
+    border: 1px solid var(--admin-border);
+  }
+
+  &__cover-preview {
+    width: 100%;
+    max-width: 300px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-top: 8px;
+    border: 1px solid var(--admin-border);
+  }
+
+  &__saved {
+    color: var(--admin-success);
+    font-size: 13.5px;
+    margin-bottom: 10px;
+  }
+}
+
+.settings-page__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.settings-page__swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--swatch);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--swatch);
+    outline-offset: 2px;
+  }
+
+  &--active {
+    border-color: var(--swatch);
+    box-shadow: 0 0 0 2px var(--swatch);
+  }
+}
+
+.settings-page__swatch-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--swatch);
+}
+
+.settings-page__swatch-hint {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--admin-muted);
+}
+
+.settings-page__error {
+  margin: 10px 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--admin-danger-soft);
+  color: var(--admin-danger-text);
+  font-size: 13px;
+}
+
+.settings-page__kitchen {
+  margin-top: 24px;
+}
+
+.settings-page__kitchen-status {
+  margin: 0 0 12px;
+  font-size: 14px;
+  word-break: break-all;
+
+  a {
+    color: var(--admin-accent);
+  }
+}
+
+.settings-page__kitchen-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+
+  .form-field {
+    margin-bottom: 0;
+    width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .settings-page__row {
+    grid-template-columns: 1fr;
+  }
+}

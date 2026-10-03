@@ -1,0 +1,63 @@
+<div class="sa-dashboard">
+  <div class="sa-dashboard__header">
+    <h1>Platform overview</h1>
+    <a routerLink="/superadmin/restaurants" class="btn-admin-primary">Manage restaurants</a>
+  </div>
+
+  @if (error()) {
+    <p class="sa-dashboard__error">{{ error() }}</p>
+  } @else if (!stats()) {
+    <p class="sa-dashboard__muted">Loading…</p>
+  } @else {
+    <div class="sa-dashboard__grid">
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.totalRestaurants }}</span>
+        <span class="sa-dashboard__label">Restaurants</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.activeRestaurants }}</span>
+        <span class="sa-dashboard__label">Active</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.suspendedRestaurants }}</span>
+        <span class="sa-dashboard__label">Suspended</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.newRestaurantsLast30Days }}</span>
+        <span class="sa-dashboard__label">New in last 30 days</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.totalOrders }}</span>
+        <span class="sa-dashboard__label">Orders, all time</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.ordersLast30Days }}</span>
+        <span class="sa-dashboard__label">Orders, last 30 days</span>
+      </div>
+    </div>
+
+    <h2 class="sa-dashboard__section">Plans</h2>
+    <div class="sa-dashboard__grid">
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.onTrial }}</span>
+        <span class="sa-dashboard__label">On free trial</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.paidPlans }}</span>
+        <span class="sa-dashboard__label">On a paid plan</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.expiringSoon }}</span>
+        <span class="sa-dashboard__label">Ending in 7 days</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.inGrace }}</span>
+        <span class="sa-dashboard__label">In grace period</span>
+      </div>
+      <div class="sa-dashboard__card">
+        <span class="sa-dashboard__value">{{ stats()!.orderingStopped }}</span>
+        <span class="sa-dashboard__label">Ordering stopped</span>
+      </div>
+    </div>
+  }
+</div>

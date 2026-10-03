@@ -1,0 +1,123 @@
+.customer-shell {
+  position: relative;
+  isolation: isolate; // keeps the bg layers behind content, above the page
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text);
+
+  // Background photo (restaurant's cover image). Falls back to a warm gradient.
+  &__bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-color: var(--color-bg);
+    background-image:
+      radial-gradient(circle at 15% 10%, var(--accent-glow), transparent 45%),
+      radial-gradient(circle at 85% 90%, var(--accent-glow), transparent 50%);
+    filter: blur(var(--bg-blur, 0));
+    transform: scale(1.08); // hides blurred edges
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  // Darkens the photo so text stays readable whatever image the owner uploads.
+  &__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--scrim);
+  }
+
+  &__content {
+    flex: 1;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    min-width: 0;
+  }
+
+  &__content--no-nav {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  // Floating glass tab bar
+  &__nav {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 30;
+    display: flex;
+    width: calc(100% - 24px);
+    max-width: 456px;
+    border-radius: 24px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  &__nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 62px;
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--color-muted);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 24px;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: -2px;
+    }
+
+    &--active {
+      color: var(--nav-active);
+      background: var(--nav-active-bg);
+      margin: 6px 4px;
+      min-height: 50px;
+      border-radius: 18px;
+    }
+  }
+
+  &__cart-icon-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  &__cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: var(--color-accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+  }
+}

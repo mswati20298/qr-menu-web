@@ -1,0 +1,102 @@
+@if (session.loading() && !item()) {
+  <div class="item-detail-page__loading">Loading…</div>
+} @else if (!item()) {
+  <div class="item-detail-page__loading">Item not found.</div>
+} @else {
+  <div class="item-detail-page">
+    <div class="item-detail-page__image-wrap">
+      @if (resolveImageUrl(item()!.imageUrl); as img) {
+        <img class="item-detail-page__image" [src]="img" [alt]="item()!.name" />
+      } @else {
+        <div class="item-detail-page__image item-detail-page__image--placeholder"></div>
+      }
+
+      <button type="button" class="item-detail-page__back-btn" (click)="goBack()" aria-label="Go back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="item-detail-page__body">
+      <div class="item-detail-page__title-row">
+        <app-veg-badge [isVeg]="item()!.isVeg" />
+        <h1 class="item-detail-page__name">{{ item()!.name }}</h1>
+      </div>
+
+      @if (item()!.tag) {
+        <span class="item-detail-page__tag">{{ item()!.tag }}</span>
+      }
+
+      <p class="item-detail-page__price">₹{{ unitPrice() }}</p>
+
+      @if (item()!.description) {
+        <p class="item-detail-page__description">{{ item()!.description }}</p>
+      }
+
+      @if (item()!.variants.length > 0 || item()!.addOns.length > 0) {
+        <div class="item-detail-page__customize">
+          <h2 class="item-detail-page__customize-title">Customize Your Order</h2>
+
+          @if (item()!.variants.length > 0) {
+            <div class="item-detail-page__section">
+              <h3 class="item-detail-page__section-title">Size</h3>
+              <div class="item-detail-page__variant-options">
+                @for (variant of item()!.variants; track variant.id) {
+                  <button
+                    type="button"
+                    class="item-detail-page__variant-option"
+                    [class.item-detail-page__variant-option--selected]="selectedVariantId() === variant.id"
+                    (click)="selectVariant(variant.id)"
+                  >
+                    <span
+                      class="item-detail-page__radio-dot"
+                      [class.item-detail-page__radio-dot--selected]="selectedVariantId() === variant.id"
+                    ></span>
+                    {{ variant.name }}
+                    <span class="item-detail-page__variant-price">₹{{ variant.price }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @if (item()!.addOns.length > 0) {
+            <div class="item-detail-page__section">
+              <h3 class="item-detail-page__section-title">Extra Add-ons</h3>
+              @for (addOn of item()!.addOns; track addOn.id) {
+                <label class="item-detail-page__addon-row">
+                  <span class="item-detail-page__addon-left">
+                    <input
+                      type="checkbox"
+                      [checked]="selectedAddOnIds().has(addOn.id)"
+                      (change)="toggleAddOn(addOn.id)"
+                    />
+                    {{ addOn.name }}
+                  </span>
+                  <span class="item-detail-page__addon-price">+₹{{ addOn.price }}</span>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="item-detail-page__footer">
+      <div class="item-detail-page__stepper">
+        <button type="button" (click)="decrementQty()" aria-label="Decrease quantity">−</button>
+        <span>{{ qty() }}</span>
+        <button type="button" (click)="incrementQty()" aria-label="Increase quantity">+</button>
+      </div>
+
+      @if (item()!.isAvailable) {
+        <button type="button" class="item-detail-page__add-btn" (click)="addToCart()">
+          {{ justAdded() ? 'Added!' : 'Add to Cart' }} · ₹{{ totalForQty() }}
+        </button>
+      } @else {
+        <button type="button" class="item-detail-page__add-btn" disabled>Out of stock</button>
+      }
+    </div>
+  </div>
+}

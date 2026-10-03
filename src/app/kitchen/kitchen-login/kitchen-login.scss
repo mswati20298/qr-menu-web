@@ -1,0 +1,125 @@
+// Kitchen screens are always dark: easy on the eyes and readable from a distance.
+:host {
+  --k-bg: #111315;
+  --k-surface: #1c1f23;
+  --k-border: #2e333a;
+  --k-text: #f3f4f6;
+  --k-muted: #9ca3af;
+  --k-accent: #f59e0b;
+  --k-danger: #f87171;
+  display: block;
+}
+
+.kitchen-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  background: var(--k-bg);
+  color: var(--k-text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 24px;
+    border: 1px solid var(--k-border);
+    border-radius: 16px;
+    background: var(--k-surface);
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    label {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input {
+      min-height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--k-border);
+      border-radius: 10px;
+      background: var(--k-bg);
+      color: var(--k-text);
+      font: inherit;
+      font-size: 16px;
+
+      &:focus {
+        outline: 2px solid var(--k-accent);
+        outline-offset: -1px;
+      }
+    }
+
+    button {
+      margin-top: 16px;
+      min-height: 52px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--k-accent);
+      color: #111;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+
+      &:disabled {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  &__muted {
+    margin: 0 0 6px;
+    color: var(--k-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  &__slug {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--k-border);
+    border-radius: 10px;
+    background: var(--k-bg);
+
+    span {
+      padding-left: 14px;
+      color: var(--k-muted);
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: 0 !important;
+      padding-left: 2px !important;
+    }
+  }
+
+  &__pin {
+    letter-spacing: 0.4em;
+    font-size: 22px !important;
+    text-align: center;
+  }
+
+  &__error {
+    margin: 4px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--k-danger);
+    font-size: 14px;
+  }
+
+  &__field-error {
+    color: var(--k-danger);
+    font-size: 13px;
+  }
+}

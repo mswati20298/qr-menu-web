@@ -1,0 +1,88 @@
+<div class="category-list">
+  <h2 class="category-list__title">Categories</h2>
+
+  <button
+    type="button"
+    class="category-list__item category-list__item--all"
+    [class.category-list__item--active]="selectedCategoryId() === null"
+    (click)="select.emit(null)"
+  >
+    All items
+  </button>
+
+  <ul class="category-list__ul" cdkDropList (cdkDropListDropped)="onDrop($event)">
+    @for (category of categories(); track category.id) {
+      <li class="category-list__li" cdkDrag [cdkDragDisabled]="editingId() === category.id">
+        @if (editingId() === category.id) {
+          <div class="category-list__edit-row">
+            <input
+              class="category-list__edit-input"
+              type="text"
+              [value]="editingName()"
+              (input)="editingName.set($any($event.target).value)"
+              (keydown.enter)="saveEdit()"
+              (keydown.escape)="cancelEdit()"
+              autofocus
+            />
+            <button type="button" class="category-list__icon-btn" (click)="saveEdit()" aria-label="Save">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+            <button type="button" class="category-list__icon-btn" (click)="cancelEdit()" aria-label="Cancel">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        } @else {
+          <span class="category-list__drag-handle" cdkDragHandle title="Drag to reorder">
+            <svg width="12" height="16" viewBox="0 0 12 16" fill="none" aria-hidden="true">
+              <circle cx="3" cy="3" r="1.4" fill="currentColor" /><circle cx="9" cy="3" r="1.4" fill="currentColor" />
+              <circle cx="3" cy="8" r="1.4" fill="currentColor" /><circle cx="9" cy="8" r="1.4" fill="currentColor" />
+              <circle cx="3" cy="13" r="1.4" fill="currentColor" /><circle cx="9" cy="13" r="1.4" fill="currentColor" />
+            </svg>
+          </span>
+
+          <button
+            type="button"
+            class="category-list__item"
+            [class.category-list__item--active]="selectedCategoryId() === category.id"
+            (click)="select.emit(category.id)"
+          >
+            <span class="category-list__item-name">{{ category.name }}</span>
+            <span class="category-list__item-count">{{ category.itemCount }}</span>
+          </button>
+
+          <div class="category-list__menu-wrap">
+            <button type="button" class="category-list__icon-btn" (click)="toggleMenu(category.id)" aria-label="Category options" title="More options">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="5" r="1.6" fill="currentColor" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /><circle cx="12" cy="19" r="1.6" fill="currentColor" />
+              </svg>
+            </button>
+
+            @if (openMenuId() === category.id) {
+              <div class="category-list__menu-backdrop" (click)="closeMenu()"></div>
+              <div class="category-list__menu">
+                <button type="button" (click)="startEdit(category)">Rename</button>
+                <button type="button" class="category-list__menu-danger" (click)="requestDelete(category.id)">Delete</button>
+              </div>
+            }
+          </div>
+        }
+      </li>
+    }
+  </ul>
+
+  <div class="category-list__new-row">
+    <input
+      class="category-list__new-input"
+      type="text"
+      placeholder="New category name"
+      [value]="newCategoryName()"
+      (input)="newCategoryName.set($any($event.target).value)"
+      (keydown.enter)="submitNew()"
+    />
+    <button type="button" class="btn-admin-secondary category-list__add-btn" (click)="submitNew()">Add</button>
+  </div>
+</div>

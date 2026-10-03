@@ -1,0 +1,101 @@
+<div class="bg-manager">
+  <span class="bg-manager__title">Background photos</span>
+  <p class="bg-manager__hint">
+    Shown behind your customer menu and this admin panel. Up to {{ maxImages }} images (JPG, PNG or WebP, 5 MB each).
+  </p>
+
+  <div class="bg-manager__mode" role="radiogroup" aria-label="Background mode">
+    <button
+      type="button"
+      role="radio"
+      class="bg-manager__mode-btn"
+      [class.bg-manager__mode-btn--active]="mode() === 'Fixed'"
+      [attr.aria-checked]="mode() === 'Fixed'"
+      [disabled]="busy()"
+      (click)="setMode('Fixed')"
+    >
+      One image
+    </button>
+    <button
+      type="button"
+      role="radio"
+      class="bg-manager__mode-btn"
+      [class.bg-manager__mode-btn--active]="mode() === 'TimeOfDay'"
+      [attr.aria-checked]="mode() === 'TimeOfDay'"
+      [disabled]="busy()"
+      (click)="setMode('TimeOfDay')"
+    >
+      Change by time of day
+    </button>
+  </div>
+
+  @if (mode() === 'TimeOfDay') {
+    <p class="bg-manager__hint">
+      Tick the times each image should appear. A time with no image uses the default image (★).
+      @for (slot of slots; track slot.bit) {
+        <span class="bg-manager__hours">{{ slot.label }} {{ slot.hours }}</span>
+      }
+    </p>
+  } @else {
+    <p class="bg-manager__hint">The default image (★) is always shown. Choose "Use as default" on another image to switch.</p>
+  }
+
+  @if (error()) {
+    <p class="bg-manager__error" role="alert">{{ error() }}</p>
+  }
+
+  <div class="bg-manager__grid">
+    @for (item of items(); track item.id) {
+      <div class="bg-manager__card" [class.bg-manager__card--default]="item.isDefault">
+        <div class="bg-manager__thumb" [style.background-image]="thumb(item)">
+          @if (item.isDefault) {
+            <span class="bg-manager__badge">★ Default</span>
+          }
+          <button
+            type="button"
+            class="bg-manager__delete"
+            aria-label="Delete this image"
+            [disabled]="busy()"
+            (click)="remove(item)"
+          >
+            ✕
+          </button>
+        </div>
+
+        @if (mode() === 'TimeOfDay') {
+          <div class="bg-manager__slots">
+            @for (slot of slots; track slot.bit) {
+              <label class="bg-manager__slot" [class.bg-manager__slot--on]="hasSlot(item, slot.bit)" [title]="slot.hours">
+                <input
+                  type="checkbox"
+                  [checked]="hasSlot(item, slot.bit)"
+                  [disabled]="busy()"
+                  (change)="toggleSlot(item, slot.bit)"
+                />
+                {{ slot.label }}
+              </label>
+            }
+          </div>
+        }
+
+        @if (!item.isDefault) {
+          <button type="button" class="bg-manager__default-btn" [disabled]="busy()" (click)="makeDefault(item)">
+            Use as default
+          </button>
+        }
+      </div>
+    }
+
+    @if (canAdd()) {
+      <label class="bg-manager__add" [class.bg-manager__add--busy]="busy()">
+        <input type="file" accept="image/jpeg,image/png,image/webp" [disabled]="busy()" (change)="onFileSelected($event)" />
+        <span class="bg-manager__add-plus" aria-hidden="true">+</span>
+        <span>{{ busy() ? 'Working…' : 'Add image' }}</span>
+      </label>
+    }
+  </div>
+
+  @if (items().length === 0 && !busy()) {
+    <p class="bg-manager__hint">No background yet. Add an image to get started.</p>
+  }
+</div>

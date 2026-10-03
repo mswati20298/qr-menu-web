@@ -1,0 +1,168 @@
+<div class="invoices-page">
+  <div class="invoices-page__header">
+    <div>
+      <h1>Invoices</h1>
+      <p class="invoices-page__muted">Bills for single orders or whole tables, numbered for your restaurant.</p>
+    </div>
+    <form class="invoices-page__bill-table" (submit)="$event.preventDefault(); billTable()">
+      <label for="bill-table" class="invoices-page__sr">Table number</label>
+      <input
+        id="bill-table"
+        type="text"
+        maxlength="20"
+        placeholder="Table no."
+        [value]="tableInput()"
+        (input)="tableInput.set($any($event.target).value)"
+      />
+      <button type="submit" class="btn-admin-primary" [disabled]="billing() || !tableInput().trim()">
+        {{ billing() ? 'Billing…' : 'Bill table' }}
+      </button>
+    </form>
+  </div>
+
+  @if (error()) {
+    <p class="invoices-page__error" role="alert">{{ error() }}</p>
+  }
+
+  <input
+    #q
+    type="search"
+    class="invoices-page__search"
+    placeholder="Search by invoice no., table, customer name or phone"
+    aria-label="Search invoices"
+    (input)="onSearch(q.value)"
+  />
+
+  <div class="invoices-page__table-wrap">
+    <table class="invoices-page__table">
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Date</th>
+          <th>Table</th>
+          <th>Customer</th>
+          <th class="invoices-page__num">Orders</th>
+          <th class="invoices-page__num">Total</th>
+          <th>Payment</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (i of items(); track i.id) {
+          <tr class="invoices-page__row" tabindex="0" (click)="show(i.id)" (keydown.enter)="show(i.id)">
+            <td><strong>{{ i.number }}</strong></td>
+            <td>{{ i.createdAt | date: 'd MMM y, h:mm a' }}</td>
+            <td>{{ i.tableNumber ?? 'Takeaway' }}</td>
+            <td>{{ i.customerName ?? '—' }}</td>
+            <td class="invoices-page__num">{{ i.ordersCount }}</td>
+            <td class="invoices-page__num">₹{{ i.total | number: '1.2-2' }}</td>
+            <td><span class="invoices-page__pill invoices-page__pill--{{ i.paymentStatus.toLowerCase() }}">{{ paymentLabels[i.paymentStatus] }}</span></td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="invoices-page__empty">
+              {{ loading() ? 'Loading…' : 'No invoices yet. Bill a table above, or use "Create bill" on an order.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (pageCount() > 1) {
+    <div class="invoices-page__pager">
+      <button type="button" class="btn-admin-secondary" [disabled]="page() === 1" (click)="goTo(page() - 1)">Previous</button>
+      <span>Page {{ page() }} of {{ pageCount() }}</span>
+      <button type="button" class="btn-admin-secondary" [disabled]="page() === pageCount()" (click)="goTo(page() + 1)">Next</button>
+    </div>
+  }
+</div>
+
+@if (open(); as inv) {
+  <div class="invoices-page__backdrop" (click)="open.set(null)">
+    <div class="invoices-page__panel" role="dialog" aria-modal="true" [attr.aria-label]="'Invoice ' + inv.number" (click)="$event.stopPropagation()">
+      <div class="invoices-page__panel-head">
+        <div>
+          <h2>{{ inv.number }}</h2>
+          <span class="invoices-page__muted">
+            {{ inv.createdAt | date: 'd MMM y, h:mm a' }} · {{ inv.tableNumber ? 'Table ' + inv.tableNumber : 'Takeaway' }}
+            {{ inv.customerName ? '· ' + inv.customerName : '' }}
+          </span>
+        </div>
+        <button type="button" class="invoices-page__close" aria-label="Close" (click)="open.set(null)">×</button>
+      </div>
+
+      <div class="invoices-page__bill">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="invoices-page__num">Qty</th>
+              <th class="invoices-page__num">Rate</th>
+              <th class="invoices-page__num">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of inv.lines; track $index) {
+              <tr>
+                <td>
+                  {{ line.name }}{{ line.variant ? ' (' + line.variant + ')' : '' }}
+                  @if (line.addOns) {
+                    <span class="invoices-page__sub">+ {{ line.addOns }}</span>
+                  }
+                </td>
+                <td class="invoices-page__num">{{ line.qty }}</td>
+                <td class="invoices-page__num">{{ line.unitPrice | number: '1.2-2' }}</td>
+                <td class="invoices-page__num">{{ line.amount | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <dl class="invoices-page__totals">
+          <div><dt>Subtotal</dt><dd>₹{{ inv.subtotal | number: '1.2-2' }}</dd></div>
+          @if (inv.serviceChargeAmount > 0) {
+            <div><dt>Service charge ({{ inv.serviceChargePercentage }}%)</dt><dd>₹{{ inv.serviceChargeAmount | number: '1.2-2' }}</dd></div>
+          }
+          @if (inv.gstAmount > 0) {
+            @if (inv.gstNumber) {
+              <div><dt>CGST ({{ inv.gstPercentage / 2 }}%)</dt><dd>₹{{ cgst(inv) | number: '1.2-2' }}</dd></div>
+              <div><dt>SGST ({{ inv.gstPercentage / 2 }}%)</dt><dd>₹{{ inv.gstAmount - cgst(inv) | number: '1.2-2' }}</dd></div>
+            } @else {
+              <div><dt>GST ({{ inv.gstPercentage }}%)</dt><dd>₹{{ inv.gstAmount | number: '1.2-2' }}</dd></div>
+            }
+          }
+          <div class="invoices-page__grand"><dt>Total</dt><dd>₹{{ inv.total | number: '1.2-2' }}</dd></div>
+        </dl>
+        @if (inv.gstNumber) {
+          <p class="invoices-page__muted">GSTIN {{ inv.gstNumber }}</p>
+        }
+      </div>
+
+      @if (actionError()) {
+        <p class="invoices-page__error" role="alert">{{ actionError() }}</p>
+      }
+
+      <div class="invoices-page__actions">
+        <button type="button" class="btn-admin-primary" [disabled]="busy() !== null" (click)="print('receipt')">
+          {{ busy() === 'print-receipt' ? 'Preparing…' : 'Print receipt (80 mm)' }}
+        </button>
+        <button type="button" class="btn-admin-secondary" [disabled]="busy() !== null" (click)="print('a4')">
+          {{ busy() === 'print-a4' ? 'Preparing…' : 'Print A4' }}
+        </button>
+        <button type="button" class="btn-admin-secondary" [disabled]="busy() !== null" (click)="download('a4')">
+          {{ busy() === 'download-a4' ? 'Preparing…' : 'Download PDF' }}
+        </button>
+      </div>
+
+      <div class="invoices-page__payment">
+        <span class="invoices-page__pill invoices-page__pill--{{ inv.paymentStatus.toLowerCase() }}">{{ paymentLabels[inv.paymentStatus] }}</span>
+        @if (inv.paymentStatus !== 'Paid') {
+          <span class="invoices-page__muted">Mark paid:</span>
+          <button type="button" class="btn-admin-secondary" [disabled]="busy() !== null" (click)="markPaid('Cash')">Cash</button>
+          <button type="button" class="btn-admin-secondary" [disabled]="busy() !== null" (click)="markPaid('Upi')">UPI</button>
+          <button type="button" class="btn-admin-secondary" [disabled]="busy() !== null" (click)="markPaid('Card')">Card</button>
+        }
+      </div>
+    </div>
+  </div>
+}

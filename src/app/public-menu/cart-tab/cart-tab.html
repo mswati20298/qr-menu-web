@@ -1,0 +1,121 @@
+<div class="cart-tab">
+  <header class="cart-tab__header">
+    <button type="button" class="cart-tab__back-btn" (click)="router.navigate(['/m', session.slug(), 'menu'])" aria-label="Back to menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+    <h1 class="cart-tab__title">Your order</h1>
+    <span class="cart-tab__table-pill">{{ tableLabel() }}</span>
+  </header>
+
+  @if (cart.items().length === 0) {
+    <div class="cart-tab__empty">
+      <p>Your cart is empty.</p>
+      <button type="button" class="cart-tab__browse-btn" (click)="router.navigate(['/m', session.slug(), 'menu'])">Browse menu</button>
+    </div>
+  } @else {
+    <div class="cart-tab__card">
+      @for (line of cart.items(); track line.lineId) {
+        <div class="cart-tab__line">
+          <div class="cart-tab__line-body">
+            <span class="cart-tab__line-name">{{ line.name }}</span>
+            @if (line.variantName) {
+              <span class="cart-tab__line-variant">{{ line.variantName }}</span>
+            }
+            @if (line.addOns.length > 0) {
+              <span class="cart-tab__line-addons">+ {{ addOnNames(line.addOns) }}</span>
+            }
+            <span class="cart-tab__line-price">₹{{ line.unitPrice }}</span>
+          </div>
+
+          <div class="cart-tab__stepper">
+            <button type="button" (click)="decrementLine(line)" aria-label="Decrease quantity">−</button>
+            <span>{{ line.qty }}</span>
+            <button type="button" (click)="cart.increment(line.lineId)" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+      }
+
+      @if (!showNoteField()) {
+        <button type="button" class="cart-tab__note-toggle" (click)="showNoteField.set(true)">+ Add cooking instructions</button>
+      } @else {
+        <textarea
+          class="cart-tab__note-input"
+          rows="2"
+          placeholder="e.g. less spicy, no onions…"
+          [value]="note()"
+          (input)="note.set($any($event.target).value)"
+        ></textarea>
+      }
+    </div>
+
+    <div class="cart-tab__card">
+      <app-bill-summary
+        [bill]="bill()"
+        [gstPercentage]="session.menu()?.restaurant?.gstPercentage ?? 0"
+        [serviceChargePercentage]="session.menu()?.restaurant?.serviceChargePercentage ?? 0"
+        [serviceChargeEnabled]="session.menu()?.restaurant?.isServiceChargeEnabled ?? false"
+        [serviceChargeRemoved]="skipServiceCharge()"
+        (toggleServiceCharge)="skipServiceCharge.set(!skipServiceCharge())"
+      />
+    </div>
+
+    <div class="cart-tab__card">
+      @if (hasSavedProfile() && !editingDetails()) {
+        <div class="cart-tab__details-row">
+          <span class="cart-tab__avatar">{{ profileService.current().name.charAt(0).toUpperCase() }}</span>
+          <div class="cart-tab__details-body">
+            <span class="cart-tab__details-name">{{ profileService.current().name }}</span>
+            <span class="cart-tab__details-phone">+91 {{ profileService.current().phone }}</span>
+          </div>
+          <button type="button" class="cart-tab__edit-btn" (click)="startEditDetails()">Edit</button>
+        </div>
+      } @else {
+        <form [formGroup]="checkoutForm">
+          <div class="form-field">
+            <label for="customerName">Your name</label>
+            <input id="customerName" type="text" formControlName="name" />
+          </div>
+          <div class="form-field">
+            <label for="customerPhone">Phone number</label>
+            <div class="cart-tab__phone-wrap">
+              <span class="cart-tab__phone-prefix">+91</span>
+              <input id="customerPhone" type="tel" inputmode="tel" formControlName="phone" placeholder="9876543210" maxlength="10" />
+            </div>
+            @if (checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid) {
+              <span class="form-field__error">Enter a valid 10-digit phone number.</span>
+            }
+          </div>
+        </form>
+      }
+    </div>
+
+    @if (errorMessage()) {
+      <p class="cart-tab__error">{{ errorMessage() }}</p>
+    }
+
+    <div class="cart-tab__spacer"></div>
+
+    @if (!orderingEnabled()) {
+      <p class="cart-tab__error">Online ordering is not available right now. Please ask the staff to take your order.</p>
+    }
+
+    <div class="cart-tab__bottom-bar">
+      <button type="button" class="cart-tab__place-btn" [disabled]="placingOrder() || !orderingEnabled()" (click)="placeOrder()">
+        @if (placingOrder()) {
+          Placing order…
+        } @else {
+          ₹{{ bill().total.toFixed(2) }} &nbsp; Place order ›
+        }
+      </button>
+    </div>
+  }
+
+  @if (removedLine(); as pending) {
+    <div class="cart-tab__undo-toast">
+      <span>Removed {{ pending.line.name }}</span>
+      <button type="button" (click)="undoRemove()">Undo</button>
+    </div>
+  }
+</div>

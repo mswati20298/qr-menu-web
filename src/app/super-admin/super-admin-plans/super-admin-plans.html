@@ -1,0 +1,117 @@
+<div class="sa-plans">
+  <div class="sa-plans__header">
+    <div>
+      <h1>Plans</h1>
+      <p class="sa-plans__muted">Only active plans are shown to restaurant owners, who pay for them online.</p>
+    </div>
+    <button type="button" class="btn-admin-primary" (click)="openNew()">+ New plan</button>
+  </div>
+
+  @if (error()) {
+    <p class="sa-plans__error" role="alert">{{ error() }}</p>
+  }
+
+  <div class="sa-plans__table-wrap">
+    <table class="sa-plans__table">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Duration</th>
+          <th class="sa-plans__num">Price</th>
+          <th class="sa-plans__num">Per month</th>
+          <th class="sa-plans__num">Bought online</th>
+          <th>Visible to owners</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of plans(); track p.id) {
+          <tr>
+            <td>
+              <strong>{{ p.name }}</strong>
+              @if (p.description) {
+                <span class="sa-plans__sub">{{ p.description }}</span>
+              }
+            </td>
+            <td>{{ durationLabel(p.durationMonths) }}</td>
+            <td class="sa-plans__num">₹{{ p.price | number: '1.0-2' }}</td>
+            <td class="sa-plans__num">₹{{ monthlyEquivalent(p) | number: '1.0-0' }}</td>
+            <td class="sa-plans__num">{{ p.timesPurchased }}</td>
+            <td>
+              <span class="sa-plans__pill" [class.sa-plans__pill--off]="!p.isActive">{{ p.isActive ? 'Active' : 'Inactive' }}</span>
+            </td>
+            <td class="sa-plans__actions">
+              <button type="button" class="btn-admin-secondary" [disabled]="busyId() === p.id" (click)="toggleActive(p)">
+                {{ p.isActive ? 'Deactivate' : 'Activate' }}
+              </button>
+              <button type="button" class="btn-admin-secondary" [disabled]="busyId() === p.id" (click)="openEdit(p)">Edit</button>
+              <button type="button" class="btn-admin-secondary sa-plans__danger" [disabled]="busyId() === p.id" (click)="remove(p)">Delete</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="sa-plans__empty">{{ loading() ? 'Loading…' : 'No plans yet. Create one so owners can subscribe.' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="sa-plans__muted sa-plans__note">
+    Changing a price only affects future purchases. A plan that has been bought cannot be deleted — deactivate it instead.
+  </p>
+</div>
+
+@if (editing(); as target) {
+  <div class="sa-plans__backdrop" (click)="editing.set(null)">
+    <div class="sa-plans__panel" role="dialog" aria-modal="true" aria-labelledby="plan-form-title" (click)="$event.stopPropagation()">
+      <h2 id="plan-form-title">{{ target === 'new' ? 'New plan' : 'Edit plan' }}</h2>
+
+      @if (formError()) {
+        <p class="sa-plans__error" role="alert">{{ formError() }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-field">
+          <label for="pf-name">Name</label>
+          <input id="pf-name" type="text" maxlength="100" formControlName="name" placeholder="e.g. Yearly" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="form-field__error">Enter a name.</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="pf-desc">Description (shown to owners)</label>
+          <input id="pf-desc" type="text" maxlength="500" formControlName="description" placeholder="e.g. Save 2 months" />
+        </div>
+        <div class="sa-plans__row">
+          <div class="form-field">
+            <label for="pf-months">Duration (months)</label>
+            <input id="pf-months" type="number" min="1" max="60" formControlName="durationMonths" />
+            <span class="form-field__hint">1 = monthly, 12 = yearly</span>
+            @if (form.controls.durationMonths.touched && form.controls.durationMonths.invalid) {
+              <span class="form-field__error">Between 1 and 60.</span>
+            }
+          </div>
+          <div class="form-field">
+            <label for="pf-price">Price (₹)</label>
+            <input id="pf-price" type="number" min="1" step="0.01" formControlName="price" />
+            @if (form.controls.price.touched && form.controls.price.invalid) {
+              <span class="form-field__error">At least ₹1.</span>
+            }
+          </div>
+          <div class="form-field">
+            <label for="pf-sort">Order</label>
+            <input id="pf-sort" type="number" min="0" max="1000" formControlName="sortOrder" />
+          </div>
+        </div>
+        <label class="sa-plans__check">
+          <input type="checkbox" formControlName="isActive" />
+          Active (owners can buy it)
+        </label>
+        <div class="sa-plans__form-actions">
+          <button type="button" class="btn-admin-secondary" (click)="editing.set(null)">Cancel</button>
+          <button type="submit" class="btn-admin-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save plan' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

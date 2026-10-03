@@ -1,0 +1,26 @@
+<section class="request-actions" aria-label="Quick requests">
+  <div class="request-actions__row">
+    @for (option of options; track option.type) {
+      <button
+        type="button"
+        class="request-actions__btn"
+        [class.request-actions__btn--sent]="isSent(option.type)"
+        [disabled]="sending() !== null || isSent(option.type)"
+        (click)="send(option.type)"
+      >
+        <span class="request-actions__emoji" aria-hidden="true">{{ isSent(option.type) ? '✅' : option.emoji }}</span>
+        <span class="request-actions__label">
+          {{ sending() === option.type ? 'Sending…' : isSent(option.type) ? 'Sent' : option.buttonLabel }}
+        </span>
+      </button>
+    }
+  </div>
+
+  <p class="request-actions__status" aria-live="polite">
+    @if (error()) {
+      <span class="request-actions__error">{{ error() }}</span>
+    } @else if (message()) {
+      {{ message() }}
+    }
+  </p>
+</section>

@@ -1,0 +1,67 @@
+<section class="upi-pay" aria-labelledby="upi-pay-title">
+  @switch (order().paymentStatus) {
+    @case ('Paid') {
+      <div class="upi-pay__done">
+        <span class="upi-pay__tick" aria-hidden="true">✓</span>
+        <div>
+          <h2 id="upi-pay-title">Paid</h2>
+          <p class="upi-pay__muted">₹{{ order().total.toFixed(2) }} received. Thank you!</p>
+        </div>
+      </div>
+    }
+    @case ('Claimed') {
+      <div class="upi-pay__done upi-pay__done--waiting">
+        <span class="upi-pay__tick" aria-hidden="true">⏳</span>
+        <div>
+          <h2 id="upi-pay-title">Payment sent</h2>
+          <p class="upi-pay__muted">
+            The staff will confirm once ₹{{ order().total.toFixed(2) }} shows in their account.
+            {{ order().paymentReference ? 'Transaction id: ' + order().paymentReference : '' }}
+          </p>
+        </div>
+      </div>
+    }
+    @default {
+      <h2 id="upi-pay-title">Pay ₹{{ order().total.toFixed(2) }} by UPI</h2>
+      <p class="upi-pay__muted">Paid directly to {{ payeeName() }}. Scan with any UPI app, or tap the button on this phone.</p>
+
+      <div class="upi-pay__qr">
+        @if (qrDataUrl(); as src) {
+          <img [src]="src" width="200" height="200" [alt]="'UPI QR code to pay ₹' + order().total.toFixed(2) + ' to ' + payeeName()" />
+        }
+      </div>
+
+      <a class="upi-pay__app-btn" [href]="upiLink()">Pay with UPI app</a>
+
+      <div class="upi-pay__id">
+        <span>{{ upiId() }}</span>
+        <button type="button" (click)="copyUpiId()">{{ copied() ? 'Copied ✓' : 'Copy' }}</button>
+      </div>
+
+      @if (error()) {
+        <p class="upi-pay__error" role="alert">{{ error() }}</p>
+      }
+
+      @if (askReference()) {
+        <label class="upi-pay__label" for="upi-ref">UPI transaction id (UTR) — optional</label>
+        <input
+          id="upi-ref"
+          class="upi-pay__input"
+          type="text"
+          inputmode="numeric"
+          maxlength="50"
+          placeholder="e.g. 412345678901"
+          [value]="reference()"
+          (input)="reference.set($any($event.target).value)"
+        />
+        <button type="button" class="upi-pay__claim-btn" [disabled]="claiming()" (click)="claim()">
+          {{ claiming() ? 'Sending…' : 'Confirm I have paid' }}
+        </button>
+      } @else {
+        <button type="button" class="upi-pay__claim-btn upi-pay__claim-btn--outline" (click)="askReference.set(true)">
+          I've paid
+        </button>
+      }
+    }
+  }
+</section>

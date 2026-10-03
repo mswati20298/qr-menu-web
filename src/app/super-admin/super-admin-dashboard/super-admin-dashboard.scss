@@ -1,0 +1,56 @@
+@use 'styles/admin-theme' as *;
+
+.sa-dashboard {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 26px;
+      font-family: var(--font-heading);
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  &__card {
+    @include admin-card;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 18px 20px;
+  }
+
+  &__value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  &__label {
+    font-size: 13px;
+    color: var(--admin-muted);
+  }
+
+  &__muted {
+    color: var(--admin-muted);
+  }
+
+  &__error {
+    color: var(--admin-danger-text);
+  }
+}
+
+.sa-dashboard__section {
+  margin: 28px 0 12px;
+  font-size: 16px;
+  color: var(--admin-muted);
+}

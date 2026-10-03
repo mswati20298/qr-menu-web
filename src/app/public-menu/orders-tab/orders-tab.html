@@ -1,0 +1,39 @@
+<div class="orders-tab">
+  <h1 class="orders-tab__title">Your Orders</h1>
+
+  @if (!searched()) {
+    <form class="orders-tab__phone-form" [formGroup]="phoneForm" (ngSubmit)="submitPhone()">
+      <p class="orders-tab__hint">Enter your phone number to see your past orders at this restaurant.</p>
+      <div class="form-field">
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" formControlName="phone" placeholder="9876543210" />
+        @if (phoneForm.controls.phone.touched && phoneForm.controls.phone.invalid) {
+          <span class="form-field__error">Enter a valid 10-15 digit phone number.</span>
+        }
+      </div>
+      <button type="submit" class="orders-tab__submit-btn">View Orders</button>
+    </form>
+  } @else if (loading()) {
+    <p class="orders-tab__empty">Loading orders…</p>
+  } @else if (orders().length === 0) {
+    <div class="orders-tab__empty">
+      <p>No orders found for this number yet.</p>
+      <button type="button" class="orders-tab__link-btn" (click)="searched.set(false)">Try a different number</button>
+    </div>
+  } @else {
+    <div class="orders-tab__list">
+      @for (order of orders(); track order.id) {
+        <button type="button" class="orders-tab__card" (click)="openOrder(order)">
+          <div class="orders-tab__card-top">
+            <span class="orders-tab__card-date">{{ formatDate(order.createdAt) }}</span>
+            <span [class]="statusClass(order.status)">{{ order.status }}</span>
+          </div>
+          <div class="orders-tab__card-items">
+            {{ order.items.length }} item{{ order.items.length === 1 ? '' : 's' }} · Table {{ order.tableNumber ?? '—' }}
+          </div>
+          <div class="orders-tab__card-total">₹{{ order.total.toFixed(2) }}</div>
+        </button>
+      }
+    </div>
+  }
+</div>

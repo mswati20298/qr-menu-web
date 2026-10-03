@@ -1,0 +1,238 @@
+.bg-manager {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+
+  &__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--admin-text);
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--admin-muted);
+  }
+
+  &__hours {
+    display: inline-block;
+    margin: 4px 10px 0 0;
+    font-size: 11.5px;
+    color: var(--admin-muted);
+    opacity: 0.9;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger-text);
+    font-size: 13px;
+  }
+
+  // Segmented control
+  &__mode {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    padding: 3px;
+    border: 1px solid var(--admin-border);
+    border-radius: 999px;
+    background: var(--admin-surface);
+  }
+
+  &__mode-btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--admin-muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &--active {
+      background: var(--admin-accent);
+      color: #fff;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--admin-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+  }
+
+  &__card {
+    display: grid;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    background: var(--admin-surface);
+    align-content: start;
+
+    &--default {
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 2px var(--admin-accent-ring);
+    }
+  }
+
+  &__thumb {
+    position: relative;
+    height: 104px;
+    border-radius: 10px;
+    background-color: var(--admin-border);
+    background-size: cover;
+    background-position: center;
+  }
+
+  &__badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--admin-accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  &__delete {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: rgba(185, 28, 28, 0.9);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__slot {
+    position: relative;
+    padding: 5px 10px;
+    border: 1px solid var(--admin-border);
+    border-radius: 999px;
+    color: var(--admin-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+
+    input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+      cursor: pointer;
+    }
+
+    &--on {
+      border-color: var(--admin-accent);
+      background: var(--admin-accent-soft);
+      color: var(--admin-text);
+    }
+
+    &:focus-within {
+      outline: 2px solid var(--admin-accent);
+      outline-offset: 1px;
+    }
+  }
+
+  &__default-btn {
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    padding: 7px 10px;
+    background: transparent;
+    color: var(--admin-text);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: var(--admin-accent);
+      color: var(--admin-accent);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__add {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 150px;
+    border: 2px dashed var(--admin-border);
+    border-radius: 14px;
+    color: var(--admin-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    &:hover,
+    &:focus-within {
+      border-color: var(--admin-accent);
+      color: var(--admin-accent);
+    }
+
+    &--busy {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  }
+
+  &__add-plus {
+    font-size: 28px;
+    line-height: 1;
+  }
+}

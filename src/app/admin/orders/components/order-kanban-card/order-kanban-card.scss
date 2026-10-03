@@ -1,0 +1,147 @@
+@use 'styles/admin-theme' as *;
+
+.kanban-card {
+  @include admin-card;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &--new {
+    animation: kanban-card-pulse 1.6s ease-out 2;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__table {
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+
+  &__customer {
+    font-size: 12.5px;
+    color: var(--admin-muted);
+    margin-top: -6px;
+  }
+
+  &__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13.5px;
+  }
+
+  &__item-qty {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+
+  &__addons {
+    color: var(--admin-muted);
+    font-size: 12px;
+    padding-left: 18px;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px dashed var(--admin-border);
+  }
+
+  &__elapsed {
+    font-size: 12px;
+    color: var(--admin-muted);
+    font-weight: 600;
+
+    &--amber {
+      color: var(--admin-warning);
+    }
+
+    &--red {
+      color: var(--admin-danger);
+    }
+  }
+
+  &__total {
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__action-btn {
+    flex: 1;
+    min-height: 38px;
+    font-size: 13.5px;
+  }
+
+  &__cancel-btn {
+    border: none;
+    background: none;
+    color: var(--admin-muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0 4px;
+
+    &:hover {
+      color: var(--admin-danger);
+    }
+  }
+}
+
+@keyframes kanban-card-pulse {
+  0%, 100% {
+    box-shadow: var(--admin-shadow-sm);
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--admin-accent-soft), 0 0 0 1px var(--admin-accent);
+  }
+}
+
+.kanban-card__payment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--admin-success-soft);
+  color: var(--admin-success-text);
+  font-size: 12.5px;
+  font-weight: 700;
+
+  &--claimed {
+    background: var(--admin-warning-soft);
+    color: var(--admin-warning-text);
+  }
+}
+
+.kanban-card__pay-btn {
+  flex-shrink: 0;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--admin-warning-text);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}

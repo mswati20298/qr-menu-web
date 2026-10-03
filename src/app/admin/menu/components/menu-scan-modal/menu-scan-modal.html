@@ -1,0 +1,123 @@
+<div class="scan-modal__overlay" (click)="close.emit()">
+  <div class="scan-modal__panel admin-shell" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Scan menu">
+    <div class="scan-modal__header">
+      <h2>Scan Menu</h2>
+      <button type="button" class="scan-modal__close-btn" (click)="close.emit()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="scan-modal__error">{{ errorMessage() }}</p>
+    }
+
+    @if (step() === 'upload') {
+      <p class="scan-modal__hint">
+        Upload photos of your printed menu (up to 5, one per page) — we'll read the dishes, prices, and categories
+        automatically. You'll review everything before it's added.
+      </p>
+
+      <label class="scan-modal__dropzone">
+        <input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="onFilesSelected($event)" hidden />
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h3l2-2h6l2 2h3v12H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6" />
+        </svg>
+        <span>Click to add photo{{ files().length > 0 ? 's' : '' }}</span>
+      </label>
+
+      @if (files().length > 0) {
+        <div class="scan-modal__thumbs">
+          @for (item of filePreviewUrls; track item.file) {
+            <div class="scan-modal__thumb">
+              <img [src]="item.url" alt="" />
+              <button type="button" (click)="removeFile(item.file)" aria-label="Remove photo">×</button>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="scan-modal__actions">
+        <button type="button" class="btn-admin-secondary" (click)="close.emit()">Cancel</button>
+        <button type="button" class="btn-admin-primary" [disabled]="files().length === 0" (click)="startScan()">
+          Scan {{ files().length > 0 ? files().length + ' photo' + (files().length > 1 ? 's' : '') : '' }}
+        </button>
+      </div>
+    }
+
+    @if (step() === 'scanning') {
+      <div class="scan-modal__loading">
+        <span class="scan-modal__spinner"></span>
+        <p>Reading your menu…</p>
+      </div>
+    }
+
+    @if (step() === 'review') {
+      <p class="scan-modal__hint">
+        Found {{ reviewItems().length }} dish{{ reviewItems().length === 1 ? '' : 'es' }}. Check the details below,
+        uncheck anything wrong, then import.
+      </p>
+
+      <div class="scan-modal__table-wrap">
+        <table class="scan-modal__table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Category</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Veg</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of reviewItems(); track item.id) {
+              <tr [class.scan-modal__row--excluded]="!item.include">
+                <td>
+                  <input type="checkbox" [checked]="item.include" (change)="updateItem(item.id, { include: $any($event.target).checked })" />
+                </td>
+                <td>
+                  <input type="text" [value]="item.category" (input)="updateItem(item.id, { category: $any($event.target).value })" />
+                </td>
+                <td>
+                  <input type="text" [value]="item.name" (input)="updateItem(item.id, { name: $any($event.target).value })" />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    min="0"
+                    class="scan-modal__price-input"
+                    [value]="item.price"
+                    (input)="updateItem(item.id, { price: $any($event.target).value ? +$any($event.target).value : null })"
+                  />
+                </td>
+                <td>
+                  <input type="checkbox" [checked]="item.isVeg" (change)="updateItem(item.id, { isVeg: $any($event.target).checked })" />
+                </td>
+                <td>
+                  <button type="button" class="scan-modal__remove-btn" (click)="removeReviewItem(item.id)" aria-label="Remove item">×</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="scan-modal__actions">
+        <button type="button" class="btn-admin-secondary" (click)="step.set('upload')">Back</button>
+        <button type="button" class="btn-admin-primary" [disabled]="includedCount === 0" (click)="confirmImport()">
+          Import {{ includedCount }} item{{ includedCount === 1 ? '' : 's' }}
+        </button>
+      </div>
+    }
+
+    @if (step() === 'importing') {
+      <div class="scan-modal__loading">
+        <span class="scan-modal__spinner"></span>
+        <p>Importing {{ importProgress()?.done }} of {{ importProgress()?.total }}…</p>
+      </div>
+    }
+  </div>
+</div>

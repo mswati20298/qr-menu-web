@@ -1,0 +1,33 @@
+<main class="kitchen-login">
+  <form class="kitchen-login__card" [formGroup]="form" (ngSubmit)="submit()">
+    <h1>Kitchen screen</h1>
+    <p class="kitchen-login__muted">Sign in with the kitchen PIN your restaurant owner set under Settings.</p>
+
+    @if (error()) {
+      <p class="kitchen-login__error" role="alert">{{ error() }}</p>
+    }
+
+    <label for="kl-slug">Restaurant link</label>
+    <div class="kitchen-login__slug">
+      <span>/m/</span>
+      <input id="kl-slug" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" formControlName="slug" placeholder="saket-rasoi" />
+    </div>
+
+    <label for="kl-pin">Kitchen PIN</label>
+    <input
+      id="kl-pin"
+      class="kitchen-login__pin"
+      type="password"
+      inputmode="numeric"
+      autocomplete="off"
+      maxlength="8"
+      formControlName="pin"
+      placeholder="••••"
+    />
+    @if (form.controls.pin.touched && form.controls.pin.invalid) {
+      <span class="kitchen-login__field-error">The PIN is 4 to 8 digits.</span>
+    }
+
+    <button type="submit" [disabled]="loading()">{{ loading() ? 'Signing in…' : 'Open kitchen' }}</button>
+  </form>
+</main>

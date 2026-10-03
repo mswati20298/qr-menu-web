@@ -1,0 +1,77 @@
+<div class="admin-shell admin-layout" data-accent="masala">
+  <aside class="admin-layout__sidebar">
+    <div class="admin-layout__brand">
+      <span class="admin-layout__brand-mark">SA</span>
+      <span class="admin-layout__brand-name">QR Menu · Super admin</span>
+    </div>
+
+    <nav class="admin-layout__nav" aria-label="Super admin navigation">
+      <span class="admin-layout__nav-section-label">Platform</span>
+
+      <a
+        routerLink="/superadmin"
+        routerLinkActive="admin-layout__nav-link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="admin-layout__nav-link"
+        title="Dashboard"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          <rect x="13" y="3" width="8" height="5" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          <rect x="13" y="10" width="8" height="11" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          <rect x="3" y="13" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+        <span class="admin-layout__nav-label">Dashboard</span>
+      </a>
+      <a routerLink="/superadmin/restaurants" routerLinkActive="admin-layout__nav-link--active" class="admin-layout__nav-link" title="Restaurants">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 10h16v10H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="M3 10l2-6h14l2 6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="M10 20v-5h4v5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+        </svg>
+        <span class="admin-layout__nav-label">Restaurants</span>
+      </a>
+      <a routerLink="/superadmin/plans" routerLinkActive="admin-layout__nav-link--active" class="admin-layout__nav-link" title="Plans">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8" />
+          <path d="M3 10h18M7 15h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span class="admin-layout__nav-label">Plans</span>
+      </a>
+    </nav>
+
+    <button
+      type="button"
+      class="admin-layout__theme-toggle"
+      (click)="theme.toggle()"
+      role="switch"
+      [attr.aria-checked]="theme.mode() === 'dark'"
+      [title]="theme.mode() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+    >
+      @if (theme.mode() === 'dark') {
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+        </svg>
+      } @else {
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+      }
+      <span class="admin-layout__nav-label">{{ theme.mode() === 'dark' ? 'Dark mode' : 'Light mode' }}</span>
+      <span class="admin-layout__theme-switch" [class.admin-layout__theme-switch--on]="theme.mode() === 'dark'">
+        <span class="admin-layout__theme-knob"></span>
+      </span>
+    </button>
+  </aside>
+
+  <main class="admin-layout__content">
+    <div class="admin-layout__topbar">
+      <div class="admin-layout__topbar-spacer"></div>
+      <span class="admin-layout__open-pill">{{ auth.name() }}</span>
+      <button type="button" class="btn-admin-secondary" (click)="logout()">Log out</button>
+    </div>
+
+    <router-outlet></router-outlet>
+  </main>
+</div>

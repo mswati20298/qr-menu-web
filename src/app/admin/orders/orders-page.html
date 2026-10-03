@@ -1,0 +1,216 @@
+<div class="orders-page">
+    <div class="orders-page__header">
+      <h1>Orders</h1>
+      <div class="orders-page__export">
+        <select class="orders-page__export-select" [value]="reportRange()" (change)="reportRange.set($any($event.target).value)">
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+        <button type="button" class="btn-admin-secondary orders-page__export-btn" (click)="exportReport()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3v13m0 0-4-4m4 4 4-4M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Export Report
+        </button>
+      </div>
+    </div>
+
+    <div class="orders-page__toolbar">
+      <div class="orders-page__view-toggle">
+        <button type="button" [class.orders-page__view-btn--active]="viewMode() === 'board'" class="orders-page__view-btn" (click)="viewMode.set('board')">
+          Board
+        </button>
+        <button type="button" [class.orders-page__view-btn--active]="viewMode() === 'list'" class="orders-page__view-btn" (click)="viewMode.set('list')">
+          List
+        </button>
+      </div>
+
+      @if (viewMode() === 'board') {
+        <button type="button" class="orders-page__cancelled-toggle" [class.orders-page__cancelled-toggle--active]="showCancelled()" (click)="showCancelled.set(!showCancelled())">
+          Cancelled ({{ cancelledOrders().length }})
+        </button>
+      }
+
+      <!-- Full-screen kitchen display in its own tab (also reachable with the kitchen PIN on a tablet). -->
+      <a href="/kitchen" target="_blank" rel="noopener" class="btn-admin-secondary orders-page__kitchen-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8" />
+          <path d="M3 9h18" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+        Kitchen screen
+      </a>
+    </div>
+
+  @if (loading()) {
+    <p class="orders-page__empty">Loading orders…</p>
+  } @else if (viewMode() === 'board') {
+    @if (showCancelled()) {
+      <div class="orders-page__cancelled-list">
+        @if (cancelledOrders().length === 0) {
+          <p class="orders-page__empty">No cancelled orders.</p>
+        } @else {
+          @for (order of cancelledOrders(); track order.id) {
+            <app-order-kanban-card
+              [order]="order"
+              [isNew]="isNew(order.id)"
+              [elapsedLabel]="elapsedLabel(order)"
+              [urgency]="urgency(order)"
+            />
+          }
+        }
+      </div>
+    } @else {
+      <div class="orders-page__board">
+        @for (column of boardColumns; track column.status) {
+          <div class="orders-page__column">
+            <div class="orders-page__column-header">
+              <span>{{ column.label }}</span>
+              <span class="orders-page__column-count">{{ ordersForColumn(column.status).length }}</span>
+            </div>
+            <div class="orders-page__column-body">
+              @for (order of ordersForColumn(column.status); track order.id) {
+                <app-order-kanban-card
+                  [order]="order"
+                  [isNew]="isNew(order.id)"
+                  [actionLabel]="actionLabel(order.status)"
+                  [canCancel]="canCancel(order.status)"
+                  [elapsedLabel]="elapsedLabel(order)"
+                  [urgency]="urgency(order)"
+                  (primaryAction)="primaryAction(order)"
+                  (cancel)="cancelOrder(order)"
+                  (confirmPayment)="markPaid(order, 'Upi')"
+                />
+              } @empty {
+                <p class="orders-page__column-empty">No orders</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  } @else {
+    <div class="orders-page__filters">
+      @for (filter of statusFilters; track filter) {
+        <button
+          type="button"
+          class="orders-page__filter-btn"
+          [class.orders-page__filter-btn--active]="activeFilter() === filter"
+          (click)="activeFilter.set(filter)"
+        >
+          {{ filter }} ({{ filterCount(filter) }})
+        </button>
+      }
+    </div>
+
+    @if (filteredOrders().length === 0) {
+      <p class="orders-page__empty">No orders in this view.</p>
+    } @else {
+      <div class="orders-page__list">
+        @for (order of filteredOrders(); track order.id) {
+          <div class="orders-page__card" [class.orders-page__card--new]="isNew(order.id)">
+            <button type="button" class="orders-page__card-header" (click)="toggleExpand(order.id)">
+              <div class="orders-page__card-left">
+                @if (isNew(order.id)) {
+                  <span class="orders-page__new-badge">NEW</span>
+                }
+                <span class="orders-page__table">{{ tableLabel(order) }}</span>
+                <span class="orders-page__time">{{ formatTime(order.createdAt) }}</span>
+                @if (order.customerName) {
+                  <span class="orders-page__customer">{{ order.customerName }}</span>
+                }
+              </div>
+              <div class="orders-page__card-right">
+                <app-status-pill [status]="order.status" />
+                <span class="orders-page__total">₹{{ order.total | number: '1.0-2' }}</span>
+              </div>
+            </button>
+
+            @if (expandedId() === order.id) {
+              <div class="orders-page__details">
+                <ul class="orders-page__items">
+                  @for (item of order.items; track item.id) {
+                    <li>
+                      <span>{{ item.qty }} × {{ item.itemName }}{{ item.variantName ? ' (' + item.variantName + ')' : '' }}</span>
+                      <span>₹{{ item.lineTotal | number: '1.0-2' }}</span>
+                    </li>
+                    @if (item.addOns.length > 0) {
+                      <li class="orders-page__addons">+ {{ addOnNames(item.addOns) }}</li>
+                    }
+                  }
+                </ul>
+                <div class="orders-page__bill">
+                  <div><span>Subtotal</span><span>₹{{ order.subtotal | number: '1.0-2' }}</span></div>
+                  @if (order.serviceChargeAmount > 0) {
+                    <div><span>Service Charge</span><span>₹{{ order.serviceChargeAmount | number: '1.0-2' }}</span></div>
+                  }
+                  @if (order.gstAmount > 0) {
+                    <div><span>GST</span><span>₹{{ order.gstAmount | number: '1.0-2' }}</span></div>
+                  }
+                  <div class="orders-page__bill-total"><span>Total</span><span>₹{{ order.total | number: '1.0-2' }}</span></div>
+                </div>
+
+                @if (order.status !== 'Cancelled') {
+                  <div class="orders-page__payment">
+                    <span class="orders-page__pay-pill orders-page__pay-pill--{{ order.paymentStatus.toLowerCase() }}">
+                      {{ paymentLabel(order) }}
+                    </span>
+                    @if (order.paymentStatus === 'Claimed') {
+                      <span class="orders-page__pay-ref">
+                        Customer says paid by UPI{{ order.paymentReference ? ' · UTR ' + order.paymentReference : '' }}. Check your UPI app.
+                      </span>
+                      <button type="button" class="btn-admin-primary" [disabled]="busyId() === order.id" (click)="markPaid(order, 'Upi')">Received</button>
+                      <button type="button" class="btn-admin-secondary" [disabled]="busyId() === order.id" (click)="rejectPayment(order)">Not received</button>
+                    } @else if (order.paymentStatus === 'Unpaid') {
+                      <span class="orders-page__pay-ref">Mark paid:</span>
+                      <button type="button" class="btn-admin-secondary" [disabled]="busyId() === order.id" (click)="markPaid(order, 'Cash')">Cash</button>
+                      <button type="button" class="btn-admin-secondary" [disabled]="busyId() === order.id" (click)="markPaid(order, 'Upi')">UPI</button>
+                      <button type="button" class="btn-admin-secondary" [disabled]="busyId() === order.id" (click)="markPaid(order, 'Card')">Card</button>
+                    }
+                  </div>
+
+                  <div class="orders-page__billing">
+                    @if (order.invoiceId) {
+                      <a class="btn-admin-secondary" [routerLink]="['/admin/invoices']" [queryParams]="{ open: order.invoiceId }">
+                        Invoice {{ order.invoiceNumber }}
+                      </a>
+                    } @else {
+                      <button type="button" class="btn-admin-secondary" [disabled]="busyId() === order.id" (click)="createBill(order)">Create bill</button>
+                      @if (order.tableNumber) {
+                        <button type="button" class="btn-admin-secondary" [disabled]="busyId() === order.id" (click)="billTable(order)">
+                          Bill whole table {{ order.tableNumber }}
+                        </button>
+                      }
+                    }
+                  </div>
+                }
+
+                @if (actionError() && expandedId() === order.id) {
+                  <p class="orders-page__action-error" role="alert">{{ actionError() }}</p>
+                }
+
+                <div class="orders-page__actions">
+                  @if (nextStatus(order.status); as next) {
+                    <button type="button" class="btn-admin-primary" (click)="advanceStatus(order)">
+                      {{ actionLabel(order.status) }}
+                    </button>
+                  }
+                  @if (canCancel(order.status)) {
+                    <button type="button" class="btn-admin-secondary" (click)="cancelOrder(order)">Cancel</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (pendingUndo(); as pending) {
+    <div class="orders-page__undo-toast">
+      <span>Order moved to {{ pending.toStatus }}</span>
+      <button type="button" (click)="undoLastChange()">Undo</button>
+    </div>
+  }
+</div>

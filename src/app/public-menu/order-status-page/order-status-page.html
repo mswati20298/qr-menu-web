@@ -1,0 +1,100 @@
+@if (loading()) {
+  <div class="order-status-page__loading">Loading order…</div>
+} @else if (!order()) {
+  <div class="order-status-page__loading">Order not found.</div>
+} @else {
+  <div class="order-status-page">
+    <div class="order-status-page__hero" [class]="statusHeroClass()">
+      <div class="order-status-page__hero-icon">
+        @if (order()!.status === 'Cancelled') {
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="currentColor" />
+            <path d="M8 8l8 8M16 8l-8 8" stroke="white" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        } @else {
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="currentColor" />
+            <path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        }
+      </div>
+      <p class="order-status-page__order-meta">Order #{{ order()!.id.slice(0, 8).toUpperCase() }} · {{ tableLabel() }}</p>
+      <h1 class="order-status-page__title">{{ statusTitle() }}</h1>
+      <p class="order-status-page__subtitle">{{ order()!.items.length }} item{{ order()!.items.length === 1 ? '' : 's' }}</p>
+    </div>
+
+    @if (order()!.status !== 'Cancelled') {
+      <div class="order-status-page__tracker">
+        @for (step of statusSteps; track step; let i = $index) {
+          <div class="order-status-page__step" [class.order-status-page__step--done]="stepIndex(order()!.status) >= i">
+            <span class="order-status-page__step-dot"></span>
+            <span class="order-status-page__step-label">{{ step }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="order-status-page__card">
+      <h2>Order Summary</h2>
+      <ul class="order-status-page__items">
+        @for (item of order()!.items; track item.id) {
+          <li>
+            <span>{{ item.qty }} × {{ item.itemName }}{{ item.variantName ? ' (' + item.variantName + ')' : '' }}</span>
+            <span>₹{{ item.lineTotal.toFixed(2) }}</span>
+          </li>
+        }
+      </ul>
+      @if (order()!.note) {
+        <p class="order-status-page__note">📝 {{ order()!.note }}</p>
+      }
+      <app-bill-summary
+        [bill]="{ subtotal: order()!.subtotal, serviceChargeAmount: order()!.serviceChargeAmount, gstAmount: order()!.gstAmount, total: order()!.total }"
+        [gstPercentage]="session.menu()?.restaurant?.gstPercentage ?? 0"
+        [serviceChargePercentage]="session.menu()?.restaurant?.serviceChargePercentage ?? 0"
+      />
+    </div>
+
+    @if (order()!.status !== 'Cancelled' && session.menu()?.restaurant?.upiId; as upiId) {
+      <app-upi-pay-card
+        [order]="order()!"
+        [slug]="slug"
+        [upiId]="upiId"
+        [payeeName]="session.menu()!.restaurant.upiPayeeName ?? session.menu()!.restaurant.name"
+        (updated)="order.set($event)"
+      />
+    } @else if (order()!.status !== 'Cancelled' && order()!.paymentStatus === 'Paid') {
+      <p class="order-status-page__paid">✓ Paid</p>
+    }
+
+    @if (cancelError()) {
+      <p class="order-status-page__error">{{ cancelError() }}</p>
+    }
+
+    <div class="order-status-page__actions">
+      <button type="button" class="order-status-page__add-more-btn" (click)="backToMenu()">
+        + Add more items
+      </button>
+
+      @if (order()!.status === 'Placed') {
+        <button type="button" class="order-status-page__cancel-btn" (click)="requestCancelOrder()" [disabled]="cancelling()">
+          {{ cancelling() ? 'Cancelling…' : 'Cancel order' }}
+        </button>
+      }
+
+      <button type="button" class="order-status-page__back-btn" (click)="backToMenu()">
+        Back to Menu
+      </button>
+    </div>
+  </div>
+
+  @if (showCancelConfirm()) {
+    <app-confirm-dialog
+      title="Cancel this order?"
+      message="This cannot be undone. The restaurant will not prepare this order once cancelled."
+      confirmLabel="Yes, cancel order"
+      cancelLabel="No, keep order"
+      (confirm)="confirmCancelOrder()"
+      (cancel)="dismissCancelConfirm()"
+    />
+  }
+}

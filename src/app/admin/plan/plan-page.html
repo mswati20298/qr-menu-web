@@ -1,0 +1,150 @@
+<div class="plan-page">
+  <div class="plan-page__header">
+    <h1>My plan</h1>
+    <p class="plan-page__subtitle">Your QR Menu subscription and payments.</p>
+  </div>
+
+  @if (error()) {
+    <p class="plan-page__error" role="alert">{{ error() }}</p>
+  } @else if (plan(); as p) {
+    <div class="plan-page__card">
+      <div class="plan-page__summary">
+        <div>
+          <span class="plan-page__label">Plan</span>
+          <strong class="plan-page__big">{{ p.current.plan === 'Trial' ? 'Free trial' : p.current.planName }}</strong>
+        </div>
+        <div>
+          <span class="plan-page__label">Status</span>
+          <span class="plan-page__pill plan-page__pill--{{ p.current.status.toLowerCase() }}">{{ statusLabels[p.current.status] }}</span>
+        </div>
+        <div>
+          <span class="plan-page__label">Valid till</span>
+          <strong>{{ p.current.expiresAt ? (p.current.expiresAt | date: 'd MMM y, h:mm a') : 'No end date' }}</strong>
+        </div>
+        <div>
+          <span class="plan-page__label">Customer ordering</span>
+          <strong>{{ p.current.canTakeOrders ? 'On' : 'Stopped' }}</strong>
+        </div>
+      </div>
+
+      @switch (p.current.status) {
+        @case ('Active') {
+          @if (p.current.plan === 'Trial') {
+            <p class="plan-page__notice plan-page__notice--warning">
+              Your free trial ends in {{ p.current.daysLeft }} day{{ p.current.daysLeft === 1 ? '' : 's' }}. Choose a plan below
+              so customers can keep ordering.
+            </p>
+          } @else if (p.current.daysLeft !== null && p.current.daysLeft <= 7) {
+            <p class="plan-page__notice plan-page__notice--warning">
+              Your plan ends in {{ p.current.daysLeft }} day{{ p.current.daysLeft === 1 ? '' : 's' }}. Renew below — the new period
+              starts after the current one, so you lose no days.
+            </p>
+          }
+        }
+        @case ('Grace') {
+          <p class="plan-page__notice plan-page__notice--warning">
+            Your plan ended on {{ p.current.expiresAt | date: 'd MMM y' }}. Customers can still order until
+            {{ p.current.graceEndsAt | date: 'd MMM y' }}. Renew below before then.
+          </p>
+        }
+        @case ('Expired') {
+          <p class="plan-page__notice plan-page__notice--danger">
+            {{ p.current.plan === 'Trial' ? 'Your free trial has ended.' : 'Your plan has expired.' }}
+            Customers can browse your menu but cannot place orders. Choose a plan below to turn ordering back on.
+          </p>
+        }
+        @case ('Cancelled') {
+          <p class="plan-page__notice plan-page__notice--danger">
+            Your plan was cancelled on {{ p.current.cancelledAt | date: 'd MMM y' }}. Customers cannot place orders.
+            Buy a plan below to start again.
+          </p>
+        }
+      }
+
+      <p class="plan-page__hint">
+        A paid plan that ends gets {{ p.current.graceDays }} extra days (grace period) during which customers can still order.
+        The free trial has no grace period. Your admin panel keeps working either way.
+      </p>
+    </div>
+
+    <h2 class="plan-page__section">{{ p.current.plan === 'Paid' ? 'Renew or change plan' : 'Choose a plan' }}</h2>
+
+    @if (paySuccess()) {
+      <p class="plan-page__notice plan-page__notice--success" role="status">{{ paySuccess() }}</p>
+    }
+    @if (payError()) {
+      <p class="plan-page__error" role="alert">{{ payError() }}</p>
+    }
+
+    @if (!p.onlinePaymentsEnabled) {
+      <p class="plan-page__notice plan-page__notice--warning">Online payment is not available yet. Please contact support to subscribe.</p>
+    } @else if (p.availablePlans.length === 0) {
+      <p class="plan-page__muted">No plans are available right now. Please contact support.</p>
+    } @else {
+      <div class="plan-page__plans">
+        @for (option of p.availablePlans; track option.id) {
+          <div class="plan-page__option">
+            <span class="plan-page__option-name">{{ option.name }}</span>
+            <span class="plan-page__option-price">₹{{ option.price | number: '1.0-2' }}</span>
+            <span class="plan-page__muted">for {{ durationLabel(option.durationMonths) }}</span>
+            @if (option.durationMonths > 1) {
+              <span class="plan-page__muted">≈ ₹{{ monthly(option) | number: '1.0-0' }} / month</span>
+            }
+            @if (option.description) {
+              <p class="plan-page__option-desc">{{ option.description }}</p>
+            }
+            <span class="plan-page__option-spacer"></span>
+            <button
+              type="button"
+              class="btn-admin-primary plan-page__option-btn"
+              [disabled]="payingId() !== null"
+              (click)="buy(option)"
+            >
+              {{ payingId() === option.id ? 'Opening payment…' : 'Pay ₹' + (option.price | number: '1.0-2') + ' online' }}
+            </button>
+          </div>
+        }
+      </div>
+      <p class="plan-page__muted plan-page__secure">Payments are handled securely by Razorpay (UPI, cards, net banking).</p>
+    }
+
+    <h2 class="plan-page__section">History</h2>
+    <div class="plan-page__card plan-page__table-wrap">
+      <table class="plan-page__table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Change</th>
+            <th>Plan</th>
+            <th>Valid till</th>
+            <th class="plan-page__num">Amount</th>
+            <th>Payment</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of p.history; track $index) {
+            <tr>
+              <td>{{ e.createdAt | date: 'd MMM y' }}</td>
+              <td>{{ actionLabels[e.action] }}</td>
+              <td>{{ e.planName }}</td>
+              <td>{{ e.expiresAt ? (e.expiresAt | date: 'd MMM y') : 'No end date' }}</td>
+              <td class="plan-page__num">{{ e.amount !== null ? '₹' + (e.amount | number: '1.0-2') : '—' }}</td>
+              <td>
+                {{ e.paymentMethod ? methodLabel(e.paymentMethod) : '—' }}
+                @if (e.paymentReference) {
+                  <span class="plan-page__sub">Ref: {{ e.paymentReference }}</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="plan-page__empty">No history yet.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="plan-page__muted">Loading…</p>
+  }
+</div>

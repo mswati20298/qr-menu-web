@@ -1,0 +1,146 @@
+@if (session.loading()) {
+  <div class="menu-tab__loading">Loading menu…</div>
+} @else if (session.loadError() || !session.menu()) {
+  <div class="menu-tab__error">
+    <h2>Menu not found</h2>
+    <p>This restaurant's menu link looks incorrect. Please rescan the QR code.</p>
+  </div>
+} @else {
+  <div class="menu-tab">
+    <header class="menu-tab__hero">
+      <div class="menu-tab__hero-top">
+        <div class="menu-tab__brand">
+          @if (resolveImageUrl(session.menu()!.restaurant.logoUrl); as logo) {
+            <img class="menu-tab__brand-mark menu-tab__brand-mark--img" [src]="logo" alt="" />
+          } @else {
+            <span class="menu-tab__brand-mark">{{ initials() }}</span>
+          }
+          <div>
+            <h1 class="menu-tab__name">{{ session.menu()!.restaurant.name }}</h1>
+            @if (session.menu()!.restaurant.tagline) {
+              <p class="menu-tab__tagline">{{ session.menu()!.restaurant.tagline }}</p>
+            }
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="menu-tab__theme-btn"
+          (click)="theme.toggle()"
+          [attr.aria-label]="theme.mode() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+        >
+          @if (theme.mode() === 'dark') {
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            </svg>
+          } @else {
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          }
+        </button>
+      </div>
+
+      <div class="menu-tab__pills">
+        <span class="menu-tab__table-pill">{{ session.tableNumber() ? 'Table ' + session.tableNumber() : 'Takeaway' }}</span>
+        <span class="menu-tab__open-pill" [class.menu-tab__open-pill--closed]="!isOpenNow()">
+          <span class="menu-tab__open-dot"></span>
+          {{ isOpenNow() ? 'Open till ' + formatTime12h(session.menu()!.restaurant.closeTime) : 'Closed now' }}
+        </span>
+      </div>
+    </header>
+
+    @if (session.tableNumber()) {
+      <app-request-actions />
+    }
+
+    @if (!orderingEnabled()) {
+      <div class="menu-tab__closed-banner">
+        Online ordering is not available right now. You can browse the menu — please ask the staff to take your order.
+      </div>
+    } @else if (!isOpenNow()) {
+      <div class="menu-tab__closed-banner">
+        We're closed right now. You can browse the menu, but ordering is disabled until we reopen at {{ formatTime12h(session.menu()!.restaurant.openTime) }}.
+      </div>
+    }
+
+    <div class="menu-tab__sticky-bar">
+      <div class="menu-tab__search-wrap">
+        <svg class="menu-tab__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="var(--color-muted)" stroke-width="2" />
+          <path d="M21 21l-4.35-4.35" stroke="var(--color-muted)" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <input
+          class="menu-tab__search-input"
+          type="search"
+          placeholder="Search dishes…"
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
+          aria-label="Search menu items"
+        />
+      </div>
+
+      <app-category-pills
+        [categories]="session.menu()!.categories"
+        [activeCategoryId]="activeCategoryId()"
+        (select)="scrollToCategory($event)"
+      />
+    </div>
+
+    <div class="menu-tab__veg-row">
+      <span>Veg only</span>
+      <button
+        type="button"
+        class="menu-tab__veg-toggle"
+        [class.menu-tab__veg-toggle--on]="vegOnly()"
+        (click)="vegOnly.set(!vegOnly())"
+        role="switch"
+        [attr.aria-checked]="vegOnly()"
+        aria-label="Show vegetarian items only"
+      >
+        <span class="menu-tab__veg-toggle-knob"></span>
+      </button>
+    </div>
+
+    <div class="menu-tab__list">
+      @for (category of filteredCategories(); track category.id) {
+        <section class="menu-tab__category" #categorySection [attr.data-category-id]="category.id">
+          <h2 class="menu-tab__category-title">{{ category.name }}</h2>
+          <div class="menu-tab__items">
+            @for (item of category.items; track item.id) {
+              <app-menu-list-item
+                [item]="item"
+                [imageUrl]="resolveImageUrl(item.imageUrl)"
+                [qty]="cart.getSimpleQty(item.id)"
+                [disabled]="!canOrder()"
+                (open)="onItemOpen(item)"
+                (add)="quickAdd(item)"
+                (increment)="quickIncrement(item)"
+                (decrement)="quickDecrement(item)"
+              />
+            }
+          </div>
+        </section>
+      }
+
+      @if (filteredCategories().length === 0) {
+        <p class="menu-tab__empty">No dishes match your search.</p>
+      }
+    </div>
+
+    @if (cart.itemCount() > 0) {
+      <button type="button" class="menu-tab__cart-bar" (click)="goToCart()">
+        <span class="menu-tab__cart-bar-info">
+          <strong>{{ cart.itemCount() }} ITEM{{ cart.itemCount() === 1 ? '' : 'S' }}</strong>
+          ₹{{ cart.subtotal() }} + taxes
+        </span>
+        <span class="menu-tab__cart-bar-cta">View cart ›</span>
+      </button>
+    }
+
+    @if (activeItem(); as item) {
+      <app-item-customize-sheet [item]="item" (close)="closeSheet()" (confirm)="confirmFromSheet($event)" />
+    }
+  </div>
+}

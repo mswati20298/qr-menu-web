@@ -1,0 +1,169 @@
+@use 'styles/admin-theme' as *;
+
+.sa-plans {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    h1 {
+      font-size: 26px;
+      font-family: var(--font-heading);
+    }
+  }
+
+  &__muted,
+  &__sub {
+    color: var(--admin-muted);
+    font-size: 14px;
+  }
+
+  &__note {
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  &__error {
+    padding: 9px 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger-text);
+    font-size: 13px;
+  }
+
+  &__table-wrap {
+    @include admin-card;
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    min-width: 820px;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--admin-border);
+    }
+
+    th {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--admin-muted);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+  }
+
+  &__sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 12.5px;
+  }
+
+  &__num {
+    text-align: right !important;
+    white-space: nowrap;
+  }
+
+  &__pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--admin-success-soft);
+    color: var(--admin-success-text);
+    font-size: 12px;
+    font-weight: 700;
+
+    &--off {
+      background: var(--admin-completed-soft);
+      color: var(--admin-completed-text);
+    }
+  }
+
+  &__actions {
+    text-align: right;
+    white-space: nowrap;
+
+    button + button {
+      margin-left: 6px;
+    }
+  }
+
+  &__danger {
+    color: var(--admin-danger) !important;
+  }
+
+  &__empty {
+    text-align: center !important;
+    color: var(--admin-muted);
+    padding: 28px 14px !important;
+  }
+
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 16px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  &__panel {
+    width: 100%;
+    max-width: 520px;
+    padding: 22px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-card);
+    background: var(--admin-bg);
+    color: var(--admin-text);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+
+    h2 {
+      margin-bottom: 14px;
+      font-size: 20px;
+      font-family: var(--font-heading);
+    }
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    > .form-field {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  &__check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}

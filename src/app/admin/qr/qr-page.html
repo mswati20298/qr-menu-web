@@ -1,0 +1,72 @@
+<div class="qr-page">
+  <h1>QR Codes</h1>
+
+  <div class="qr-page__card">
+    <h2>Your menu link</h2>
+    <p class="qr-page__hint">Share this link directly, or print QR cards for your tables below.</p>
+
+    <div class="qr-page__link-row">
+      <input class="qr-page__link-input" type="text" [value]="menuLink" readonly />
+      <button type="button" class="btn-admin-secondary" (click)="copyLink()">
+        {{ copied() ? 'Copied!' : 'Copy' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="qr-page__card">
+    <h2>Table QR cards</h2>
+    <p class="qr-page__hint">
+      Enter the tables you want. Use commas for single tables and a dash for a range,
+      e.g. <strong>1-10, 15, 20-22</strong>. Each card shows your logo, name and the table number.
+    </p>
+
+    <label class="qr-page__label" for="tableInput">Table numbers</label>
+    <div class="qr-page__link-row">
+      <input
+        id="tableInput"
+        class="qr-page__input"
+        type="text"
+        placeholder="1-10, 15, 20-22"
+        [value]="tableInput()"
+        (input)="onTableInput($event)"
+      />
+      @if (tables().length > 0) {
+        <button type="button" class="btn-admin-secondary" (click)="useAllTables()">
+          Use all ({{ tables().length }})
+        </button>
+      }
+    </div>
+
+    @if (parsed().invalid.length > 0) {
+      <p class="qr-page__error">Couldn't read: {{ parsed().invalid.join(', ') }}</p>
+    }
+
+    @if (parsed().tables.length > 0) {
+      <div class="qr-page__chips">
+        @for (t of parsed().tables.slice(0, 40); track t) {
+          <span class="qr-page__chip">{{ t }}</span>
+        }
+        @if (parsed().tables.length > 40) {
+          <span class="qr-page__chip qr-page__chip--more">+{{ parsed().tables.length - 40 }} more</span>
+        }
+      </div>
+      <p class="qr-page__hint">
+        {{ parsed().tables.length }} card{{ parsed().tables.length === 1 ? '' : 's' }}
+        · {{ pages() }} A4 page{{ pages() === 1 ? '' : 's' }} (4 cards per page)
+      </p>
+    }
+
+    @if (error()) {
+      <p class="qr-page__error">{{ error() }}</p>
+    }
+
+    <button
+      type="button"
+      class="btn-admin-primary"
+      (click)="downloadPdf()"
+      [disabled]="generating() || parsed().tables.length === 0"
+    >
+      {{ generating() ? 'Generating…' : 'Download QR cards PDF' }}
+    </button>
+  </div>
+</div>

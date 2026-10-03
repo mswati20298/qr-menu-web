@@ -1,0 +1,168 @@
+<div class="menu-page">
+  <div class="menu-page__header">
+    <h1>Menu</h1>
+    <div class="menu-page__header-actions">
+      <button type="button" class="btn-admin-secondary" (click)="openScanModal()">📷 Scan Menu</button>
+      <button type="button" class="btn-admin-primary" (click)="openAddItemModal()">+ Add item</button>
+    </div>
+  </div>
+
+  @if (importBanner()) {
+    <div class="menu-page__banner menu-page__banner--success">
+      {{ importBanner() }}
+    </div>
+  }
+
+  @if (missingPhotoCount() > 0) {
+    <div class="menu-page__banner">
+      {{ missingPhotoCount() }} item{{ missingPhotoCount() === 1 ? '' : 's' }} missing photo{{ missingPhotoCount() === 1 ? '' : 's' }} — click a thumbnail below to add one.
+    </div>
+  }
+
+  @if (scanModalOpen()) {
+    <app-menu-scan-modal [categories]="categories()" (close)="closeScanModal()" (imported)="onMenuScanned($event)" />
+  }
+
+  <div class="menu-page__body">
+    <app-category-list
+      [categories]="categories()"
+      [selectedCategoryId]="selectedCategoryId()"
+      (select)="selectedCategoryId.set($event)"
+      (add)="onAddCategory($event)"
+      (rename)="onRenameCategory($event)"
+      (remove)="requestDeleteCategory($event)"
+      (reorder)="onReorderCategories($event)"
+    />
+
+    <div class="menu-page__table-wrap">
+      <div class="menu-page__search-row">
+        <div class="menu-page__search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Search dishes…"
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+          />
+        </div>
+      </div>
+
+      @if (loading()) {
+        <p class="menu-page__loading">Loading items…</p>
+      } @else if (filteredItems().length === 0) {
+        <p class="menu-page__empty">No items match.</p>
+      } @else {
+        <table class="menu-page__table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>Category</th>
+              <th class="menu-page__price-col">Price</th>
+              <th>Stock</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredItems(); track item.id) {
+              <tr [class.menu-page__row--unavailable]="!item.isAvailable">
+                <td class="menu-page__thumb-cell">
+                  <button
+                    type="button"
+                    class="menu-page__thumb-btn"
+                    (click)="triggerPhotoUpload(item)"
+                    [attr.aria-label]="'Upload photo for ' + item.name"
+                    title="Click to upload a photo"
+                  >
+                    @if (uploadingItemId() === item.id) {
+                      <span class="menu-page__thumb menu-page__thumb--uploading">…</span>
+                    } @else if (resolveImageUrl(item.imageUrl)) {
+                      <img class="menu-page__thumb" [src]="resolveImageUrl(item.imageUrl)" [alt]="item.name" />
+                    } @else {
+                      <span class="menu-page__thumb menu-page__thumb--placeholder">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M4 7h3l2-2h6l2 2h3v12H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                          <circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6" />
+                        </svg>
+                      </span>
+                    }
+                  </button>
+                </td>
+                <td>
+                  <div class="menu-page__item-name">
+                    <app-veg-badge [isVeg]="item.isVeg" />
+                    {{ item.name }}
+                  </div>
+                  @if (item.tag) {
+                    <span class="menu-page__item-tag">{{ item.tag }}</span>
+                  }
+                </td>
+                <td>{{ item.categoryName }}</td>
+                <td class="menu-page__price-col">
+                  ₹{{ item.price }}
+                  @if (item.variants.length > 0) {
+                    <span class="menu-page__variant-count">{{ item.variants.length }} sizes</span>
+                  }
+                </td>
+                <td>
+                  <div class="menu-page__stock-cell">
+                    <button
+                      type="button"
+                      class="menu-page__toggle"
+                      [class.menu-page__toggle--on]="item.isAvailable"
+                      (click)="onToggleAvailability(item)"
+                      [attr.aria-pressed]="item.isAvailable"
+                      aria-label="Toggle stock for {{ item.name }}"
+                    >
+                      <span class="menu-page__toggle-knob"></span>
+                    </button>
+                    <span class="menu-page__stock-label">{{ item.isAvailable ? 'In stock' : 'Out of stock' }}</span>
+                  </div>
+                </td>
+                <td class="menu-page__actions-cell">
+                  <div class="menu-page__menu-wrap">
+                    <button type="button" class="menu-page__icon-btn" (click)="toggleItemMenu(item.id)" aria-label="Item options" title="More options">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="5" r="1.6" fill="currentColor" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /><circle cx="12" cy="19" r="1.6" fill="currentColor" />
+                      </svg>
+                    </button>
+
+                    @if (openItemMenuId() === item.id) {
+                      <div class="menu-page__menu-backdrop" (click)="closeItemMenu()"></div>
+                      <div class="menu-page__menu">
+                        <button type="button" (click)="openEditItemModal(item)">Edit</button>
+                        <button type="button" class="menu-page__menu-danger" (click)="requestDeleteItem(item)">Delete</button>
+                      </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+
+  <input #photoInput type="file" accept="image/jpeg,image/png,image/webp" class="menu-page__hidden-input" (change)="onPhotoFileSelected($event)" />
+
+  @if (modalOpen()) {
+    <app-item-modal [categories]="categories()" [editingItem]="editingItem()" (save)="onSaveItem($event)" (close)="closeModal()" />
+  }
+
+  @if (pendingDelete(); as pending) {
+    <app-confirm-dialog
+      [title]="pending.kind === 'category' ? 'Delete this category?' : 'Delete this item?'"
+      [message]="pending.kind === 'category'
+        ? 'Deleting \'' + pending.name + '\' will also delete all its items. This cannot be undone.'
+        : '\'' + pending.name + '\' will be permanently removed from your menu.'"
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      (confirm)="confirmPendingDelete()"
+      (cancel)="dismissPendingDelete()"
+    />
+  }
+</div>

@@ -1,0 +1,51 @@
+<div class="customer-shell" [attr.data-accent]="accent()">
+  <div class="customer-shell__bg" [style.background-image]="backgroundImage()"></div>
+  <div class="customer-shell__scrim"></div>
+
+  <div class="customer-shell__content" [class.customer-shell__content--no-nav]="hideNav()">
+    <router-outlet></router-outlet>
+  </div>
+
+  @if (!hideNav()) {
+  <nav class="customer-shell__nav" aria-label="Menu navigation">
+    <a
+      [routerLink]="['/m', session.slug(), 'menu']"
+      routerLinkActive="customer-shell__nav-link--active"
+      class="customer-shell__nav-link"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+        <rect x="14" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+        <rect x="3" y="15" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+        <rect x="14" y="15" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+      </svg>
+      <span>Menu</span>
+    </a>
+
+    <a
+      [routerLink]="['/m', session.slug(), 'orders']"
+      routerLinkActive="customer-shell__nav-link--active"
+      class="customer-shell__nav-link"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 2h9l3 3v17H6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+        <path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+      </svg>
+      <span>My orders</span>
+    </a>
+
+    <button type="button" class="customer-shell__nav-link" (click)="openHelp()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" />
+        <path d="M9.5 9.3a2.5 2.5 0 0 1 4.9.7c0 1.7-2.4 2-2.4 3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        <circle cx="12" cy="17" r="1" fill="currentColor" />
+      </svg>
+      <span>Help</span>
+    </button>
+  </nav>
+  }
+
+  @if (helpOpen() && session.menu(); as data) {
+    <app-help-sheet [restaurant]="data.restaurant" (close)="closeHelp()" />
+  }
+</div>

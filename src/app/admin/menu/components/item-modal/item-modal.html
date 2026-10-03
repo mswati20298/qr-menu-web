@@ -1,0 +1,133 @@
+<div class="item-modal__overlay" (click)="close.emit()">
+  <div class="item-modal__panel admin-shell" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="editingItem() ? 'Edit item' : 'Add item'">
+    <div class="item-modal__header">
+      <h2>{{ editingItem() ? 'Edit item' : 'Add item' }}</h2>
+      <button type="button" class="item-modal__close-btn" (click)="close.emit()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-field">
+        <label for="itemName">Name</label>
+        <input id="itemName" type="text" formControlName="name" />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <span class="form-field__error">Item name is required.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="itemCategory">Category</label>
+        <select id="itemCategory" formControlName="categoryId">
+          @for (category of categories(); track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="itemDescription">Description</label>
+        <textarea id="itemDescription" formControlName="description"></textarea>
+      </div>
+
+      <div class="item-modal__row">
+        <div class="form-field">
+          <label for="itemPrice">Base Price (₹)</label>
+          <input id="itemPrice" type="number" min="1" step="1" formControlName="price" />
+          @if (form.controls.price.touched && form.controls.price.invalid) {
+            <span class="form-field__error">Enter a valid price.</span>
+          }
+          <span class="form-field__hint">Used when no size/variant is selected below.</span>
+        </div>
+
+        <div class="form-field">
+          <label for="itemTag">Tag (optional)</label>
+          <input id="itemTag" type="text" formControlName="tag" placeholder="Bestseller, Jain option…" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="item-modal__checkbox-label">
+          <input type="checkbox" formControlName="isVeg" />
+          This is a vegetarian item
+        </label>
+      </div>
+
+      <div class="form-field">
+        <label for="itemImage">Photo (optional)</label>
+        <input id="itemImage" type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" />
+        @if (uploading()) {
+          <span class="item-modal__uploading">Uploading…</span>
+        }
+        @if (imagePreviewUrl()) {
+          <img class="item-modal__preview" [src]="imagePreviewUrl()" alt="Item preview" />
+        }
+      </div>
+
+      <div class="item-modal__section">
+        <div class="item-modal__section-header">
+          <span>Sizes / Variants (optional)</span>
+          <button type="button" class="item-modal__add-row-btn" (click)="addVariantRow()">+ Add size</button>
+        </div>
+        @for (variant of variantRows(); track $index) {
+          <div class="item-modal__variant-row">
+            <input
+              type="text"
+              placeholder="e.g. Medium (9 inch)"
+              [value]="variant.name"
+              (input)="updateVariant($index, { name: $any($event.target).value })"
+            />
+            <input
+              type="number"
+              min="0"
+              placeholder="Price"
+              [value]="variant.price"
+              (input)="updateVariant($index, { price: +$any($event.target).value })"
+            />
+            <label class="item-modal__radio-label">
+              <input type="radio" name="defaultVariant" [checked]="variant.isDefault" (change)="setDefaultVariant($index)" />
+              Default
+            </label>
+            <button type="button" class="item-modal__remove-row-btn" (click)="removeVariant($index)" aria-label="Remove size">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="item-modal__section">
+        <div class="item-modal__section-header">
+          <span>Add-ons / Toppings (optional)</span>
+          <button type="button" class="item-modal__add-row-btn" (click)="addAddOnRow()">+ Add add-on</button>
+        </div>
+        @for (addOn of addOnRows(); track $index) {
+          <div class="item-modal__addon-row">
+            <input
+              type="text"
+              placeholder="e.g. Extra Cheese"
+              [value]="addOn.name"
+              (input)="updateAddOn($index, { name: $any($event.target).value })"
+            />
+            <input
+              type="number"
+              min="0"
+              placeholder="Extra ₹"
+              [value]="addOn.price"
+              (input)="updateAddOn($index, { price: +$any($event.target).value })"
+            />
+            <button type="button" class="item-modal__remove-row-btn" (click)="removeAddOn($index)" aria-label="Remove add-on">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="item-modal__footer">
+        <button type="button" class="btn-admin-secondary" (click)="close.emit()">Cancel</button>
+        <button type="submit" class="btn-admin-primary" [disabled]="uploading()">Save item</button>
+      </div>
+    </form>
+  </div>
+</div>

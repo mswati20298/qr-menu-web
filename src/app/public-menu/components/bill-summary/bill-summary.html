@@ -1,0 +1,44 @@
+<div class="bill-summary">
+  <div class="bill-summary__row">
+    <span>Item total</span>
+    <span>₹{{ bill().subtotal.toFixed(2) }}</span>
+  </div>
+
+  @if (bill().serviceChargeAmount > 0) {
+    <div class="bill-summary__row">
+      <span>
+        Service charge ({{ serviceChargePercentage() }}%)
+        @if (serviceChargeEnabled()) {
+          · <button type="button" class="bill-summary__link" (click)="toggleServiceCharge.emit()">Remove</button>
+        }
+      </span>
+      <span>₹{{ bill().serviceChargeAmount.toFixed(2) }}</span>
+    </div>
+  } @else if (serviceChargeEnabled() && serviceChargeRemoved()) {
+    <div class="bill-summary__row">
+      <span>
+        Service charge removed ·
+        <button type="button" class="bill-summary__link" (click)="toggleServiceCharge.emit()">Add back</button>
+      </span>
+      <span>₹0.00</span>
+    </div>
+  }
+
+  @if (bill().gstAmount > 0) {
+    <div class="bill-summary__row">
+      <span>GST ({{ gstPercentage() }}%)</span>
+      <span>₹{{ bill().gstAmount.toFixed(2) }}</span>
+    </div>
+  }
+
+  <div class="bill-summary__divider"></div>
+
+  <div class="bill-summary__row bill-summary__row--total">
+    <span>To pay</span>
+    <span>₹{{ bill().total.toFixed(2) }}</span>
+  </div>
+
+  @if (serviceChargeEnabled()) {
+    <p class="bill-summary__hint">Service charge is optional</p>
+  }
+</div>

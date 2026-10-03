@@ -1,0 +1,421 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate; // keeps the background layers behind everything else
+
+  // Restaurant's background photo (Settings → Menu background photo).
+  // No photo set → this layer is empty and the theme gradient shows through.
+  &__bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(var(--admin-bg-blur, 0));
+    transform: scale(1.08); // hides blurred edges
+  }
+
+  // Heavier than the customer menu: the admin shows dense data, so keep it readable.
+  &__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--admin-scrim, transparent);
+  }
+
+  &__sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--admin-sidebar-bg);
+    border-right: 1px solid var(--admin-sidebar-border);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+
+    @media (max-width: 900px) {
+      width: 72px;
+      padding: 16px 8px;
+    }
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px 24px;
+    color: var(--admin-sidebar-brand, white);
+
+    @media (max-width: 900px) {
+      justify-content: center;
+      padding-bottom: 20px;
+    }
+  }
+
+  &__brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--admin-accent);
+    color: white;
+    font-family: var(--admin-font-heading);
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+    overflow: hidden;
+
+    &--img {
+      object-fit: cover;
+      background: var(--admin-sidebar-bg-hover);
+    }
+  }
+
+  &__brand-name {
+    font-family: var(--admin-font-heading);
+    font-weight: 600;
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (max-width: 900px) {
+      display: none;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  &__nav-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--admin-sidebar-section-label);
+    padding: 14px 12px 4px;
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    @media (max-width: 900px) {
+      display: none;
+    }
+  }
+
+  &__nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: var(--admin-radius-control);
+    color: var(--admin-sidebar-text);
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    position: relative;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: var(--admin-sidebar-bg-hover);
+      color: var(--admin-sidebar-text-active, white);
+    }
+
+    &--active {
+      background: var(--admin-accent);
+      color: white;
+    }
+
+    @media (max-width: 900px) {
+      justify-content: center;
+      padding: 0;
+    }
+  }
+
+  &__nav-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 900px) {
+      display: none;
+    }
+  }
+
+  &__nav-badge {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: white;
+    color: var(--admin-accent);
+    font-size: 11px;
+    font-weight: 700;
+
+    @media (max-width: 900px) {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      min-width: 16px;
+      height: 16px;
+      font-size: 9.5px;
+      padding: 0 4px;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+    padding: 28px;
+    overflow-x: hidden;
+
+    @media (max-width: 720px) {
+      padding: 16px;
+    }
+  }
+
+  &__topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  &__topbar-spacer {
+    flex: 1;
+  }
+
+  &__plan-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+    border-radius: var(--admin-radius-card);
+    background: var(--admin-warning-soft);
+    color: var(--admin-warning-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+
+    &--danger {
+      background: var(--admin-danger-soft);
+      color: var(--admin-danger-text);
+    }
+  }
+
+  &__plan-banner-link {
+    white-space: nowrap;
+    text-decoration: underline;
+  }
+
+  &__open-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--admin-success-soft);
+    color: var(--admin-success-text);
+    font-size: 12.5px;
+    font-weight: 600;
+
+    &--closed {
+      background: var(--admin-completed-soft);
+      color: var(--admin-completed-text);
+    }
+  }
+
+  &__open-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &__live-menu-btn {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 13px;
+
+    @media (max-width: 640px) {
+      span {
+        display: none;
+      }
+    }
+  }
+
+  &__profile {
+    position: relative;
+  }
+
+  &__profile-btn {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  &__profile-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  &__profile-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+  }
+
+  &__profile-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-card);
+    box-shadow: var(--admin-shadow-md);
+    padding: 8px;
+    z-index: 100;
+  }
+
+  &__profile-menu-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px 10px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--admin-border);
+
+    strong {
+      font-size: 13.5px;
+      font-family: var(--admin-font-heading);
+    }
+
+    span {
+      font-size: 12px;
+      color: var(--admin-muted);
+    }
+  }
+
+  &__profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 40px;
+    padding: 0 10px;
+    border: none;
+    background: none;
+    border-radius: var(--admin-radius-control);
+    color: var(--admin-danger);
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--admin-danger-soft);
+    }
+  }
+
+  // ---- Light / dark toggle (bottom of the sidebar) ----
+  &__theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 12px;
+    padding: 0 12px;
+    border: 1px solid var(--admin-sidebar-border);
+    border-radius: var(--admin-radius-control);
+    background: var(--admin-sidebar-bg-hover);
+    color: var(--admin-sidebar-text);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      color: var(--admin-sidebar-text-active, white);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--admin-accent);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 900px) {
+      justify-content: center;
+      padding: 0;
+    }
+  }
+
+  &__theme-switch {
+    margin-left: auto;
+    position: relative;
+    width: 34px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--admin-border);
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+
+    @media (max-width: 900px) {
+      display: none;
+    }
+
+    &--on {
+      background: var(--admin-accent);
+    }
+  }
+
+  &__theme-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+  }
+
+  &__theme-switch--on &__theme-knob {
+    transform: translateX(14px);
+  }
+}

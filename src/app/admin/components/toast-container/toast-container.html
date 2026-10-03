@@ -1,0 +1,32 @@
+<div class="toast-container" aria-live="polite">
+  @for (toast of notifications.toasts(); track toast.id) {
+    <div class="toast-container__toast" (click)="openToast(toast)">
+      <span class="toast-container__icon" [class.toast-container__icon--emoji]="toast.icon">
+        @if (toast.icon) {
+          {{ toast.icon }}
+        } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 2h9l3 3v17H6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            <path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        }
+      </span>
+      <div class="toast-container__body">
+        <span class="toast-container__title">{{ toast.message }}</span>
+        @if (toast.amount !== null) {
+          <span class="toast-container__amount">₹{{ toast.amount | number: '1.0-2' }}</span>
+        }
+      </div>
+      <button
+        type="button"
+        class="toast-container__close"
+        (click)="notifications.dismissToast(toast.id); $event.stopPropagation()"
+        aria-label="Dismiss"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+  }
+</div>

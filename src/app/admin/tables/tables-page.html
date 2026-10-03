@@ -1,0 +1,94 @@
+<div class="tables-page">
+  <div class="tables-page__header">
+    <h1>Table Management</h1>
+  </div>
+
+  <form class="tables-page__add-form" [formGroup]="form" (ngSubmit)="addTable()">
+    <div class="form-field tables-page__add-field">
+      <label for="number">Table number</label>
+      <input id="number" type="text" formControlName="number" placeholder="e.g. 9" />
+    </div>
+    <div class="form-field tables-page__add-field">
+      <label for="capacity">Capacity (optional)</label>
+      <input id="capacity" type="number" min="1" formControlName="capacity" placeholder="4" />
+    </div>
+    <button type="submit" class="btn-admin-primary tables-page__add-btn">+ Add Table</button>
+  </form>
+
+  @if (loading()) {
+    <p class="tables-page__empty">Loading tables…</p>
+  } @else if (tables().length === 0) {
+    <p class="tables-page__empty">No tables yet. Add your first table above.</p>
+  } @else {
+    <div class="tables-page__grid">
+      @for (table of tables(); track table.id) {
+        <div class="tables-page__card">
+          @if (editingId() === table.id) {
+            <form [formGroup]="editForm" (ngSubmit)="saveEdit(table.id)" class="tables-page__edit-form">
+              <input type="text" formControlName="number" class="tables-page__edit-input" />
+              <input type="number" min="1" formControlName="capacity" class="tables-page__edit-input" placeholder="Capacity" />
+              <label class="tables-page__edit-active">
+                <input type="checkbox" formControlName="isActive" /> Active
+              </label>
+              <div class="tables-page__edit-actions">
+                <button type="submit" class="btn-admin-primary">Save</button>
+                <button type="button" class="btn-admin-secondary" (click)="cancelEdit()">Cancel</button>
+              </div>
+            </form>
+          } @else {
+            <div class="tables-page__card-top">
+              <span class="tables-page__number">Table {{ table.number }}</span>
+              <span
+                class="tables-page__badge"
+                [class.tables-page__badge--active]="table.hasActiveOrder"
+                [class.tables-page__badge--inactive]="!table.isActive"
+              >
+                @if (!table.isActive) {
+                  Disabled
+                } @else if (table.hasActiveOrder) {
+                  Occupied
+                } @else {
+                  Available
+                }
+              </span>
+            </div>
+
+            @if (table.capacity) {
+              <p class="tables-page__capacity">Seats {{ table.capacity }}</p>
+            }
+
+            @if (previewTableId() === table.id && previewUrl()) {
+              <img class="tables-page__qr-preview" [src]="previewUrl()" alt="QR code for table {{ table.number }}" />
+              <button type="button" class="tables-page__download-btn" (click)="downloadPreview(table)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v13m0 0-4-4m4 4 4-4M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Download this QR
+              </button>
+            }
+
+            <div class="tables-page__card-actions">
+              <button type="button" class="tables-page__icon-btn" (click)="showQrPreview(table)" aria-label="Preview QR for table {{ table.number }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.8" />
+                  <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.8" />
+                  <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="1.8" />
+                </svg>
+              </button>
+              <button type="button" class="tables-page__icon-btn" (click)="startEdit(table)" aria-label="Edit table {{ table.number }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+              <button type="button" class="tables-page__icon-btn tables-page__icon-btn--danger" (click)="deleteTable(table)" aria-label="Delete table {{ table.number }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

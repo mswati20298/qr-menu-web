@@ -1,0 +1,104 @@
+<div class="kds">
+  <header class="kds__bar">
+    <div class="kds__title">
+      <strong>{{ restaurantName() }}</strong>
+      <span class="kds__muted">Kitchen</span>
+    </div>
+
+    <div class="kds__counts">
+      <span><b>{{ byStatus().Placed.length }}</b> new</span>
+      <span><b>{{ byStatus().Preparing.length }}</b> preparing</span>
+    </div>
+
+    <div class="kds__tools">
+      @if (offline()) {
+        <span class="kds__offline" role="status">Offline — retrying…</span>
+      }
+      <span class="kds__clock">{{ clock() }}</span>
+      <button type="button" class="kds__tool" (click)="toggleSound()" [attr.aria-pressed]="soundOn()" [title]="soundOn() ? 'Sound on' : 'Sound off'">
+        {{ soundOn() ? '🔔' : '🔕' }}
+      </button>
+      <button type="button" class="kds__tool" (click)="toggleFullscreen()" [title]="isFullscreen() ? 'Exit full screen' : 'Full screen'">
+        {{ isFullscreen() ? '⤡' : '⤢' }}
+      </button>
+      <button type="button" class="kds__tool kds__tool--text" (click)="signOut()">
+        {{ isKitchenSession() ? 'Sign out' : 'Back to admin' }}
+      </button>
+    </div>
+  </header>
+
+  @if (soundOn() && !audioReady()) {
+    <p class="kds__hint">Tap anywhere once to turn on the new-order sound.</p>
+  }
+  @if (error()) {
+    <p class="kds__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (!loaded()) {
+    <p class="kds__loading">Loading orders…</p>
+  } @else {
+    <main class="kds__board">
+      @for (column of columns; track column.status) {
+        <section class="kds__column kds__column--{{ column.status.toLowerCase() }}" [attr.aria-label]="column.label">
+          <h2 class="kds__column-title">
+            {{ column.label }}
+            <span class="kds__column-count">{{ byStatus()[column.status].length }}</span>
+          </h2>
+
+          <div class="kds__cards">
+            @for (order of byStatus()[column.status]; track order.id) {
+              <button
+                type="button"
+                class="kds__card kds__card--{{ urgency(order) }}"
+                [class.kds__card--new]="isNew(order.id)"
+                [class.kds__card--busy]="isBusy(order.id)"
+                [class.kds__card--done]="order.status === 'Served'"
+                [disabled]="order.status === 'Served'"
+                (click)="tap(order)"
+              >
+                <div class="kds__card-top">
+                  <span class="kds__table">{{ order.tableNumber ? 'Table ' + order.tableNumber : 'Takeaway' }}</span>
+                  <span class="kds__elapsed">{{ elapsedLabel(order) }}</span>
+                </div>
+                @if (order.customerName) {
+                  <span class="kds__customer">{{ order.customerName }}</span>
+                }
+
+                <ul class="kds__items">
+                  @for (item of order.items; track $index) {
+                    <li>
+                      <span class="kds__qty">{{ item.qty }}×</span>
+                      <span>
+                        {{ item.name }}@if (item.variant) { <em>({{ item.variant }})</em> }
+                        @if (item.addOns.length > 0) {
+                          <span class="kds__addons">+ {{ item.addOns.join(', ') }}</span>
+                        }
+                      </span>
+                    </li>
+                  }
+                </ul>
+
+                @if (order.note) {
+                  <p class="kds__note">📝 {{ order.note }}</p>
+                }
+
+                @if (column.action) {
+                  <span class="kds__action">{{ isBusy(order.id) ? 'Saving…' : column.action }}</span>
+                }
+              </button>
+            } @empty {
+              <p class="kds__empty">No orders</p>
+            }
+          </div>
+        </section>
+      }
+    </main>
+  }
+
+  @if (undo(); as pending) {
+    <div class="kds__undo" role="status">
+      <span>{{ pending.order.tableNumber ? 'Table ' + pending.order.tableNumber : 'Takeaway' }} → {{ pending.order.status === 'Served' ? 'Served' : 'Preparing' }}</span>
+      <button type="button" (click)="undoLast()">Undo</button>
+    </div>
+  }
+</div>

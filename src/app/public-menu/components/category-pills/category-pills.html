@@ -1,0 +1,21 @@
+<nav class="category-pills" aria-label="Menu categories">
+  <button
+    type="button"
+    class="category-pills__pill"
+    [class.category-pills__pill--active]="activeCategoryId() === null"
+    (click)="select.emit(null)"
+  >
+    All
+  </button>
+
+  @for (category of categories(); track category.id) {
+    <button
+      type="button"
+      class="category-pills__pill"
+      [class.category-pills__pill--active]="activeCategoryId() === category.id"
+      (click)="select.emit(category.id)"
+    >
+      {{ category.name }}
+    </button>
+  }
+</nav>

@@ -1,0 +1,79 @@
+<div class="item-customize-sheet__backdrop" (click)="close.emit()">
+  <div class="item-customize-sheet__panel" (click)="$event.stopPropagation()">
+    <div class="item-customize-sheet__handle"></div>
+
+    <button type="button" class="item-customize-sheet__close" (click)="close.emit()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <div class="item-customize-sheet__scroll">
+      <div class="item-customize-sheet__header">
+        @if (imageUrl(); as img) {
+          <img class="item-customize-sheet__image" [src]="img" [alt]="item().name" />
+        }
+        <div class="item-customize-sheet__title-row">
+          <app-veg-badge [isVeg]="item().isVeg" />
+          <h2 class="item-customize-sheet__name">{{ item().name }}</h2>
+        </div>
+        @if (item().tag) {
+          <span class="item-customize-sheet__tag">{{ item().tag }}</span>
+        }
+        @if (item().description) {
+          <p class="item-customize-sheet__description">{{ item().description }}</p>
+        }
+      </div>
+
+      @if (item().variants.length > 0) {
+        <div class="item-customize-sheet__section">
+          <h3 class="item-customize-sheet__section-title">Size</h3>
+          <div class="item-customize-sheet__variant-options">
+            @for (variant of item().variants; track variant.id) {
+              <button
+                type="button"
+                class="item-customize-sheet__variant-option"
+                [class.item-customize-sheet__variant-option--selected]="selectedVariantId() === variant.id"
+                (click)="selectVariant(variant.id)"
+              >
+                <span
+                  class="item-customize-sheet__radio-dot"
+                  [class.item-customize-sheet__radio-dot--selected]="selectedVariantId() === variant.id"
+                ></span>
+                {{ variant.name }}
+                <span class="item-customize-sheet__variant-price">₹{{ variant.price }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (item().addOns.length > 0) {
+        <div class="item-customize-sheet__section">
+          <h3 class="item-customize-sheet__section-title">Extra Add-ons</h3>
+          @for (addOn of item().addOns; track addOn.id) {
+            <label class="item-customize-sheet__addon-row">
+              <span class="item-customize-sheet__addon-left">
+                <input type="checkbox" [checked]="selectedAddOnIds().has(addOn.id)" (change)="toggleAddOn(addOn.id)" />
+                {{ addOn.name }}
+              </span>
+              <span class="item-customize-sheet__addon-price">+₹{{ addOn.price }}</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="item-customize-sheet__footer">
+      <div class="item-customize-sheet__stepper">
+        <button type="button" (click)="decrementQty()" aria-label="Decrease quantity">−</button>
+        <span>{{ qty() }}</span>
+        <button type="button" (click)="incrementQty()" aria-label="Increase quantity">+</button>
+      </div>
+
+      <button type="button" class="item-customize-sheet__add-btn" (click)="onConfirm()">
+        Add to Cart · ₹{{ totalForQty() }}
+      </button>
+    </div>
+  </div>
+</div>

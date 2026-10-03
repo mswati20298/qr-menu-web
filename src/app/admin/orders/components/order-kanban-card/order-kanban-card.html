@@ -1,0 +1,55 @@
+<div class="kanban-card" [class.kanban-card--new]="isNew()">
+  <div class="kanban-card__top">
+    <span class="kanban-card__table">{{ tableLabel(order()) }}</span>
+    <app-status-pill [status]="order().status" />
+  </div>
+
+  @if (order().customerName) {
+    <span class="kanban-card__customer">{{ order().customerName }}</span>
+  }
+
+  <ul class="kanban-card__items">
+    @for (item of order().items; track item.id) {
+      <li>
+        <span class="kanban-card__item-qty">{{ item.qty }}×</span>
+        {{ item.itemName }}{{ item.variantName ? ' (' + item.variantName + ')' : '' }}
+      </li>
+      @if (item.addOns.length > 0) {
+        <li class="kanban-card__addons">+ {{ addOnNames(item.addOns) }}</li>
+      }
+    }
+  </ul>
+
+  <div class="kanban-card__footer">
+    <span
+      class="kanban-card__elapsed"
+      [class.kanban-card__elapsed--amber]="urgency() === 'amber'"
+      [class.kanban-card__elapsed--red]="urgency() === 'red'"
+    >
+      {{ elapsedLabel() }}{{ urgency() === 'red' ? ' · running late' : '' }}
+    </span>
+    <span class="kanban-card__total">₹{{ order().total | number: '1.0-2' }}</span>
+  </div>
+
+  @if (order().status !== 'Cancelled' && order().paymentStatus !== 'Unpaid') {
+    <div class="kanban-card__payment kanban-card__payment--{{ order().paymentStatus.toLowerCase() }}">
+      @if (order().paymentStatus === 'Paid') {
+        Paid
+      } @else {
+        <span>UPI claimed{{ order().paymentReference ? ' · ' + order().paymentReference : '' }}</span>
+        <button type="button" class="kanban-card__pay-btn" (click)="confirmPayment.emit()">Received</button>
+      }
+    </div>
+  }
+
+  <div class="kanban-card__actions">
+    @if (actionLabel(); as label) {
+      <button type="button" class="btn-admin-primary kanban-card__action-btn" (click)="primaryAction.emit()">
+        {{ label }}
+      </button>
+    }
+    @if (canCancel()) {
+      <button type="button" class="kanban-card__cancel-btn" (click)="cancel.emit()">Cancel</button>
+    }
+  </div>
+</div>

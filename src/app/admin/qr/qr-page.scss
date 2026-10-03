@@ -1,0 +1,83 @@
+@use 'styles/admin-theme' as *;
+
+.qr-page {
+  max-width: 560px;
+
+  h1 {
+    font-size: 26px;
+    font-family: var(--font-heading);
+    margin-bottom: 20px;
+  }
+
+  &__card {
+    @include admin-card;
+    padding: 20px;
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 17px;
+    }
+  }
+
+  &__hint {
+    color: var(--admin-muted);
+    font-size: 13.5px;
+    margin: 6px 0 16px;
+    line-height: 1.5;
+  }
+
+  &__label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  &__link-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__link-input,
+  &__input {
+    flex: 1;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-bg);
+    color: var(--admin-muted);
+    font-size: 13.5px;
+  }
+
+  &__input {
+    color: inherit;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 14px 0 8px;
+  }
+
+  &__chip {
+    min-width: 34px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-bg);
+    font-size: 13px;
+    text-align: center;
+
+    &--more {
+      color: var(--admin-muted);
+    }
+  }
+
+  &__error {
+    color: #c0392b;
+    font-size: 13px;
+    margin: 8px 0 12px;
+  }
+}

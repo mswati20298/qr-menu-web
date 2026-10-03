@@ -1,0 +1,81 @@
+<div class="auth-page" [attr.data-accent]="accent">
+  <div class="auth-page__bg" [style.background-image]="backgroundImage"></div>
+  <app-theme-toggle class="auth-page__theme" />
+
+  <div class="auth-page__card">
+    <div class="auth-page__brand" aria-label="QR Menu">
+      <div class="auth-page__brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 40h40M15 40c0-10.8 7.7-19 17-19s17 8.2 17 19" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M9 43h46M17 47h30" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M32 16v-5M27 14l-2-4M37 14l2-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="32" cy="8" r="2" fill="currentColor"/>
+        </svg>
+      </div>
+      <h2 class="auth-page__brand-name">QR <span>MENU</span></h2>
+      <p class="auth-page__tagline">SCAN · ORDER · ENJOY</p>
+      <div class="auth-page__divider" aria-hidden="true"></div>
+    </div>
+
+    <h1 class="auth-page__title">Create your account</h1>
+    <p class="auth-page__subtitle">Set up your restaurant's digital menu in minutes.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-field">
+        <label for="restaurantName">Restaurant name</label>
+        <input id="restaurantName" type="text" formControlName="restaurantName" placeholder="Your restaurant name" autocomplete="organization" />
+        @if (form.controls.restaurantName.touched && form.controls.restaurantName.invalid) {
+          <span class="form-field__error">Restaurant name is required.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="ownerName">Your name</label>
+        <input id="ownerName" type="text" formControlName="ownerName" placeholder="Your full name" autocomplete="name" />
+        @if (form.controls.ownerName.touched && form.controls.ownerName.invalid) {
+          <span class="form-field__error">Your name is required.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="you@restaurant.com" autocomplete="email" />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="form-field__error">Enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" placeholder="Create a password" autocomplete="new-password" />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="form-field__error">Password must be at least 6 characters.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="whatsAppNumber">WhatsApp number</label>
+        <input id="whatsAppNumber" type="tel" formControlName="whatsAppNumber" placeholder="+91 98765 43210" autocomplete="tel" />
+        @if (form.controls.whatsAppNumber.touched && form.controls.whatsAppNumber.invalid) {
+          <span class="form-field__error">Enter a valid 10-15 digit number.</span>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p class="auth-page__error">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" class="btn-primary auth-page__submit" [disabled]="submitting()">
+        {{ submitting() ? 'Creating account…' : 'Create account  →' }}
+      </button>
+    </form>
+
+    <p class="auth-page__footer">
+      Already have an account? <a routerLink="/admin/login">Log in</a>
+    </p>
+
+    <div class="auth-page__bottom-line">GOOD FOOD BRINGS PEOPLE TOGETHER</div>
+    <div class="auth-page__food-mark" aria-hidden="true">🍴</div>
+    <p class="auth-page__footer-note">QR MENU · RESTAURANT DIGITAL EXPERIENCE</p>
+  </div>
+</div>

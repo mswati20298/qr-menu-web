@@ -1,0 +1,234 @@
+@use 'styles/admin-theme' as *;
+
+.scan-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.scan-modal__panel {
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--admin-surface);
+  border-radius: 16px;
+  box-shadow: var(--admin-shadow-md);
+  padding: 24px;
+}
+
+.scan-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  h2 {
+    font-size: 19px;
+    font-family: var(--admin-font-heading);
+  }
+}
+
+.scan-modal__close-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--admin-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: var(--admin-bg);
+  }
+}
+
+.scan-modal__hint {
+  font-size: 13.5px;
+  color: var(--admin-muted);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.scan-modal__error {
+  background: var(--admin-danger-soft);
+  color: var(--admin-danger-text);
+  border: 1px solid var(--admin-danger);
+  border-radius: var(--admin-radius-control);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.scan-modal__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px;
+  border: 1.5px dashed var(--admin-border);
+  border-radius: var(--admin-radius-card);
+  color: var(--admin-muted);
+  cursor: pointer;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 600;
+
+  &:hover {
+    border-color: var(--admin-accent);
+    color: var(--admin-accent);
+  }
+}
+
+.scan-modal__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.scan-modal__thumb {
+  position: relative;
+  width: 72px;
+  height: 72px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--admin-border);
+  }
+
+  button {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: var(--admin-text);
+    color: white;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+  }
+}
+
+.scan-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.scan-modal__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 0;
+  color: var(--admin-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.scan-modal__spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--admin-border);
+  border-top-color: var(--admin-accent);
+  animation: scan-modal-spin 0.8s linear infinite;
+}
+
+@keyframes scan-modal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.scan-modal__table-wrap {
+  max-height: 50vh;
+  overflow-y: auto;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-control);
+}
+
+.scan-modal__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    position: sticky;
+    top: 0;
+    background: var(--admin-bg);
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--admin-muted);
+    padding: 8px 8px;
+    border-bottom: 1px solid var(--admin-border);
+  }
+
+  td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--admin-border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  input[type='text'],
+  input[type='number'] {
+    width: 100%;
+    min-height: 34px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px solid var(--admin-border);
+    font-size: 13px;
+  }
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.scan-modal__price-input {
+  width: 80px !important;
+}
+
+.scan-modal__row--excluded {
+  opacity: 0.45;
+}
+
+.scan-modal__remove-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: var(--admin-muted);
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger);
+  }
+}
