@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { Invoice } from '../../core/models/invoice.model';
 import { Order, OrderStatus, StaffPaymentMethod } from '../../core/models/order.model';
 import { InvoiceService } from '../../core/services/invoice.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { OrderNotificationService } from '../../core/services/order-notification.service';
 import { OrderService } from '../../core/services/order.service';
 import { ReportRange, downloadCsv, filterOrdersByRange, ordersToCsv } from '../../core/services/report-export.util';
@@ -61,6 +62,7 @@ interface PendingUndo {
 export class OrdersPage implements OnInit, OnDestroy {
   private readonly orderService = inject(OrderService);
   private readonly invoiceService = inject(InvoiceService);
+  private readonly feedback = inject(FeedbackService);
   private readonly router = inject(Router);
   readonly notifications = inject(OrderNotificationService);
 
@@ -220,13 +222,24 @@ export class OrdersPage implements OnInit, OnDestroy {
     this.pendingUndo.set(null);
   }
 
-  cancelOrder(order: Order): void {
-    if (!confirm('Cancel this order?')) {
+  async cancelOrder(order: Order): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: `Cancel the order for ${this.tableLabel(order)}?`,
+      message: 'The kitchen will not prepare it and the customer sees it as cancelled.',
+      confirmLabel: 'Cancel order',
+      cancelLabel: 'Keep order',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
-    this.orderService.updateStatus(order.id, 'Cancelled').subscribe((updated) => {
-      this.orders.set(this.orders().map((o) => (o.id === updated.id ? updated : o)));
-      this.notifications.refreshActiveCount();
+    this.orderService.updateStatus(order.id, 'Cancelled').subscribe({
+      next: (updated) => {
+        this.orders.set(this.orders().map((o) => (o.id === updated.id ? updated : o)));
+        this.notifications.refreshActiveCount();
+        this.feedback.success(`Order for ${this.tableLabel(order)} cancelled.`);
+      },
+      error: (err) => this.feedback.error(err?.error?.message ?? 'Could not cancel the order.')
     });
   }
 
@@ -251,8 +264,14 @@ export class OrdersPage implements OnInit, OnDestroy {
   }
 
   /** The customer's UPI claim did not show up in the restaurant's account. */
-  rejectPayment(order: Order): void {
-    if (!confirm('Mark this payment as not received? The customer will see it as unpaid again.')) {
+  async rejectPayment(order: Order): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: 'Payment not received?',
+      message: 'The order goes back to unpaid and the customer can pay again.',
+      confirmLabel: 'Not received',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
     this.runPayment(order, this.orderService.updatePayment(order.id, 'Unpaid'));
@@ -273,10 +292,18 @@ export class OrdersPage implements OnInit, OnDestroy {
       next: (updated) => {
         this.busyId.set(null);
         this.orders.set(this.orders().map((o) => (o.id === updated.id ? updated : o)));
+        this.feedback.success(
+          updated.paymentStatus === 'Paid'
+            ? `${this.tableLabel(updated)}: payment marked received.`
+            : `${this.tableLabel(updated)}: payment marked not received.`
+        );
       },
       error: (err) => {
         this.busyId.set(null);
-        this.actionError.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not update the payment.');
+        // The board view has no inline error area, so always show a toast too.
+        const message = err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not update the payment.';
+        this.actionError.set(message);
+        this.feedback.error(message);
       }
     });
   }

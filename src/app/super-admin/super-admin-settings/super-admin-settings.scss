@@ -1,0 +1,95 @@
+@use 'styles/admin-theme' as *;
+
+.sa-settings {
+  max-width: 760px;
+
+  h1 {
+    margin-bottom: 16px;
+    font-size: 26px;
+    font-family: var(--font-heading);
+  }
+
+  &__card {
+    @include admin-card;
+    display: block;
+    margin-bottom: 16px;
+    padding: 20px;
+
+    h2 {
+      margin-bottom: 6px;
+      font-size: 17px;
+    }
+  }
+
+  &__hint,
+  &__muted {
+    color: var(--admin-muted);
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  &__hint {
+    margin: 0 0 14px;
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  &__days {
+    width: 160px;
+    margin-bottom: 0;
+  }
+
+  &__presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+
+  &__preset {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 999px;
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &--active {
+      border-color: var(--admin-accent);
+      background: var(--admin-accent-soft);
+      color: var(--admin-accent-dark);
+    }
+  }
+
+  &__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__saved {
+    color: var(--admin-success-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__error {
+    padding: 9px 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger-text);
+    font-size: 13px;
+  }
+}

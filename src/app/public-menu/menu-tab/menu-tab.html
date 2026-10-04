@@ -88,20 +88,28 @@
       />
     </div>
 
-    <div class="menu-tab__veg-row">
-      <span>Veg only</span>
-      <button
-        type="button"
-        class="menu-tab__veg-toggle"
-        [class.menu-tab__veg-toggle--on]="vegOnly()"
-        (click)="vegOnly.set(!vegOnly())"
-        role="switch"
-        [attr.aria-checked]="vegOnly()"
-        aria-label="Show vegetarian items only"
-      >
-        <span class="menu-tab__veg-toggle-knob"></span>
-      </button>
-    </div>
+    @if (showDietFilter()) {
+      <!-- Native radios: one tap to switch, arrow keys and screen readers work out of the box. -->
+      <div class="menu-tab__diet" role="radiogroup" aria-label="Filter dishes">
+        <label class="menu-tab__diet-opt" [class.menu-tab__diet-opt--on]="diet() === 'all'">
+          <input type="radio" name="diet" value="all" [checked]="diet() === 'all'" (change)="diet.set('all')" />
+          <span>All</span>
+          <span class="menu-tab__diet-count">{{ vegCount() + nonVegCount() }}</span>
+        </label>
+        <label class="menu-tab__diet-opt menu-tab__diet-opt--veg" [class.menu-tab__diet-opt--on]="diet() === 'veg'">
+          <input type="radio" name="diet" value="veg" [checked]="diet() === 'veg'" (change)="diet.set('veg')" />
+          <app-veg-badge [isVeg]="true" />
+          <span>Veg</span>
+          <span class="menu-tab__diet-count">{{ vegCount() }}</span>
+        </label>
+        <label class="menu-tab__diet-opt menu-tab__diet-opt--nonveg" [class.menu-tab__diet-opt--on]="diet() === 'nonveg'">
+          <input type="radio" name="diet" value="nonveg" [checked]="diet() === 'nonveg'" (change)="diet.set('nonveg')" />
+          <app-veg-badge [isVeg]="false" />
+          <span>Non-veg</span>
+          <span class="menu-tab__diet-count">{{ nonVegCount() }}</span>
+        </label>
+      </div>
+    }
 
     <div class="menu-tab__list">
       @for (category of filteredCategories(); track category.id) {

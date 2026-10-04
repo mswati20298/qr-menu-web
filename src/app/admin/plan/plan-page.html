@@ -76,11 +76,14 @@
       <p class="plan-page__error" role="alert">{{ payError() }}</p>
     }
 
-    @if (!p.onlinePaymentsEnabled) {
-      <p class="plan-page__notice plan-page__notice--warning">Online payment is not available yet. Please contact support to subscribe.</p>
-    } @else if (p.availablePlans.length === 0) {
+    @if (p.availablePlans.length === 0) {
       <p class="plan-page__muted">No plans are available right now. Please contact support.</p>
     } @else {
+      @if (!p.onlinePaymentsEnabled) {
+        <p class="plan-page__notice plan-page__notice--warning">
+          Online payment is being set up. You can see the plans below; to subscribe today, please contact support.
+        </p>
+      }
       <div class="plan-page__plans">
         @for (option of p.availablePlans; track option.id) {
           <div class="plan-page__option">
@@ -97,15 +100,23 @@
             <button
               type="button"
               class="btn-admin-primary plan-page__option-btn"
-              [disabled]="payingId() !== null"
+              [disabled]="payingId() !== null || !p.onlinePaymentsEnabled"
               (click)="buy(option)"
             >
-              {{ payingId() === option.id ? 'Opening payment…' : 'Pay ₹' + (option.price | number: '1.0-2') + ' online' }}
+              @if (!p.onlinePaymentsEnabled) {
+                Online payment coming soon
+              } @else if (payingId() === option.id) {
+                Opening payment…
+              } @else {
+                {{ (p.current.plan === 'Paid' ? 'Renew · ₹' : 'Pay ₹') + (option.price | number: '1.0-2') + ' online' }}
+              }
             </button>
           </div>
         }
       </div>
-      <p class="plan-page__muted plan-page__secure">Payments are handled securely by Razorpay (UPI, cards, net banking).</p>
+      @if (p.onlinePaymentsEnabled) {
+        <p class="plan-page__muted plan-page__secure">Payments are handled securely by Razorpay (UPI, cards, net banking).</p>
+      }
     }
 
     <h2 class="plan-page__section">History</h2>

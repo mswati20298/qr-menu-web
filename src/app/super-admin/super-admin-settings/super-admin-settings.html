@@ -1,0 +1,71 @@
+<div class="sa-settings">
+  <h1>Settings</h1>
+
+  @if (error()) {
+    <p class="sa-settings__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (settings(); as s) {
+    <form class="sa-settings__card" [formGroup]="form" (ngSubmit)="save()">
+      <h2>Free trial for new restaurants</h2>
+      <p class="sa-settings__hint">
+        A restaurant that registers gets this many days free. After that, customers can browse its menu but cannot
+        order until the owner buys a plan. <strong>0 = no trial</strong>: the owner can set up the menu straight away,
+        but must buy a plan before taking orders.
+      </p>
+
+      <div class="sa-settings__row">
+        <div class="form-field sa-settings__days">
+          <label for="trialDays">Trial length (days)</label>
+          <input id="trialDays" type="number" min="0" max="90" step="1" inputmode="numeric" formControlName="trialDays" />
+          @if (form.controls.trialDays.touched && form.controls.trialDays.invalid) {
+            <span class="form-field__error">Enter a whole number from 0 to 90.</span>
+          }
+        </div>
+        <div class="sa-settings__presets" role="group" aria-label="Quick choices">
+          @for (days of [0, 2, 3, 7, 14, 30]; track days) {
+            <button
+              type="button"
+              class="sa-settings__preset"
+              [class.sa-settings__preset--active]="form.controls.trialDays.value == days"
+              (click)="setDays(days)"
+            >
+              {{ days === 0 ? 'No trial' : days + ' days' }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <p class="sa-settings__hint">
+        Only restaurants that register after you save are affected. To change an existing restaurant's trial, use
+        Restaurants → Plan → Extend or Give free.
+      </p>
+
+      <div class="sa-settings__footer">
+        <button type="submit" class="btn-admin-primary" [disabled]="saving() || form.pristine">
+          {{ saving() ? 'Saving…' : 'Save' }}
+        </button>
+        @if (saved()) {
+          <span class="sa-settings__saved" role="status">Saved.</span>
+        }
+        <span class="sa-settings__muted">
+          @if (hasBeenSaved(s)) {
+            Last changed {{ s.updatedAt | date: 'd MMM y, h:mm a' }}{{ s.updatedBy ? ' by ' + s.updatedBy : '' }}
+          } @else {
+            Using the default from the server configuration.
+          }
+        </span>
+      </div>
+    </form>
+
+    <div class="sa-settings__card">
+      <h2>Grace period for paid plans</h2>
+      <p class="sa-settings__hint">
+        When a paid plan ends, customers can keep ordering for <strong>{{ s.graceDays }} days</strong> while the owner renews.
+        The free trial has no grace period. This is set in the server configuration (<code>Subscription:GraceDays</code>).
+      </p>
+    </div>
+  } @else if (!error()) {
+    <p class="sa-settings__muted">Loading…</p>
+  }
+</div>

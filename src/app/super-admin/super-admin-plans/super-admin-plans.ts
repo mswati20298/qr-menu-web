@@ -2,6 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PricingPlanAdmin, SavePricingPlanRequest, durationLabel } from '../../core/models/subscription.model';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { SuperAdminService } from '../../core/services/super-admin.service';
 
 /** The plan catalog. Only the super admin manages it; owners just see the active plans to buy. */
@@ -13,6 +14,7 @@ import { SuperAdminService } from '../../core/services/super-admin.service';
 })
 export class SuperAdminPlans implements OnInit {
   private readonly service = inject(SuperAdminService);
+  private readonly feedback = inject(FeedbackService);
   private readonly fb = inject(FormBuilder);
 
   readonly plans = signal<PricingPlanAdmin[]>([]);
@@ -124,8 +126,14 @@ export class SuperAdminPlans implements OnInit {
       });
   }
 
-  remove(plan: PricingPlanAdmin): void {
-    if (!confirm(`Delete the plan "${plan.name}"? This cannot be undone.`)) {
+  async remove(plan: PricingPlanAdmin): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: `Delete the plan "${plan.name}"?`,
+      message: 'This cannot be undone. A plan that has been bought cannot be deleted; deactivate it instead.',
+      confirmLabel: 'Delete plan',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
     this.busyId.set(plan.id);
@@ -134,6 +142,7 @@ export class SuperAdminPlans implements OnInit {
       next: () => {
         this.busyId.set(null);
         this.plans.set(this.plans().filter((p) => p.id !== plan.id));
+        this.feedback.success(`Plan "${plan.name}" deleted.`);
       },
       error: (err) => {
         this.busyId.set(null);

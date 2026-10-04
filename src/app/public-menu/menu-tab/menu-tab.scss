@@ -197,45 +197,84 @@
     }
   }
 
-  &__veg-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 0 16px;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--color-text);
+  // Diet filter: a segmented control (All / Veg / Non-veg). Equal-width segments so the active one never jumps.
+  &__diet {
+    --diet-veg: var(--color-veg-green, #15803d);
+    --diet-nonveg: #a12b2b;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    margin: 10px 16px 0;
+    padding: 4px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
   }
 
-  &__veg-toggle {
-    width: 38px;
-    height: 22px;
-    border-radius: 999px;
-    border: none;
-    background: var(--color-border);
+  &__diet-opt {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 0 8px;
+    border-radius: 999px;
+    color: var(--color-muted);
+    font-size: 13.5px;
+    font-weight: 700;
+    white-space: nowrap;
     cursor: pointer;
-    padding: 0;
+    user-select: none;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    // The real radio stays in the page for keyboard and screen readers, just not visible.
+    input {
+      position: absolute;
+      inset: 0;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    &:has(input:focus-visible) {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
 
     &--on {
       background: var(--color-accent);
+      color: #fff;
+    }
+
+    // Selected Veg / Non-veg use a tint of their food-mark colour, readable in light and dark.
+    &--veg.menu-tab__diet-opt--on {
+      background: color-mix(in srgb, var(--diet-veg) 16%, transparent);
+      box-shadow: inset 0 0 0 1.5px var(--diet-veg);
+      color: var(--diet-veg);
+    }
+
+    &--nonveg.menu-tab__diet-opt--on {
+      background: color-mix(in srgb, var(--diet-nonveg) 14%, transparent);
+      box-shadow: inset 0 0 0 1.5px var(--diet-nonveg);
+      color: var(--diet-nonveg);
     }
   }
 
-  &__veg-toggle-knob {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: white;
-    transition: transform 0.15s ease;
+  &__diet-count {
+    min-width: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
   }
 
-  &__veg-toggle--on &__veg-toggle-knob {
-    transform: translateX(16px);
+  @media (max-width: 360px) {
+    &__diet-count {
+      display: none;
+    }
   }
 
   &__list {
@@ -324,4 +363,9 @@
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+// Brighter red for the non-veg tint on a dark background.
+:host-context(html[data-theme='dark']) .menu-tab__diet {
+  --diet-nonveg: #f87171;
 }

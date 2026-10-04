@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
-import { environment } from '../../../environments/environment';
 import { RestaurantTable } from '../../core/models/table.model';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { TableService } from '../../core/services/table.service';
@@ -45,8 +44,8 @@ export class QrPage implements OnInit {
   }
 
   get menuLink(): string {
-    const menuOrigin = environment.production ? window.location.origin : 'http://localhost:4200';
-    return `${menuOrigin}/m/${this.slug()}`;
+    // The address the admin is using right now, so QR codes made through a tunnel or a LAN IP work on phones.
+    return `${window.location.origin}/m/${this.slug()}`;
   }
 
   copyLink(): void {

@@ -9,10 +9,13 @@ import { RequestActions } from '../components/request-actions/request-actions';
 import { CategoryPills } from '../components/category-pills/category-pills';
 import { MenuListItem } from '../components/menu-list-item/menu-list-item';
 import { CustomizeSheetResult, ItemCustomizeSheet } from '../components/item-customize-sheet/item-customize-sheet';
+import { VegBadge } from '../../shared/veg-badge/veg-badge';
+
+type DietFilter = 'all' | 'veg' | 'nonveg';
 
 @Component({
   selector: 'app-menu-tab',
-  imports: [CategoryPills, MenuListItem, ItemCustomizeSheet, RequestActions],
+  imports: [CategoryPills, MenuListItem, ItemCustomizeSheet, RequestActions, VegBadge],
   templateUrl: './menu-tab.html',
   styleUrl: './menu-tab.scss'
 })
@@ -29,7 +32,14 @@ export class MenuTab implements AfterViewInit, OnDestroy {
   readonly searchTerm = signal('');
   readonly activeCategoryId = signal<string | null>(null);
   readonly activeItem = signal<PublicMenuItem | null>(null);
-  readonly vegOnly = signal(false);
+  /** All dishes, only veg, or only non-veg. */
+  readonly diet = signal<DietFilter>('all');
+
+  private readonly allItems = computed(() => this.session.menu()?.categories.flatMap((c) => c.items) ?? []);
+  readonly vegCount = computed(() => this.allItems().filter((i) => i.isVeg).length);
+  readonly nonVegCount = computed(() => this.allItems().filter((i) => !i.isVeg).length);
+  /** The filter is pointless on an all-veg (or all non-veg) menu, so it only shows when there are both. */
+  readonly showDietFilter = computed(() => this.vegCount() > 0 && this.nonVegCount() > 0);
 
   readonly initials = computed(() => {
     const name = this.session.menu()?.restaurant?.name ?? '';
@@ -50,13 +60,14 @@ export class MenuTab implements AfterViewInit, OnDestroy {
     }
 
     const term = this.searchTerm().trim().toLowerCase();
-    const onlyVeg = this.vegOnly();
+    const diet = this.diet();
 
     return data.categories
       .map((category) => ({
         ...category,
         items: category.items.filter((item) => {
-          if (onlyVeg && !item.isVeg) return false;
+          if (diet === 'veg' && !item.isVeg) return false;
+          if (diet === 'nonveg' && item.isVeg) return false;
           if (term && !item.name.toLowerCase().includes(term)) return false;
           return true;
         })
@@ -159,6 +170,11 @@ export class MenuTab implements AfterViewInit, OnDestroy {
 
   quickAdd(item: PublicMenuItem): void {
     if (!this.canOrder()) {
+      return;
+    }
+    // A dish with sizes always goes through the size sheet (default size pre-selected), never a bare add.
+    if (item.variants.length > 0) {
+      this.activeItem.set(item);
       return;
     }
     this.cart.quickAdd(item.id, item.name, this.resolveImageUrl(item.imageUrl), item.price);

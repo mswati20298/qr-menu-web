@@ -13,6 +13,7 @@ import {
   endOfLocalDay,
   paymentMethodLabel
 } from '../../core/models/subscription.model';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { SuperAdminService } from '../../core/services/super-admin.service';
 
 type Tab = 'payment' | 'free' | 'extend' | 'cancel';
@@ -31,6 +32,7 @@ function todayPlus(days: number): string {
 })
 export class SubscriptionDialog implements OnInit {
   private readonly service = inject(SuperAdminService);
+  private readonly feedback = inject(FeedbackService);
   private readonly fb = inject(FormBuilder);
 
   readonly restaurantId = input.required<string>();
@@ -166,8 +168,15 @@ export class SubscriptionDialog implements OnInit {
     );
   }
 
-  submitCancel(): void {
-    if (!confirm(`Cancel the plan of "${this.restaurantName()}"?\n\nCustomers will not be able to place orders from now on.`)) {
+  async submitCancel(): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: `Cancel the plan of "${this.restaurantName()}"?`,
+      message: 'Customers cannot place orders from now on, with no grace period.',
+      confirmLabel: 'Cancel plan',
+      cancelLabel: 'Keep plan',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
     this.run(this.service.cancel(this.restaurantId(), this.cancelForm.getRawValue().note.trim() || null), 'Plan cancelled.');

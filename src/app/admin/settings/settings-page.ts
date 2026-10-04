@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { UploadService } from '../../core/services/upload.service';
 import { BackgroundManager } from './background-manager/background-manager';
 import { RestaurantService } from '../../core/services/restaurant.service';
@@ -26,6 +27,7 @@ export class SettingsPage implements OnInit, OnDestroy {
   private readonly uploadService = inject(UploadService);
   private readonly themeColorService = inject(ThemeColorService);
   private readonly authService = inject(AuthService);
+  private readonly feedback = inject(FeedbackService);
 
   readonly saving = signal(false);
   readonly saved = signal(false);
@@ -185,8 +187,14 @@ export class SettingsPage implements OnInit, OnDestroy {
     this.updateKitchenPin(pin, this.kitchenLoginEnabled() ? 'PIN changed. Kitchen screens need to sign in again.' : 'Kitchen login is on.');
   }
 
-  disableKitchenLogin(): void {
-    if (confirm('Turn off the kitchen login? Every kitchen screen will be signed out.')) {
+  async disableKitchenLogin(): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: 'Turn off the kitchen login?',
+      message: 'Every kitchen screen is signed out. You can still open the kitchen screen from Orders.',
+      confirmLabel: 'Turn off',
+      danger: true
+    });
+    if (confirmed) {
       this.updateKitchenPin(null, 'Kitchen login is off.');
     }
   }

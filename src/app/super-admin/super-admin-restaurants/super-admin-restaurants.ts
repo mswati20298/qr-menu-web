@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { SuperAdminRestaurant } from '../../core/models/super-admin.model';
 import { PLAN_STATUS_LABELS, SubscriptionDetails } from '../../core/models/subscription.model';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { PlanFilter, SuperAdminService } from '../../core/services/super-admin.service';
 import { SubscriptionDialog } from '../subscription-dialog/subscription-dialog';
 
@@ -15,6 +16,7 @@ type StatusFilter = '' | 'active' | 'suspended';
 })
 export class SuperAdminRestaurants implements OnInit, OnDestroy {
   private readonly service = inject(SuperAdminService);
+  private readonly feedback = inject(FeedbackService);
 
   readonly pageSize = 20;
   readonly items = signal<SuperAdminRestaurant[]>([]);
@@ -90,13 +92,23 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
     this.load();
   }
 
-  toggleStatus(restaurant: SuperAdminRestaurant): void {
+  async toggleStatus(restaurant: SuperAdminRestaurant): Promise<void> {
     const activate = !restaurant.isActive;
-    const message = activate
-      ? `Activate "${restaurant.name}"? Its owner can log in again and customers can order.`
-      : `Suspend "${restaurant.name}"?\n\nIts owner is signed out of the admin panel and customers can no longer open its menu or place orders.`;
-
-    if (!confirm(message)) {
+    const confirmed = await this.feedback.confirm(
+      activate
+        ? {
+            title: `Activate "${restaurant.name}"?`,
+            message: 'Its owner can log in again and customers can order.',
+            confirmLabel: 'Activate'
+          }
+        : {
+            title: `Suspend "${restaurant.name}"?`,
+            message: 'Its owner is signed out of the admin panel and customers can no longer open its menu or place orders.',
+            confirmLabel: 'Suspend',
+            danger: true
+          }
+    );
+    if (!confirmed) {
       return;
     }
 
@@ -106,6 +118,7 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
       next: (updated) => {
         this.busyId.set(null);
         this.items.set(this.items().map((item) => (item.id === updated.id ? updated : item)));
+        this.feedback.success(`${updated.name} ${updated.isActive ? 'activated' : 'suspended'}.`);
       },
       error: (err) => {
         this.busyId.set(null);

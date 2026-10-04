@@ -29,6 +29,11 @@ export const routes: Routes = [
         path: 'plans',
         loadComponent: () => import('./super-admin/super-admin-plans/super-admin-plans').then((m) => m.SuperAdminPlans)
       },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./super-admin/super-admin-settings/super-admin-settings').then((m) => m.SuperAdminSettings)
+      },
       { path: '**', redirectTo: '' }
     ]
   },

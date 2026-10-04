@@ -4,6 +4,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { RestaurantTable } from '../../core/models/table.model';
 import { QrService } from '../../core/services/qr.service';
 import { TableService } from '../../core/services/table.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 
 @Component({
   selector: 'app-tables-page',
@@ -16,6 +17,7 @@ export class TablesPage implements OnInit {
   private readonly tableService = inject(TableService);
   private readonly qrService = inject(QrService);
   private readonly authService = inject(AuthService);
+  private readonly feedback = inject(FeedbackService);
 
   readonly tables = signal<RestaurantTable[]>([]);
   readonly loading = signal(true);
@@ -81,12 +83,22 @@ export class TablesPage implements OnInit {
     });
   }
 
-  deleteTable(table: RestaurantTable): void {
-    if (!confirm(`Delete Table ${table.number}?`)) {
+  async deleteTable(table: RestaurantTable): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: `Delete Table ${table.number}?`,
+      message: 'Its QR code stops working. Past orders from this table are kept.',
+      confirmLabel: 'Delete table',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
-    this.tableService.delete(table.id).subscribe(() => {
-      this.tables.set(this.tables().filter((t) => t.id !== table.id));
+    this.tableService.delete(table.id).subscribe({
+      next: () => {
+        this.tables.set(this.tables().filter((t) => t.id !== table.id));
+        this.feedback.success(`Table ${table.number} deleted.`);
+      },
+      error: (err) => this.feedback.error(err?.error?.message ?? `Could not delete Table ${table.number}.`)
     });
   }
 

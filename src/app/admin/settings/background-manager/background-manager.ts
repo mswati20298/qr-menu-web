@@ -3,6 +3,7 @@ import { Observable, switchMap } from 'rxjs';
 import { BACKGROUND_SLOT, BackgroundItem, BackgroundMode } from '../../../core/models/background.model';
 import { BackgroundService } from '../../../core/services/background.service';
 import { UploadService } from '../../../core/services/upload.service';
+import { FeedbackService } from '../../../core/services/feedback.service';
 
 interface SlotOption {
   bit: number;
@@ -20,6 +21,7 @@ interface SlotOption {
 export class BackgroundManager implements OnInit {
   private readonly service = inject(BackgroundService);
   private readonly uploadService = inject(UploadService);
+  private readonly feedback = inject(FeedbackService);
 
   readonly maxImages = 8;
   readonly slots: SlotOption[] = [
@@ -74,17 +76,28 @@ export class BackgroundManager implements OnInit {
     this.run(this.service.update(item.id, item.slots ^ bit, item.isDefault));
   }
 
-  remove(item: BackgroundItem): void {
-    if (confirm('Delete this background image?')) {
-      this.run(this.service.remove(item.id));
+  async remove(item: BackgroundItem): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: 'Delete this background image?',
+      message: 'It is removed from your menu and admin panel.',
+      confirmLabel: 'Delete image',
+      danger: true
+    });
+    if (confirmed) {
+      this.run(this.service.remove(item.id), 'Background image deleted.');
     }
   }
 
-  private run(request: Observable<unknown>): void {
+  private run(request: Observable<unknown>, successMessage?: string): void {
     this.busy.set(true);
     this.error.set(null);
     request.subscribe({
-      next: () => this.busy.set(false),
+      next: () => {
+        this.busy.set(false);
+        if (successMessage) {
+          this.feedback.success(successMessage);
+        }
+      },
       error: (err) => {
         this.busy.set(false);
         this.error.set(err?.error?.message ?? 'Something went wrong. Please try again.');

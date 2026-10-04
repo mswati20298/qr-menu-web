@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PagedResult, SuperAdminRestaurant, SuperAdminStats } from '../models/super-admin.model';
+import { PagedResult, PlatformSettings, SuperAdminRestaurant, SuperAdminStats } from '../models/super-admin.model';
 import {
   ExtendPlanRequest,
   GrantFreePlanRequest,
@@ -68,6 +68,14 @@ export class SuperAdminService {
 
   cancel(id: string, note: string | null): Observable<SubscriptionDetails> {
     return this.http.post<SubscriptionDetails>(`${this.baseUrl}/restaurants/${id}/subscription/cancel`, { note });
+  }
+
+  settings(): Observable<PlatformSettings> {
+    return this.http.get<PlatformSettings>(`${this.baseUrl}/settings`);
+  }
+
+  updateSettings(trialDays: number): Observable<PlatformSettings> {
+    return this.http.put<PlatformSettings>(`${this.baseUrl}/settings`, { trialDays });
   }
 
   plans(): Observable<PricingPlanAdmin[]> {

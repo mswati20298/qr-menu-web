@@ -42,3 +42,11 @@ export interface SuperAdminStats {
   inGrace: number;
   orderingStopped: number;
 }
+
+/** Platform-wide settings. trialDays: free trial for new restaurants (0 = none). graceDays is read-only. */
+export interface PlatformSettings {
+  trialDays: number;
+  graceDays: number;
+  updatedAt: string;
+  updatedBy: string | null;
+}

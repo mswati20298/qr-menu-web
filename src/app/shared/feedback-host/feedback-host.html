@@ -1,0 +1,39 @@
+@if (feedback.confirmRequest(); as request) {
+  <div class="feedback__scrim" (click)="answer(false)"></div>
+  <div
+    class="feedback__confirm"
+    role="alertdialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'confirm-title-' + request.id"
+    [attr.aria-describedby]="request.message ? 'confirm-msg-' + request.id : null"
+  >
+    <div class="feedback__confirm-text">
+      <strong [id]="'confirm-title-' + request.id">{{ request.title }}</strong>
+      @if (request.message) {
+        <span [id]="'confirm-msg-' + request.id">{{ request.message }}</span>
+      }
+    </div>
+    <div class="feedback__confirm-actions">
+      <button #cancelButton type="button" class="feedback__btn feedback__btn--ghost" (click)="answer(false)">{{ request.cancelLabel }}</button>
+      <button
+        #confirmButton
+        type="button"
+        class="feedback__btn"
+        [class.feedback__btn--danger]="request.danger"
+        (click)="answer(true)"
+      >
+        {{ request.confirmLabel }}
+      </button>
+    </div>
+  </div>
+}
+
+<div class="feedback__toasts" aria-live="polite" aria-atomic="false">
+  @for (toast of feedback.toasts(); track toast.id) {
+    <div class="feedback__toast feedback__toast--{{ toast.kind }}" [attr.role]="toast.kind === 'error' ? 'alert' : 'status'">
+      <span class="feedback__dot" aria-hidden="true"></span>
+      <span class="feedback__toast-msg">{{ toast.message }}</span>
+      <button type="button" class="feedback__close" aria-label="Dismiss" (click)="feedback.dismiss(toast.id)">×</button>
+    </div>
+  }
+</div>
