@@ -2,6 +2,11 @@
 
 .menu-list-item {
   @include card;
+  // A blurred backdrop on every card is re-painted on each scroll frame, which made the photos shake on
+  // phones. Cards use a near-solid surface instead (no blur, no extra GPU layer per card).
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -70,6 +75,44 @@
     margin-top: 2px;
   }
 
+  &__photo-col {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__hint {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-muted);
+    line-height: 1;
+
+    &--in-cart {
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+  }
+
+  &__sizes {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    max-width: 100%;
+    margin-top: 2px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &__photo-wrap {
     position: relative;
     flex-shrink: 0;
@@ -82,6 +125,7 @@
     height: 92px;
     border-radius: 14px;
     object-fit: cover;
+    display: block;
     background: var(--color-border);
 
     &--placeholder {
@@ -91,9 +135,11 @@
 
   &__add-btn {
     position: absolute;
-    left: 50%;
+    left: 0;
+    right: 0;
     bottom: -12px;
-    transform: translateX(-50%);
+    width: max-content;
+    margin-inline: auto;
     min-width: 74px;
     height: 32px;
     padding: 0 14px;
@@ -113,9 +159,11 @@
 
   &__stepper {
     position: absolute;
-    left: 50%;
+    left: 0;
+    right: 0;
     bottom: -12px;
-    transform: translateX(-50%);
+    width: max-content;
+    margin-inline: auto;
     display: flex;
     align-items: center;
     background: var(--accent-gradient);

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Invoice, InvoiceFormat, InvoicePage } from '../models/invoice.model';
-import { StaffPaymentMethod } from '../models/order.model';
+import { ManualInvoiceRequest, StaffPaymentMethod } from '../models/order.model';
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
@@ -31,6 +31,11 @@ export class InvoiceService {
   /** Bills every open, unbilled order at the table from the last 24 hours. */
   createForTable(tableNumber: string): Observable<Invoice> {
     return this.http.post<Invoice>(this.baseUrl, { orderId: null, tableNumber });
+  }
+
+  /** Counter bill: staff-entered dishes billed at once (marked paid when paidWith is set). */
+  createManual(request: ManualInvoiceRequest): Observable<Invoice> {
+    return this.http.post<Invoice>(`${this.baseUrl}/manual`, request);
   }
 
   markPaid(id: string, method: StaffPaymentMethod): Observable<Invoice> {

@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, computed, inject, sign
 import { Router } from '@angular/router';
 import { PublicCategory, PublicMenuItem } from '../../core/models/public-menu.model';
 import { CartService } from '../../core/services/cart.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { PublicSessionService } from '../../core/services/public-session.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { UploadService } from '../../core/services/upload.service';
@@ -25,6 +26,7 @@ export class MenuTab implements AfterViewInit, OnDestroy {
   readonly theme = inject(ThemeService);
   private readonly uploadService = inject(UploadService);
   private readonly router = inject(Router);
+  private readonly feedback = inject(FeedbackService);
 
   private readonly sections = viewChildren<ElementRef<HTMLElement>>('categorySection');
   private observer: IntersectionObserver | null = null;
@@ -166,6 +168,7 @@ export class MenuTab implements AfterViewInit, OnDestroy {
     );
 
     this.activeItem.set(null);
+    this.feedback.success(`${result.qty}× ${item.name}${result.variantName ? ` (${result.variantName})` : ''} added to cart`);
   }
 
   quickAdd(item: PublicMenuItem): void {

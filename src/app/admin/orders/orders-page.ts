@@ -277,6 +277,65 @@ export class OrdersPage implements OnInit, OnDestroy {
     this.runPayment(order, this.orderService.updatePayment(order.id, 'Unpaid'));
   }
 
+  /**
+   * Board card's bill button. A table order bills the whole table (after saying how many orders and how much
+   * goes on the bill); a takeaway bills just that order.
+   */
+  async billFromBoard(order: Order): Promise<void> {
+    const onBill = this.tableBillOrders(order);
+    const wholeTable = onBill.length > 0;
+    const orders = wholeTable ? onBill : [order];
+    const total = orders.reduce((sum, o) => sum + o.total, 0);
+
+    // Invoice numbers are permanent, so always confirm what goes on the bill.
+    const confirmed = await this.feedback.confirm({
+      title: wholeTable ? `Bill Table ${order.tableNumber}?` : `Bill ${this.tableLabel(order)} order?`,
+      message:
+        orders.length > 1
+          ? `${orders.length} orders go on one bill, total ₹${total.toFixed(2)}. Same dishes are combined into one line.`
+          : `1 order, total ₹${total.toFixed(2)}.`,
+      confirmLabel: 'Create bill'
+    });
+    if (!confirmed) {
+      return;
+    }
+
+    if (wholeTable) {
+      this.billTable(order);
+    } else {
+      this.createBill(order);
+    }
+  }
+
+  /** Label for the board card's bill button. */
+  billLabel(order: Order): string {
+    return this.tableBillOrders(order).length > 0 ? `Bill Table ${order.tableNumber}` : 'Create bill';
+  }
+
+  /**
+   * The orders a whole-table bill would take, exactly as the server picks them: same table, not cancelled,
+   * not billed, placed in the last 24 hours. Empty for takeaway orders and for this order if it is older.
+   */
+  private tableBillOrders(order: Order): Order[] {
+    const since = Date.now() - 24 * 60 * 60 * 1000;
+    if (!order.tableNumber || new Date(order.createdAt).getTime() < since) {
+      return [];
+    }
+    return this.orders().filter(
+      (o) =>
+        o.tableNumber === order.tableNumber &&
+        o.status !== 'Cancelled' &&
+        !o.invoiceId &&
+        new Date(o.createdAt).getTime() >= since
+    );
+  }
+
+  openInvoice(order: Order): void {
+    if (order.invoiceId) {
+      this.router.navigate(['/admin/invoices'], { queryParams: { open: order.invoiceId } });
+    }
+  }
+
   createBill(order: Order): void {
     this.runBill(order, this.invoiceService.createForOrder(order.id));
   }
@@ -314,11 +373,15 @@ export class OrdersPage implements OnInit, OnDestroy {
     call.subscribe({
       next: (invoice) => {
         this.busyId.set(null);
+        this.feedback.success(`Bill ${invoice.number} created${invoice.orderIds.length > 1 ? ` for ${invoice.orderIds.length} orders` : ''}.`);
         this.router.navigate(['/admin/invoices'], { queryParams: { open: invoice.id } });
       },
       error: (err) => {
         this.busyId.set(null);
-        this.actionError.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not create the bill.');
+        // The board has no inline error area, so always show a toast too.
+        const message = err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not create the bill.';
+        this.actionError.set(message);
+        this.feedback.error(message);
       }
     });
   }

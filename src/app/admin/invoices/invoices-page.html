@@ -4,6 +4,8 @@
       <h1>Invoices</h1>
       <p class="invoices-page__muted">Bills for single orders or whole tables, numbered for your restaurant.</p>
     </div>
+    <div class="invoices-page__head-actions">
+    <a routerLink="/admin/invoices/new" class="btn-admin-primary">+ New bill</a>
     <form class="invoices-page__bill-table" (submit)="$event.preventDefault(); billTable()">
       <label for="bill-table" class="invoices-page__sr">Table number</label>
       <input
@@ -14,10 +16,11 @@
         [value]="tableInput()"
         (input)="tableInput.set($any($event.target).value)"
       />
-      <button type="submit" class="btn-admin-primary" [disabled]="billing() || !tableInput().trim()">
+      <button type="submit" class="btn-admin-secondary" [disabled]="billing() || !tableInput().trim()">
         {{ billing() ? 'Billing…' : 'Bill table' }}
       </button>
     </form>
+    </div>
   </div>
 
   @if (error()) {

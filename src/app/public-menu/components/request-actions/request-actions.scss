@@ -21,8 +21,8 @@
     color: var(--color-text);
     font: inherit;
     cursor: pointer;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: var(--sticky-blur, blur(12px));
+    backdrop-filter: var(--sticky-blur, blur(12px));
     -webkit-tap-highlight-color: transparent;
     transition: transform 120ms ease, border-color 160ms ease;
 

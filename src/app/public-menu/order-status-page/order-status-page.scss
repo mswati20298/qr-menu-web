@@ -168,14 +168,29 @@
     cursor: pointer;
   }
 
+  // A real button, same size as the others, outlined in red so it reads as "careful" without shouting.
   &__cancel-btn {
-    min-height: 40px;
-    border: none;
-    background: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: var(--touch-target);
+    border: 1.5px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-danger) 8%, var(--field-bg, transparent));
     color: var(--color-danger);
-    font-weight: 600;
-    font-size: 13.5px;
+    font-weight: 700;
+    font-size: 14.5px;
     cursor: pointer;
+
+    &:active:not(:disabled) {
+      background: color-mix(in srgb, var(--color-danger) 16%, var(--field-bg, transparent));
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-danger);
+      outline-offset: 2px;
+    }
 
     &:disabled {
       opacity: 0.6;

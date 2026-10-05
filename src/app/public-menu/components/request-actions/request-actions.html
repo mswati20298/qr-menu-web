@@ -16,11 +16,4 @@
     }
   </div>
 
-  <p class="request-actions__status" aria-live="polite">
-    @if (error()) {
-      <span class="request-actions__error">{{ error() }}</span>
-    } @else if (message()) {
-      {{ message() }}
-    }
-  </p>
 </section>

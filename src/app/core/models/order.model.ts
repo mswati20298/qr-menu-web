@@ -39,6 +39,8 @@ export interface Order {
   paidAt: string | null;
   invoiceId: string | null;
   invoiceNumber: string | null;
+  /** "Qr" (the guest ordered) or "Staff" (entered from the admin panel). */
+  source: 'Qr' | 'Staff';
 }
 
 export interface OrderItemInput {
@@ -55,4 +57,20 @@ export interface CreateOrderRequest {
   note: string | null;
   skipServiceCharge: boolean;
   items: OrderItemInput[];
+}
+
+/** An order entered by staff. tableNumber null = takeaway. sendToKitchen false = already served at the counter. */
+export interface StaffOrderRequest {
+  tableNumber: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  note: string | null;
+  skipServiceCharge: boolean;
+  sendToKitchen: boolean;
+  items: OrderItemInput[];
+}
+
+/** Counter bill: the staff order plus an invoice at once; paidWith null = unpaid. */
+export interface ManualInvoiceRequest extends StaffOrderRequest {
+  paidWith: StaffPaymentMethod | null;
 }

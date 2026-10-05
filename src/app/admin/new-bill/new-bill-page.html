@@ -1,0 +1,234 @@
+<div class="new-bill">
+  <div class="new-bill__header">
+    <div>
+      <a routerLink="/admin/invoices" class="new-bill__back">‹ Invoices</a>
+      <h1>New bill</h1>
+      <p class="new-bill__muted">For walk-in, phone and takeaway orders, or to add dishes to a table.</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="new-bill__muted">Loading menu…</p>
+  } @else {
+    <div class="new-bill__layout">
+      <!-- Menu -->
+      <section class="new-bill__menu" aria-label="Menu">
+        <input
+          id="nb-search"
+          class="new-bill__search"
+          type="search"
+          placeholder="Search dishes…"
+          aria-label="Search dishes"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+        />
+
+        <div class="new-bill__cats" role="group" aria-label="Categories">
+          <button type="button" class="new-bill__cat" [class.new-bill__cat--on]="activeCategory() === null" (click)="activeCategory.set(null)">All</button>
+          @for (c of categories(); track c.id) {
+            <button type="button" class="new-bill__cat" [class.new-bill__cat--on]="activeCategory() === c.id" (click)="activeCategory.set(c.id)">
+              {{ c.name }}
+            </button>
+          }
+        </div>
+
+        @for (section of sections(); track section.category.id) {
+          <h2 class="new-bill__cat-title">{{ section.category.name }}</h2>
+          <div class="new-bill__grid">
+            @for (item of section.items; track item.id) {
+              <button
+                type="button"
+                class="new-bill__dish"
+                [class.new-bill__dish--out]="!item.isAvailable"
+                [class.new-bill__dish--in]="qtyInBill(item.id) > 0"
+                [disabled]="!item.isAvailable"
+                (click)="pick(item)"
+              >
+                <span class="new-bill__dish-top">
+                  <app-veg-badge [isVeg]="item.isVeg" />
+                  @if (qtyInBill(item.id) > 0) {
+                    <span class="new-bill__dish-qty">{{ qtyInBill(item.id) }}</span>
+                  }
+                </span>
+                <span class="new-bill__dish-name">{{ item.name }}</span>
+                <span class="new-bill__dish-price">
+                  {{ item.isAvailable ? priceLabel(item) : 'Sold out' }}
+                  @if (item.isAvailable && item.variants.length > 0) {
+                    <small>· {{ item.variants.length }} sizes</small>
+                  }
+                </span>
+              </button>
+            }
+          </div>
+        } @empty {
+          <p class="new-bill__muted">No dishes match your search.</p>
+        }
+      </section>
+
+      <!-- Bill -->
+      <aside class="new-bill__bill" aria-label="Bill">
+        <div class="new-bill__bill-head">
+          <h2>Bill</h2>
+          @if (lines().length > 0) {
+            <button type="button" class="new-bill__link" (click)="clear()">Clear</button>
+          }
+        </div>
+
+        <div class="new-bill__row2">
+          <div class="form-field">
+            <label for="nb-table">Table</label>
+            <select id="nb-table" [value]="table()" (change)="table.set($any($event.target).value)">
+              <option value="">Takeaway / counter</option>
+              @for (t of tables(); track t.id) {
+                <option [value]="t.number">Table {{ t.number }}{{ t.hasActiveOrder ? ' · occupied' : '' }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="nb-name">Customer name</label>
+            <input id="nb-name" type="text" maxlength="200" placeholder="Optional" [value]="customerName()" (input)="customerName.set($any($event.target).value)" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="nb-phone">Phone</label>
+          <input
+            id="nb-phone"
+            type="tel"
+            inputmode="tel"
+            maxlength="15"
+            placeholder="Optional, for the bill"
+            [value]="customerPhone()"
+            (input)="customerPhone.set($any($event.target).value)"
+          />
+          @if (phoneInvalid()) {
+            <span class="form-field__error">Enter a valid phone number, or leave it empty.</span>
+          }
+        </div>
+
+        @if (lines().length === 0) {
+          <p class="new-bill__empty">Tap dishes on the left to add them.</p>
+        } @else {
+          <ul class="new-bill__lines">
+            @for (line of lines(); track line.key) {
+              <li>
+                <div class="new-bill__line-main">
+                  <span class="new-bill__line-name">
+                    <app-veg-badge [isVeg]="line.isVeg" />
+                    {{ line.name }}{{ line.variantName ? ' (' + line.variantName + ')' : '' }}
+                  </span>
+                  @if (line.addOns.length > 0) {
+                    <span class="new-bill__line-sub">+ {{ addOnNames(line) }}</span>
+                  }
+                </div>
+                <div class="new-bill__stepper" role="group" [attr.aria-label]="'Quantity of ' + line.name">
+                  <button type="button" (click)="changeQty(line, -1)" [attr.aria-label]="'One less ' + line.name">−</button>
+                  <span>{{ line.qty }}</span>
+                  <button type="button" (click)="changeQty(line, 1)" [attr.aria-label]="'One more ' + line.name">+</button>
+                </div>
+                <span class="new-bill__line-total">₹{{ lineTotal(line) | number: '1.0-2' }}</span>
+                <button type="button" class="new-bill__remove" (click)="removeLine(line)" [attr.aria-label]="'Remove ' + line.name">×</button>
+              </li>
+            }
+          </ul>
+
+          <div class="form-field">
+            <label for="nb-note">Kitchen note</label>
+            <input id="nb-note" type="text" maxlength="500" placeholder="e.g. less spicy" [value]="note()" (input)="note.set($any($event.target).value)" />
+          </div>
+
+          <dl class="new-bill__totals">
+            <div><dt>Subtotal · {{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }}</dt><dd>₹{{ bill().subtotal | number: '1.2-2' }}</dd></div>
+            @if (restaurant()?.isServiceChargeEnabled) {
+              <div>
+                <dt>
+                  <label class="new-bill__check">
+                    <input type="checkbox" [checked]="!skipServiceCharge()" (change)="skipServiceCharge.set(!$any($event.target).checked)" />
+                    Service charge ({{ restaurant()!.serviceChargePercentage }}%)
+                  </label>
+                </dt>
+                <dd>₹{{ bill().serviceChargeAmount | number: '1.2-2' }}</dd>
+              </div>
+            }
+            @if (restaurant()?.isGstEnabled) {
+              <div><dt>GST ({{ restaurant()!.gstPercentage }}%)</dt><dd>₹{{ bill().gstAmount | number: '1.2-2' }}</dd></div>
+            }
+            <div class="new-bill__grand"><dt>Total</dt><dd>₹{{ bill().total | number: '1.2-2' }}</dd></div>
+          </dl>
+
+          <label class="new-bill__check new-bill__kitchen">
+            <input type="checkbox" [checked]="sendToKitchen()" (change)="sendToKitchen.set($any($event.target).checked)" />
+            Send to kitchen screen
+            <small>Untick for things handed over at once (drinks, packed items).</small>
+          </label>
+
+          <div class="new-bill__pay" role="radiogroup" aria-label="Payment">
+            @for (option of paymentOptions; track option.label) {
+              <label class="new-bill__pay-opt" [class.new-bill__pay-opt--on]="paidWith() === option.value">
+                <input type="radio" name="nb-pay" [checked]="paidWith() === option.value" (change)="paidWith.set(option.value)" />
+                {{ option.label }}
+              </label>
+            }
+          </div>
+
+          <div class="new-bill__actions">
+            <button type="button" class="btn-admin-primary" [disabled]="submitting() !== null" (click)="createBill()">
+              {{ submitting() === 'bill' ? 'Creating…' : 'Create bill · ₹' + (bill().total | number: '1.2-2') }}
+            </button>
+            @if (table()) {
+              <button type="button" class="btn-admin-secondary" [disabled]="submitting() !== null" (click)="addToTable()">
+                {{ submitting() === 'order' ? 'Adding…' : 'Add to Table ' + table() + ', bill later' }}
+              </button>
+            }
+          </div>
+        }
+      </aside>
+    </div>
+  }
+</div>
+
+@if (picker(); as p) {
+  <div class="new-bill__backdrop" (click)="picker.set(null)">
+    <div class="new-bill__picker" role="dialog" aria-modal="true" [attr.aria-label]="'Options for ' + p.item.name" (click)="$event.stopPropagation()">
+      <div class="new-bill__picker-head">
+        <app-veg-badge [isVeg]="p.item.isVeg" />
+        <h3>{{ p.item.name }}</h3>
+        <button type="button" class="new-bill__x" aria-label="Close" (click)="picker.set(null)">×</button>
+      </div>
+
+      @if (p.item.variants.length > 0) {
+        <p class="new-bill__picker-label">Size</p>
+        <div class="new-bill__options">
+          @for (v of p.item.variants; track v.id) {
+            <label class="new-bill__option" [class.new-bill__option--on]="p.variantId === v.id">
+              <input type="radio" name="nb-size" [checked]="p.variantId === v.id" (change)="setPickerVariant(v.id)" />
+              <span>{{ v.name }}</span>
+              <b>₹{{ v.price }}</b>
+            </label>
+          }
+        </div>
+      }
+
+      @if (p.item.addOns.length > 0) {
+        <p class="new-bill__picker-label">Add-ons</p>
+        <div class="new-bill__options">
+          @for (a of p.item.addOns; track a.id) {
+            <label class="new-bill__option" [class.new-bill__option--on]="p.addOnIds.has(a.id)">
+              <input type="checkbox" [checked]="p.addOnIds.has(a.id)" (change)="togglePickerAddOn(a.id)" />
+              <span>{{ a.name }}</span>
+              <b>+₹{{ a.price }}</b>
+            </label>
+          }
+        </div>
+      }
+
+      <div class="new-bill__picker-foot">
+        <div class="new-bill__stepper new-bill__stepper--big" role="group" aria-label="Quantity">
+          <button type="button" (click)="setPickerQty(-1)" aria-label="One less">−</button>
+          <span>{{ p.qty }}</span>
+          <button type="button" (click)="setPickerQty(1)" aria-label="One more">+</button>
+        </div>
+        <button type="button" class="btn-admin-primary" (click)="confirmPicker()">Add · ₹{{ pickerPrice(p) | number: '1.0-2' }}</button>
+      </div>
+    </div>
+  </div>
+}

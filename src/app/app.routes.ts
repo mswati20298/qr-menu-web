@@ -90,7 +90,8 @@ export const routes: Routes = [
       { path: 'qr', loadComponent: () => import('./admin/qr/qr-page').then((m) => m.QrPage) },
       { path: 'settings', loadComponent: () => import('./admin/settings/settings-page').then((m) => m.SettingsPage) },
       { path: 'plan', loadComponent: () => import('./admin/plan/plan-page').then((m) => m.PlanPage) },
-      { path: 'invoices', loadComponent: () => import('./admin/invoices/invoices-page').then((m) => m.InvoicesPage) }
+      { path: 'invoices', loadComponent: () => import('./admin/invoices/invoices-page').then((m) => m.InvoicesPage) },
+      { path: 'invoices/new', loadComponent: () => import('./admin/new-bill/new-bill-page').then((m) => m.NewBillPage) }
     ]
   },
   { path: '**', redirectTo: 'admin' }

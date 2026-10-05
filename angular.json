@@ -73,7 +73,10 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "proxyConfig": "proxy.conf.json",
-            "allowedHosts": ["trading-freeware-diamond-opinions.trycloudflare.com"]
+            "allowedHosts": ["localhost", "qrmenudemo.codnexahub.com", ".trycloudflare.com"],
+            "headers": {
+              "Cache-Control": "no-store"
+            }
           },
           "configurations": {
             "production": {

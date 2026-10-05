@@ -1,6 +1,9 @@
 <div class="kanban-card" [class.kanban-card--new]="isNew()">
   <div class="kanban-card__top">
-    <span class="kanban-card__table">{{ tableLabel(order()) }}</span>
+    <span class="kanban-card__table">
+      {{ tableLabel(order()) }}
+      @if (order().source === 'Staff') { <span class="kanban-card__source">Counter</span> }
+    </span>
     <app-status-pill [status]="order().status" />
   </div>
 
@@ -52,4 +55,17 @@
       <button type="button" class="kanban-card__cancel-btn" (click)="cancel.emit()">Cancel</button>
     }
   </div>
+
+  @if (order().status !== 'Cancelled') {
+    @if (order().invoiceId) {
+      <button type="button" class="kanban-card__bill-btn kanban-card__bill-btn--done" (click)="openInvoice.emit()">
+        <span aria-hidden="true">🧾</span> {{ order().invoiceNumber }}
+      </button>
+    } @else {
+      <button type="button" class="kanban-card__bill-btn" [disabled]="billing()" (click)="bill.emit()">
+        <span aria-hidden="true">🧾</span>
+        {{ billing() ? 'Creating bill…' : billLabel() }}
+      </button>
+    }
+  }
 </div>

@@ -12,6 +12,8 @@ export class MenuListItem {
   readonly item = input.required<PublicMenuItem>();
   readonly imageUrl = input<string | null>(null);
   readonly qty = input<number>(0);
+  /** All sizes and add-on combinations of this dish in the cart. */
+  readonly totalQty = input<number>(0);
   readonly disabled = input(false);
 
   readonly open = output<void>();
@@ -20,6 +22,9 @@ export class MenuListItem {
   readonly decrement = output<void>();
 
   readonly hasVariants = computed(() => this.item().variants.length > 0);
+
+  /** "Half · Full", shown under the price so guests can see the dish comes in sizes. */
+  readonly sizeNames = computed(() => this.item().variants.map((v) => v.name).join(' · '));
 
   readonly priceLabel = computed(() => {
     const item = this.item();

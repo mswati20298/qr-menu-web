@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Order, OrderStatus } from '../../core/models/order.model';
 import { OrderService } from '../../core/services/order.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { PublicSessionService } from '../../core/services/public-session.service';
 import { BillSummary } from '../components/bill-summary/bill-summary';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
@@ -21,12 +22,12 @@ export class OrderStatusPage implements OnInit, OnDestroy {
   private readonly orderService = inject(OrderService);
   readonly session = inject(PublicSessionService);
   private readonly router = inject(Router);
+  private readonly feedback = inject(FeedbackService);
 
   readonly statusSteps = STATUS_STEPS;
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
   readonly cancelling = signal(false);
-  readonly cancelError = signal<string | null>(null);
   readonly showCancelConfirm = signal(false);
   slug = '';
   private orderId = '';
@@ -108,16 +109,16 @@ export class OrderStatusPage implements OnInit, OnDestroy {
   confirmCancelOrder(): void {
     this.showCancelConfirm.set(false);
     this.cancelling.set(true);
-    this.cancelError.set(null);
 
     this.orderService.cancelOrder(this.slug, this.orderId).subscribe({
       next: (order) => {
         this.order.set(order);
         this.cancelling.set(false);
+        this.feedback.success('Order cancelled.');
       },
       error: (err) => {
         this.cancelling.set(false);
-        this.cancelError.set(err?.error?.message ?? 'Could not cancel this order. Please try again.');
+        this.feedback.error(err?.error?.message ?? 'Could not cancel this order. Please try again.');
       }
     });
   }

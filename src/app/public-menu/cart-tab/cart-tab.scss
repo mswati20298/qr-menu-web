@@ -2,6 +2,7 @@
 
 .cart-tab {
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 0 16px 24px;
 
   &__header {
@@ -211,21 +212,42 @@
     cursor: pointer;
   }
 
+  // "+91" and the number look like one field. The input takes all the room the prefix leaves.
   &__phone-wrap {
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    width: 100%;
+    min-height: var(--touch-target);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    background: var(--color-surface);
     overflow: hidden;
 
+    // The input's own outline is clipped here, so the whole field shows the focus ring instead.
+    &:focus-within {
+      outline: 2px solid var(--color-accent);
+      outline-offset: -1px;
+    }
+
     input {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
       border: none;
       border-radius: 0;
+      background: transparent;
+      font-size: 16px; // 16px stops iOS from zooming in on focus
+      letter-spacing: 0.02em;
+
+      &:focus {
+        outline: none;
+      }
     }
   }
 
   &__phone-prefix {
-    padding: 0 10px;
+    flex-shrink: 0;
+    padding: 0 12px;
     font-size: 15px;
     font-weight: 600;
     color: var(--color-muted);

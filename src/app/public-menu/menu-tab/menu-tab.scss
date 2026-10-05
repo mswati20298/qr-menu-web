@@ -149,8 +149,8 @@
       inset: 0 -8px -14px;
       z-index: -1;
       background: var(--sticky-bg);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: var(--sticky-blur, blur(10px));
+      backdrop-filter: var(--sticky-blur, blur(10px));
       -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent),
         linear-gradient(180deg, #000 72%, transparent);
       -webkit-mask-composite: source-in;
@@ -277,8 +277,9 @@
     }
   }
 
+  // Extra bottom room so the last dish is not hidden behind the cart bar.
   &__list {
-    padding: 8px 16px 24px;
+    padding: 8px 16px 88px;
   }
 
   &__category {
@@ -314,25 +315,49 @@
     padding: 40px 0;
   }
 
+  // Fixed just above the floating tab bar, same width as it, whether or not the cart has items.
   &__cart-bar {
-    position: sticky;
-    bottom: calc(86px + env(safe-area-inset-bottom));
+    position: fixed;
     left: 0;
     right: 0;
-    z-index: 20;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    z-index: 25;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 0 16px 10px;
-    min-height: 52px;
+    gap: 12px;
+    width: calc(100% - 24px);
+    max-width: 456px;
+    min-height: 54px;
+    margin-inline: auto;
     padding: 0 18px;
     border: none;
-    border-radius: 20px;
+    border-radius: 18px;
     background: var(--accent-gradient);
     color: white;
+    font: inherit;
+    text-align: left;
     box-shadow: 0 10px 28px var(--accent-glow);
     cursor: pointer;
     animation: menu-tab-cart-bar-in 0.2s ease-out;
+
+    // Empty cart: same place and size, quieter look.
+    &--empty {
+      background: var(--glass-bg, var(--color-surface));
+      border: 1px solid var(--glass-border, var(--color-border));
+      color: var(--color-text);
+      box-shadow: var(--glass-shadow, none);
+      -webkit-backdrop-filter: var(--glass-blur, none);
+      backdrop-filter: var(--glass-blur, none);
+
+      .menu-tab__cart-bar-info {
+        color: var(--color-muted);
+      }
+
+      .menu-tab__cart-bar-cta {
+        color: var(--color-accent);
+      }
+    }
   }
 
   &__cart-bar-info {
@@ -359,9 +384,11 @@
     transform: translateY(16px);
     opacity: 0;
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-tab__cart-bar {
+    animation: none;
   }
 }
 

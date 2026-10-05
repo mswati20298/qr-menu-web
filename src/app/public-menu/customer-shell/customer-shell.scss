@@ -2,16 +2,25 @@
   position: relative;
   isolation: isolate; // keeps the bg layers behind content, above the page
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
   color: var(--color-text);
 
   // Background photo (restaurant's cover image). Falls back to a warm gradient.
+  // Sized to the *large* viewport (100lvh: browser toolbar hidden), not to the current one: on phones the
+  // address bar hides and shows while scrolling, and a background tied to that height was re-scaled on
+  // every change, which made the whole page look like it jumped up and down.
   &__bg {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    height: 100lvh;
     z-index: -2;
+    will-change: transform;
     background-color: var(--color-bg);
     background-image:
       radial-gradient(circle at 15% 10%, var(--accent-glow), transparent 45%),
@@ -26,7 +35,11 @@
   // Darkens the photo so text stays readable whatever image the owner uploads.
   &__scrim {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    height: 100lvh;
     z-index: -1;
     background: var(--scrim);
   }

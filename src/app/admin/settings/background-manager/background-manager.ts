@@ -59,7 +59,7 @@ export class BackgroundManager implements OnInit {
     if (!file) {
       return;
     }
-    this.run(this.uploadService.uploadImage(file).pipe(switchMap((result) => this.service.add(result.url))));
+    this.run(this.uploadService.uploadImage(file, 'background').pipe(switchMap((result) => this.service.add(result.url))));
   }
 
   setMode(mode: BackgroundMode): void {

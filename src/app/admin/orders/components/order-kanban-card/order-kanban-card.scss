@@ -145,3 +145,49 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+.kanban-card__source {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--admin-info-soft);
+  color: var(--admin-info-text);
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+// Billing sits under the status actions: one tap bills the whole table.
+.kanban-card__bill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 34px;
+  margin-top: 8px;
+  border: 1px dashed var(--admin-border);
+  border-radius: var(--admin-radius-control);
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-style: solid;
+    border-color: var(--admin-accent);
+    color: var(--admin-accent);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  &--done {
+    border-style: solid;
+    color: var(--admin-muted);
+  }
+}

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateOrderRequest, Order, StaffPaymentMethod } from '../models/order.model';
+import { CreateOrderRequest, Order, StaffOrderRequest, StaffPaymentMethod } from '../models/order.model';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
@@ -44,6 +44,11 @@ export class OrderService {
 
   updateStatus(id: string, status: string): Observable<Order> {
     return this.http.patch<Order>(`${environment.apiBaseUrl}/orders/${id}/status`, { status });
+  }
+
+  /** Staff adds an order to a table (or takeaway) without billing it yet. */
+  createStaffOrder(request: StaffOrderRequest): Observable<Order> {
+    return this.http.post<Order>(`${environment.apiBaseUrl}/orders`, request);
   }
 
   /** Staff confirms a payment ('Paid' + method) or rejects a customer's claim ('Unpaid'). */

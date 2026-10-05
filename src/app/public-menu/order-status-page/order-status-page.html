@@ -66,10 +66,6 @@
       <p class="order-status-page__paid">✓ Paid</p>
     }
 
-    @if (cancelError()) {
-      <p class="order-status-page__error">{{ cancelError() }}</p>
-    }
-
     <div class="order-status-page__actions">
       <button type="button" class="order-status-page__add-more-btn" (click)="backToMenu()">
         + Add more items
@@ -77,6 +73,10 @@
 
       @if (order()!.status === 'Placed') {
         <button type="button" class="order-status-page__cancel-btn" (click)="requestCancelOrder()" [disabled]="cancelling()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+            <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
           {{ cancelling() ? 'Cancelling…' : 'Cancel order' }}
         </button>
       }

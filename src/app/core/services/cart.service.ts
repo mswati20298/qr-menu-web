@@ -49,6 +49,42 @@ export class CartService {
     return line?.qty ?? 0;
   }
 
+  /** Total quantity of an item across every size and add-on combination in the cart. */
+  getItemQty(itemId: string): number {
+    return this.lines()
+      .filter((l) => l.itemId === itemId)
+      .reduce((sum, l) => sum + l.qty, 0);
+  }
+
+  /**
+   * Older carts (or a quick add from before sizes were added to a dish) can hold a sized dish with no size,
+   * which the kitchen API refuses. Give such lines the dish's default size so the order goes through.
+   */
+  fixMissingSizes(items: { id: string; variants: { id: string; name: string; price: number; isDefault: boolean }[] }[]): void {
+    const byId = new Map(items.map((i) => [i.id, i]));
+    let changed = false;
+    let lines = this.lines();
+
+    for (const line of [...lines]) {
+      const item = byId.get(line.itemId);
+      if (!item || line.variantId !== null || item.variants.length === 0) {
+        continue;
+      }
+      const size = item.variants.find((v) => v.isDefault) ?? item.variants[0];
+      lines = lines.filter((l) => l.lineId !== line.lineId);
+      const lineId = buildLineId(line.itemId, size.id, line.addOns);
+      const existing = lines.find((l) => l.lineId === lineId);
+      lines = existing
+        ? lines.map((l) => (l.lineId === lineId ? { ...l, qty: l.qty + line.qty } : l))
+        : [...lines, { ...line, lineId, variantId: size.id, variantName: size.name, unitPrice: size.price }];
+      changed = true;
+    }
+
+    if (changed) {
+      this.setLines(lines);
+    }
+  }
+
   quickAdd(itemId: string, name: string, imageUrl: string | null, unitPrice: number): void {
     this.add(itemId, name, imageUrl, null, null, unitPrice, [], 1);
   }

@@ -185,3 +185,27 @@ $accents: (
     --admin-accent-ring: #{color.change($base, $alpha: 0.3)};
   }
 }
+
+// ---------------- Phones and tablets: glass without live blur ----------------
+// Every frosted panel re-blurs whatever scrolls behind it on every frame. Phone GPUs drop frames doing that,
+// so the menu judders ("shakes") while scrolling. On touch screens the panels keep the glass look with a
+// denser tint instead of a live blur; desktops keep the blur.
+@media (hover: none) and (pointer: coarse) {
+  .customer-shell,
+  .auth-page {
+    --glass-blur: none;
+    --sticky-blur: none;
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.86));
+    --sticky-bg: linear-gradient(180deg, rgba(238, 244, 238, 0.96), rgba(238, 244, 238, 0.7));
+    --field-bg: rgba(255, 255, 255, 0.9);
+  }
+
+  [data-theme='dark'] .customer-shell,
+  [data-theme='dark'] .auth-page {
+    --glass-blur: none;
+    --sticky-blur: none;
+    --glass-bg: linear-gradient(135deg, rgba(28, 20, 15, 0.92), rgba(28, 20, 15, 0.84));
+    --sticky-bg: linear-gradient(180deg, rgba(10, 7, 5, 0.92), rgba(10, 7, 5, 0.55));
+    --field-bg: rgba(28, 20, 15, 0.86);
+  }
+}

@@ -38,10 +38,6 @@
         <button type="button" (click)="copyUpiId()">{{ copied() ? 'Copied ✓' : 'Copy' }}</button>
       </div>
 
-      @if (error()) {
-        <p class="upi-pay__error" role="alert">{{ error() }}</p>
-      }
-
       @if (askReference()) {
         <label class="upi-pay__label" for="upi-ref">UPI transaction id (UTR) — optional</label>
         <input

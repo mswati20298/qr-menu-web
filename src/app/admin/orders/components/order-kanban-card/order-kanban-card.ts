@@ -22,6 +22,15 @@ export class OrderKanbanCard {
   /** Staff saw the customer's UPI payment arrive. */
   readonly confirmPayment = output<void>();
 
+  /** "Bill Table 5" or "Create bill", decided by the Orders page (it knows the other orders on the table). */
+  readonly billLabel = input('Create bill');
+  /** True while a bill is being created for this order, so the button cannot be pressed twice. */
+  readonly billing = input(false);
+  /** Bill this order's table (or, for a takeaway, just this order). */
+  readonly bill = output<void>();
+  /** Open the invoice this order is already on. */
+  readonly openInvoice = output<void>();
+
   tableLabel(order: Order): string {
     return order.tableNumber ? `Table ${order.tableNumber}` : 'Takeaway';
   }

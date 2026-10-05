@@ -6,6 +6,14 @@
     </div>
     <h3 class="menu-list-item__name">{{ item().name }}</h3>
     <span class="menu-list-item__price">{{ priceLabel() }}</span>
+    @if (hasVariants()) {
+      <span class="menu-list-item__sizes">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h16M7 12h10M10 17h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+        {{ item().variants.length }} sizes · {{ sizeNames() }}
+      </span>
+    }
     @if (item().description) {
       <p class="menu-list-item__description">{{ item().description }}</p>
     }
@@ -14,29 +22,38 @@
     }
   </div>
 
-  <div class="menu-list-item__photo-wrap">
-    @if (imageUrl()) {
-      <img class="menu-list-item__image" [src]="imageUrl()" [alt]="item().name" loading="lazy" />
-    } @else {
-      <div class="menu-list-item__image menu-list-item__image--placeholder"></div>
-    }
-
-    @if (item().isAvailable && !disabled()) {
-      @if (hasVariants()) {
-        <button type="button" class="menu-list-item__add-btn" (click)="onQuickAddClick($event)" aria-label="Choose options for {{ item().name }}">
-          Add +
-        </button>
-      } @else if (qty() === 0) {
-        <button type="button" class="menu-list-item__add-btn" (click)="onQuickAddClick($event)" aria-label="Add {{ item().name }} to cart">
-          Add +
-        </button>
+  <div class="menu-list-item__photo-col">
+    <div class="menu-list-item__photo-wrap">
+      @if (imageUrl()) {
+        <img class="menu-list-item__image" [src]="imageUrl()" [alt]="item().name" loading="lazy" decoding="async" width="104" height="92" />
       } @else {
-        <div class="menu-list-item__stepper" role="group" aria-label="Quantity for {{ item().name }}">
-          <button type="button" (click)="onDecrementClick($event)" aria-label="Decrease quantity">−</button>
-          <span>{{ qty() }}</span>
-          <button type="button" (click)="onIncrementClick($event)" aria-label="Increase quantity">+</button>
-        </div>
+        <div class="menu-list-item__image menu-list-item__image--placeholder"></div>
       }
+
+      @if (item().isAvailable && !disabled()) {
+        @if (hasVariants()) {
+          <!-- Sizes are picked in the sheet that slides up; the default size is already selected there. -->
+          <button type="button" class="menu-list-item__add-btn" (click)="onQuickAddClick($event)" aria-label="Choose a size for {{ item().name }}">
+            {{ totalQty() > 0 ? 'Add more' : 'Add' }} +
+          </button>
+        } @else if (qty() === 0) {
+          <button type="button" class="menu-list-item__add-btn" (click)="onQuickAddClick($event)" aria-label="Add {{ item().name }} to cart">
+            Add +
+          </button>
+        } @else {
+          <div class="menu-list-item__stepper" role="group" aria-label="Quantity for {{ item().name }}">
+            <button type="button" (click)="onDecrementClick($event)" aria-label="Decrease quantity">−</button>
+            <span>{{ qty() }}</span>
+            <button type="button" (click)="onIncrementClick($event)" aria-label="Increase quantity">+</button>
+          </div>
+        }
+      }
+    </div>
+
+    @if (item().isAvailable && !disabled() && hasVariants()) {
+      <span class="menu-list-item__hint" [class.menu-list-item__hint--in-cart]="totalQty() > 0">
+        {{ totalQty() > 0 ? totalQty() + ' in cart' : 'Customisable' }}
+      </span>
     }
   </div>
 </article>

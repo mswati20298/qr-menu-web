@@ -1,13 +1,13 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, HostListener, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { INVOICE_PAYMENT_LABELS, Invoice, InvoiceFormat, InvoiceSummary } from '../../core/models/invoice.model';
 import { StaffPaymentMethod } from '../../core/models/order.model';
 import { InvoiceService } from '../../core/services/invoice.service';
 
 @Component({
   selector: 'app-invoices-page',
-  imports: [DatePipe, DecimalPipe],
+  imports: [DatePipe, DecimalPipe, RouterLink],
   templateUrl: './invoices-page.html',
   styleUrl: './invoices-page.scss'
 })

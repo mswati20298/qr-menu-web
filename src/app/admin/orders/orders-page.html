@@ -32,6 +32,8 @@
         </button>
       }
 
+      <a routerLink="/admin/invoices/new" class="btn-admin-primary orders-page__new-btn">+ New order</a>
+
       <!-- Full-screen kitchen display in its own tab (also reachable with the kitchen PIN on a tablet). -->
       <a href="/kitchen" target="_blank" rel="noopener" class="btn-admin-secondary orders-page__kitchen-btn">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -80,6 +82,10 @@
                   (primaryAction)="primaryAction(order)"
                   (cancel)="cancelOrder(order)"
                   (confirmPayment)="markPaid(order, 'Upi')"
+                  [billing]="busyId() === order.id"
+                  [billLabel]="billLabel(order)"
+                  (bill)="billFromBoard(order)"
+                  (openInvoice)="openInvoice(order)"
                 />
               } @empty {
                 <p class="orders-page__column-empty">No orders</p>
@@ -170,6 +176,11 @@
                   </div>
 
                   <div class="orders-page__billing">
+                    @if (order.tableNumber && !order.invoiceId) {
+                      <a class="btn-admin-secondary" [routerLink]="['/admin/invoices/new']" [queryParams]="{ table: order.tableNumber }">
+                        + Add items to Table {{ order.tableNumber }}
+                      </a>
+                    }
                     @if (order.invoiceId) {
                       <a class="btn-admin-secondary" [routerLink]="['/admin/invoices']" [queryParams]="{ open: order.invoiceId }">
                         Invoice {{ order.invoiceNumber }}

@@ -116,7 +116,7 @@ export class SettingsPage implements OnInit, OnDestroy {
       return;
     }
     this.logoUploading.set(true);
-    this.uploadService.uploadImage(file).subscribe({
+    this.uploadService.uploadImage(file, 'logo').subscribe({
       next: (result) => {
         this.logoUrl.set(result.url);
         this.logoUploading.set(false);

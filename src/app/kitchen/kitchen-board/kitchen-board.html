@@ -57,7 +57,10 @@
                 (click)="tap(order)"
               >
                 <div class="kds__card-top">
-                  <span class="kds__table">{{ order.tableNumber ? 'Table ' + order.tableNumber : 'Takeaway' }}</span>
+                  <span class="kds__table">
+                    {{ order.tableNumber ? 'Table ' + order.tableNumber : 'Takeaway' }}
+                    @if (order.source === 'Staff') { <span class="kds__source">Counter</span> }
+                  </span>
                   <span class="kds__elapsed">{{ elapsedLabel(order) }}</span>
                 </div>
                 @if (order.customerName) {

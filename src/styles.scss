@@ -53,3 +53,10 @@ a {
   background: var(--color-border);
   border-radius: 4px;
 }
+
+// Customer menu only: turn off the Android "stretch" overscroll (and pull-to-refresh) at the top and bottom
+// of the page, which made the whole menu look like it jumped. The class is set by CustomerShell.
+html.customer-page,
+html.customer-page body {
+  overscroll-behavior-y: none;
+}

@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, output, signal } from '@ang
 import QRCode from 'qrcode';
 import { Order } from '../../../core/models/order.model';
 import { OrderService } from '../../../core/services/order.service';
+import { FeedbackService } from '../../../core/services/feedback.service';
 
 /**
  * Lets the customer pay an order straight into the restaurant's own UPI account: a QR with the amount
@@ -15,6 +16,7 @@ import { OrderService } from '../../../core/services/order.service';
 })
 export class UpiPayCard {
   private readonly orderService = inject(OrderService);
+  private readonly feedback = inject(FeedbackService);
 
   readonly order = input.required<Order>();
   readonly slug = input.required<string>();
@@ -28,7 +30,6 @@ export class UpiPayCard {
   readonly askReference = signal(false);
   readonly reference = signal('');
   readonly claiming = signal(false);
-  readonly error = signal<string | null>(null);
 
   /** Standard UPI deep link; every UPI app (GPay, PhonePe, Paytm, BHIM…) understands it. */
   readonly upiLink = computed(() => {
@@ -54,29 +55,30 @@ export class UpiPayCard {
     try {
       await navigator.clipboard.writeText(this.upiId());
       this.copied.set(true);
+      this.feedback.success('UPI ID copied.');
       setTimeout(() => this.copied.set(false), 2000);
     } catch {
-      this.error.set(`Could not copy. The UPI ID is ${this.upiId()}`);
+      this.feedback.error(`Could not copy. The UPI ID is ${this.upiId()}`);
     }
   }
 
   claim(): void {
     const reference = this.reference().trim();
     if (reference && !/^[A-Za-z0-9-]{1,50}$/.test(reference)) {
-      this.error.set('The transaction id can only have letters and numbers.');
+      this.feedback.error('The transaction id can only have letters and numbers.');
       return;
     }
     this.claiming.set(true);
-    this.error.set(null);
     this.orderService.claimPayment(this.slug(), this.order().id, reference || null).subscribe({
       next: (order) => {
         this.claiming.set(false);
         this.askReference.set(false);
         this.updated.emit(order);
+        this.feedback.success('Thanks! Staff will confirm your payment shortly.');
       },
       error: (err) => {
         this.claiming.set(false);
-        this.error.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not send. Please try again.');
+        this.feedback.error(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not send. Please try again.');
       }
     });
   }

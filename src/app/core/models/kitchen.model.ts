@@ -16,6 +16,8 @@ export interface KitchenOrder {
   createdAt: string;
   updatedAt: string;
   items: KitchenOrderItem[];
+  /** "Staff" = entered at the counter, not by the guest. */
+  source: 'Qr' | 'Staff';
 }
 
 export interface KitchenBoard {

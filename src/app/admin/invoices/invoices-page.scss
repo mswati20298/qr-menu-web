@@ -29,6 +29,13 @@
     clip: rect(0 0 0 0);
   }
 
+  &__head-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
   &__bill-table {
     display: flex;
     gap: 8px;

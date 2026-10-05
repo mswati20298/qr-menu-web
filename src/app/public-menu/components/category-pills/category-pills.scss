@@ -16,8 +16,8 @@
     border-radius: 999px;
     border: 1px solid var(--field-border);
     background: var(--field-bg);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: var(--sticky-blur, blur(10px));
+    backdrop-filter: var(--sticky-blur, blur(10px));
     color: var(--color-text);
     font-weight: 600;
     font-size: 14px;

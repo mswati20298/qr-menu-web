@@ -121,6 +121,7 @@
                 [item]="item"
                 [imageUrl]="resolveImageUrl(item.imageUrl)"
                 [qty]="cart.getSimpleQty(item.id)"
+                [totalQty]="cart.getItemQty(item.id)"
                 [disabled]="!canOrder()"
                 (open)="onItemOpen(item)"
                 (add)="quickAdd(item)"
@@ -137,15 +138,24 @@
       }
     </div>
 
-    @if (cart.itemCount() > 0) {
-      <button type="button" class="menu-tab__cart-bar" (click)="goToCart()">
-        <span class="menu-tab__cart-bar-info">
+    <!-- Always on screen, just above the tab bar, so guests always know where their cart is. -->
+    <button
+      type="button"
+      class="menu-tab__cart-bar"
+      [class.menu-tab__cart-bar--empty]="cart.itemCount() === 0"
+      (click)="goToCart()"
+    >
+      <span class="menu-tab__cart-bar-info">
+        @if (cart.itemCount() > 0) {
           <strong>{{ cart.itemCount() }} ITEM{{ cart.itemCount() === 1 ? '' : 'S' }}</strong>
           ₹{{ cart.subtotal() }} + taxes
-        </span>
-        <span class="menu-tab__cart-bar-cta">View cart ›</span>
-      </button>
-    }
+        } @else {
+          <strong>CART IS EMPTY</strong>
+          Tap "Add +" on a dish to start
+        }
+      </span>
+      <span class="menu-tab__cart-bar-cta">View cart ›</span>
+    </button>
 
     @if (activeItem(); as item) {
       <app-item-customize-sheet [item]="item" (close)="closeSheet()" (confirm)="confirmFromSheet($event)" />

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { pickBackgroundUrl } from '../../core/background-picker';
@@ -23,6 +23,14 @@ export class CustomerShell implements OnInit, OnDestroy {
   private readonly uploadService = inject(UploadService);
 
   readonly helpOpen = signal(false);
+
+  // Once the menu is known, repair any sized dish sitting in the cart without a size.
+  private readonly repairCart = effect(() => {
+    const menu = this.session.menu();
+    if (menu) {
+      untracked(() => this.cart.fixMissingSizes(menu.categories.flatMap((c) => c.items)));
+    }
+  });
 
   /** Brand colour picked by the restaurant (drives the [data-accent] palette). */
   readonly accent = computed(() => this.session.menu()?.restaurant?.themeColor ?? DEFAULT_THEME_COLOR);
@@ -50,9 +58,12 @@ export class CustomerShell implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
-    const table = this.route.snapshot.queryParamMap.get('t');
+    // Printed QR cards use "?t=" (server PDF) or "?table=" (QR page PDF); accept both.
+    const query = this.route.snapshot.queryParamMap;
+    const table = query.get('t') ?? query.get('table');
     this.session.init(slug, table);
     this.clockHandle = setInterval(() => this.now.set(new Date()), 60000);
+    document.documentElement.classList.add('customer-page');
 
     this.updateNavVisibility();
     this.navSubscription = this.router.events
@@ -69,6 +80,7 @@ export class CustomerShell implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.documentElement.classList.remove('customer-page');
     if (this.clockHandle) {
       clearInterval(this.clockHandle);
     }

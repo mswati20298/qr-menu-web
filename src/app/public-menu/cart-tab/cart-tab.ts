@@ -7,6 +7,7 @@ import { CartService } from '../../core/services/cart.service';
 import { computeBill } from '../../core/services/billing.util';
 import { CustomerProfileService } from '../../core/services/customer-profile.service';
 import { OrderService } from '../../core/services/order.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { PublicSessionService } from '../../core/services/public-session.service';
 import { BillSummary } from '../components/bill-summary/bill-summary';
 
@@ -29,9 +30,9 @@ export class CartTab {
   private readonly orderService = inject(OrderService);
   readonly profileService = inject(CustomerProfileService);
   readonly router = inject(Router);
+  private readonly feedback = inject(FeedbackService);
 
   readonly placingOrder = signal(false);
-  readonly errorMessage = signal<string | null>(null);
   readonly editingDetails = signal(false);
   readonly showNoteField = signal(false);
   readonly note = signal('');
@@ -133,7 +134,6 @@ export class CartTab {
     }));
 
     this.placingOrder.set(true);
-    this.errorMessage.set(null);
 
     this.orderService
       .createOrder(this.session.slug(), {
@@ -148,11 +148,12 @@ export class CartTab {
         next: (order) => {
           this.cart.clear();
           this.placingOrder.set(false);
+          this.feedback.success('Order placed. The kitchen has it.');
           this.router.navigate(['/m', this.session.slug(), 'order', order.id]);
         },
         error: (err) => {
           this.placingOrder.set(false);
-          this.errorMessage.set(err?.error?.message ?? 'Could not place your order. Please try again.');
+          this.feedback.error(err?.error?.message ?? 'Could not place your order. Please try again.');
         }
       });
   }
