@@ -243,4 +243,64 @@
       <p class="settings-page__error" role="alert">{{ message }}</p>
     }
   </div>
+  <!-- The restaurant's own address (saket.qrenvo.com). Only on deployments that support it. -->
+  <div class="settings-page__card settings-page__kitchen">
+    <h2>Menu web address</h2>
+    <p class="settings-page__kitchen-status">
+      Customers open: <a [href]="menuUrl()" target="_blank" rel="noopener">{{ menuUrl() }}</a>
+    </p>
+    @if (rootDomain(); as root) {
+      <p class="settings-page__hint">
+        Your own short address. Printed QR codes use it, so after changing it, print the QR cards again.
+      </p>
+      <div class="settings-page__kitchen-row">
+        <div class="form-field">
+          <label for="subdomain">Address name</label>
+          <div class="settings-page__subdomain">
+            <input
+              id="subdomain"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              maxlength="30"
+              placeholder="your-restaurant"
+              [value]="subdomain()"
+              (input)="subdomain.set($any($event.target).value.toLowerCase())"
+            />
+            <span>.{{ root }}</span>
+          </div>
+        </div>
+        <button type="button" class="btn-admin-primary" [disabled]="subdomainSaving()" (click)="saveSubdomain()">
+          {{ subdomainSaving() ? 'Saving…' : 'Save address' }}
+        </button>
+      </div>
+      <span class="form-field__hint">3–30 lower-case letters, numbers or hyphens.</span>
+    }
+  </div>
+
+  <div class="settings-page__card settings-page__kitchen">
+    <h2>Change password</h2>
+    <p class="settings-page__hint">You stay signed in here; every other phone or computer is signed out.</p>
+    <form class="settings-page__password" (ngSubmit)="changePassword()" autocomplete="on">
+      <div class="form-field">
+        <label for="currentPassword">Current password</label>
+        <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password"
+          [value]="currentPassword()" (input)="currentPassword.set($any($event.target).value)" />
+      </div>
+      <div class="form-field">
+        <label for="newPassword">New password (at least 8 characters)</label>
+        <input id="newPassword" name="newPassword" type="password" autocomplete="new-password"
+          [value]="newPassword()" (input)="newPassword.set($any($event.target).value)" />
+      </div>
+      <div class="form-field">
+        <label for="confirmPassword">Repeat new password</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
+          [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)" />
+      </div>
+      <button type="submit" class="btn-admin-primary" [disabled]="passwordSaving()">
+        {{ passwordSaving() ? 'Saving…' : 'Change password' }}
+      </button>
+    </form>
+  </div>
 </div>

@@ -39,6 +39,13 @@ export class AuthService {
       .pipe(tap((response) => this.storeSession(response)));
   }
 
+  /** Changes the password. Other devices are signed out; this one keeps working with the new token. */
+  changePassword(currentPassword: string, newPassword: string): Observable<AuthResponse> {
+    return this.http
+      .put<AuthResponse>(`${environment.apiBaseUrl}/account/password`, { currentPassword, newPassword })
+      .pipe(tap((response) => this.storeSession(response)));
+  }
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(SESSION_KEY);

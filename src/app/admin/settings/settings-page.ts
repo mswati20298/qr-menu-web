@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { UploadService } from '../../core/services/upload.service';
@@ -17,7 +17,7 @@ function payeeRequired(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-settings-page',
-  imports: [ReactiveFormsModule, BackgroundManager],
+  imports: [ReactiveFormsModule, FormsModule, BackgroundManager],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss'
 })
@@ -40,6 +40,16 @@ export class SettingsPage implements OnInit, OnDestroy {
   readonly kitchenSaving = signal(false);
   readonly kitchenMessage = signal<string | null>(null);
   readonly kitchenError = signal<string | null>(null);
+
+  readonly menuUrl = signal('');
+  readonly rootDomain = signal<string | null>(null);
+  readonly subdomain = signal('');
+  readonly subdomainSaving = signal(false);
+
+  readonly currentPassword = signal('');
+  readonly newPassword = signal('');
+  readonly confirmPassword = signal('');
+  readonly passwordSaving = signal(false);
 
   readonly themeColors = THEME_COLORS;
   readonly themeColor = signal<string>(DEFAULT_THEME_COLOR);
@@ -93,6 +103,7 @@ export class SettingsPage implements OnInit, OnDestroy {
         upiPayeeName: restaurant.upiPayeeName ?? ''
       });
       this.kitchenLoginEnabled.set(restaurant.kitchenLoginEnabled);
+      this.applyAddress(restaurant);
       this.logoUrl.set(restaurant.logoUrl);
       this.savedThemeColor = restaurant.themeColor ?? DEFAULT_THEME_COLOR;
       this.themeColor.set(this.savedThemeColor);
@@ -176,6 +187,59 @@ export class SettingsPage implements OnInit, OnDestroy {
           this.saveError.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not save. Please try again.');
         }
       });
+  }
+
+  saveSubdomain(): void {
+    const name = this.subdomain().trim();
+    if (name && !/^[a-z0-9](?:[a-z0-9-]{1,28})[a-z0-9]$/.test(name)) {
+      this.feedback.error('Use 3–30 lower-case letters, numbers or hyphens (not at the start or end).');
+      return;
+    }
+    this.subdomainSaving.set(true);
+    this.restaurantService.setSubdomain(name || null).subscribe({
+      next: (restaurant) => {
+        this.subdomainSaving.set(false);
+        this.applyAddress(restaurant);
+        this.feedback.success(name ? `Your menu is now at ${restaurant.menuUrl}` : 'Own address removed.');
+      },
+      error: (err) => {
+        this.subdomainSaving.set(false);
+        this.feedback.error(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not save the address.');
+      }
+    });
+  }
+
+  changePassword(): void {
+    const current = this.currentPassword();
+    const next = this.newPassword();
+    if (!current || next.length < 8) {
+      this.feedback.error('Enter your current password and a new one of at least 8 characters.');
+      return;
+    }
+    if (next !== this.confirmPassword()) {
+      this.feedback.error('The two new passwords do not match.');
+      return;
+    }
+    this.passwordSaving.set(true);
+    this.authService.changePassword(current, next).subscribe({
+      next: () => {
+        this.passwordSaving.set(false);
+        this.currentPassword.set('');
+        this.newPassword.set('');
+        this.confirmPassword.set('');
+        this.feedback.success('Password changed. Other devices have been signed out.');
+      },
+      error: (err) => {
+        this.passwordSaving.set(false);
+        this.feedback.error(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not change the password.');
+      }
+    });
+  }
+
+  private applyAddress(restaurant: { menuUrl: string; subdomain: string | null; subdomainsEnabled: boolean; rootDomain: string | null }): void {
+    this.menuUrl.set(restaurant.menuUrl);
+    this.subdomain.set(restaurant.subdomain ?? '');
+    this.rootDomain.set(restaurant.subdomainsEnabled ? restaurant.rootDomain : null);
   }
 
   saveKitchenPin(): void {

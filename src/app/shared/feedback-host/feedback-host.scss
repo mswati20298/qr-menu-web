@@ -70,6 +70,9 @@
     color: var(--fb-muted);
     font-size: 13.5px;
     line-height: 1.45;
+    // Keeps line breaks in messages (e.g. a temporary password on its own line).
+    white-space: pre-line;
+    overflow-wrap: anywhere;
   }
 }
 

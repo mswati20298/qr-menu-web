@@ -1,0 +1,18 @@
+// Corner ribbon on the Demo deployment so nobody mistakes it for a live restaurant.
+.demo-ribbon {
+  position: fixed;
+  top: 14px;
+  right: -34px;
+  z-index: 10000;
+  width: 120px;
+  padding: 3px 0;
+  transform: rotate(45deg);
+  background: #f59e0b;
+  color: #1f1300;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}

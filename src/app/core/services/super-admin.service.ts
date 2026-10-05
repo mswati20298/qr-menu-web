@@ -50,6 +50,11 @@ export class SuperAdminService {
     return this.http.put<SuperAdminRestaurant>(`${this.baseUrl}/restaurants/${id}/status`, { isActive });
   }
 
+  /** New temporary owner password, returned only once. All the owner's logins are signed out. */
+  resetOwnerPassword(id: string): Observable<{ ownerEmail: string; temporaryPassword: string }> {
+    return this.http.post<{ ownerEmail: string; temporaryPassword: string }>(`${this.baseUrl}/restaurants/${id}/reset-password`, {});
+  }
+
   subscription(id: string): Observable<SubscriptionDetails> {
     return this.http.get<SubscriptionDetails>(`${this.baseUrl}/restaurants/${id}/subscription`);
   }

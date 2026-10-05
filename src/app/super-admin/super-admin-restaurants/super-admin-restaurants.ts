@@ -127,6 +127,45 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
     });
   }
 
+  async resetPassword(restaurant: SuperAdminRestaurant): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: `Reset the owner password of "${restaurant.name}"?`,
+      message: 'The owner gets a new temporary password and is signed out everywhere. Share it with them, then ask them to change it under Settings.',
+      confirmLabel: 'Reset password',
+      danger: true
+    });
+    if (!confirmed) {
+      return;
+    }
+
+    this.busyId.set(restaurant.id);
+    this.error.set(null);
+    this.service.resetOwnerPassword(restaurant.id).subscribe({
+      next: async (result) => {
+        this.busyId.set(null);
+        const copy = await this.feedback.confirm({
+          title: 'New temporary password',
+          message: `${result.ownerEmail}
+${result.temporaryPassword}
+
+This is shown only once.`,
+          confirmLabel: 'Copy password',
+          cancelLabel: 'Close'
+        });
+        if (copy) {
+          navigator.clipboard.writeText(result.temporaryPassword).then(
+            () => this.feedback.success('Password copied.'),
+            () => this.feedback.error('Could not copy. Please note it down.')
+          );
+        }
+      },
+      error: (err) => {
+        this.busyId.set(null);
+        this.error.set(err?.error?.message ?? 'Could not reset the password. Please try again.');
+      }
+    });
+  }
+
   menuUrl(slug: string): string {
     return `${window.location.origin}/m/${slug}`;
   }

@@ -111,9 +111,11 @@ export class AdminLayout implements OnInit, OnDestroy {
       .join('') || 'R';
   });
 
+  /** Set from the restaurant (own address like saket.qrenvo.com) once loaded; until then the /m/{slug} link. */
+  private readonly ownMenuUrl = signal<string | null>(null);
   readonly liveMenuUrl = computed(() => {
     const slug = this.authService.currentSession()?.restaurantSlug;
-    return slug ? `${window.location.origin}/m/${slug}` : null;
+    return this.ownMenuUrl() ?? (slug ? `${window.location.origin}/m/${slug}` : null);
   });
 
   ngOnInit(): void {
@@ -124,6 +126,7 @@ export class AdminLayout implements OnInit, OnDestroy {
       this.themeColor.setSaved(restaurant.themeColor);
       this.openTime = restaurant.openTime;
       this.closeTime = restaurant.closeTime;
+      this.ownMenuUrl.set(restaurant.subdomainsEnabled && restaurant.subdomain ? restaurant.menuUrl : null);
       this.isOpenNow.set(computeIsOpenNow(this.openTime, this.closeTime));
     });
 

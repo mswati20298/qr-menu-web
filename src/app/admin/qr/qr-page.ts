@@ -11,6 +11,8 @@ import { QrCardBrand, buildQrCardsPdf, parseTableInput } from './qr-card-pdf';
 })
 export class QrPage implements OnInit {
   readonly slug = signal('');
+  /** The restaurant's own address (https://saket.qrenvo.com) when it has one. */
+  private readonly ownAddress = signal<string | null>(null);
   readonly brand = signal<QrCardBrand>({ name: '' });
   readonly tables = signal<RestaurantTable[]>([]);
   readonly copied = signal(false);
@@ -30,6 +32,7 @@ export class QrPage implements OnInit {
   ngOnInit(): void {
     this.restaurantService.get().subscribe((restaurant) => {
       this.slug.set(restaurant.slug);
+      this.ownAddress.set(restaurant.subdomainsEnabled && restaurant.subdomain ? restaurant.menuUrl : null);
       // TODO: rename these fields to match your Restaurant model.
       const r = restaurant as any;
       this.brand.set({
@@ -44,8 +47,9 @@ export class QrPage implements OnInit {
   }
 
   get menuLink(): string {
-    // The address the admin is using right now, so QR codes made through a tunnel or a LAN IP work on phones.
-    return `${window.location.origin}/m/${this.slug()}`;
+    // Own address first (saket.qrenvo.com). Otherwise the address the admin is using right now,
+    // so QR codes made through a tunnel or a LAN IP work on phones.
+    return this.ownAddress() ?? `${window.location.origin}/m/${this.slug()}`;
   }
 
   copyLink(): void {
@@ -77,7 +81,7 @@ export class QrPage implements OnInit {
         brand: this.brand(),
         tables,
         // Must match the URL format your menu page reads the table from.
-        linkFor: (table) => `${this.menuLink}?table=${encodeURIComponent(table)}`
+        linkFor: (table) => `${this.menuLink}${this.ownAddress() ? '/' : ''}?table=${encodeURIComponent(table)}`
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

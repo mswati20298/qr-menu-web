@@ -25,6 +25,13 @@ export interface Restaurant {
   upiPayeeName: string | null;
   /** True when a kitchen PIN is set (separate kitchen-screen login). */
   kitchenLoginEnabled: boolean;
+  /** Own address name, e.g. "saket" for saket.qrenvo.com. Null = only the /m/{slug} link. */
+  subdomain: string | null;
+  /** Public menu address to share and print. */
+  menuUrl: string;
+  /** False on deployments without restaurant addresses (Demo, local). */
+  subdomainsEnabled: boolean;
+  rootDomain: string | null;
 }
 
 export interface UpdateRestaurantRequest {

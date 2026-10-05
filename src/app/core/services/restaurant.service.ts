@@ -32,6 +32,11 @@ export class RestaurantService {
     return this.http.put<Restaurant>(`${this.baseUrl}/kitchen-pin`, { pin });
   }
 
+  /** subdomain = "saket" for saket.qrenvo.com, or null to remove it. */
+  setSubdomain(subdomain: string | null): Observable<Restaurant> {
+    return this.http.put<Restaurant>(`${this.baseUrl}/subdomain`, { subdomain });
+  }
+
   getPlan(): Observable<OwnerPlan> {
     return this.http.get<OwnerPlan>(`${this.baseUrl}/plan`);
   }

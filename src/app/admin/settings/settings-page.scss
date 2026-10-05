@@ -233,6 +233,40 @@
   }
 }
 
+.settings-page__subdomain {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: min(360px, 100%);
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  span {
+    color: var(--admin-text-muted, #6b7280);
+    font-size: 14px;
+    white-space: nowrap;
+  }
+}
+
+.settings-page__kitchen-row .form-field:has(.settings-page__subdomain) {
+  width: auto;
+  flex: 1 1 280px;
+}
+
+.settings-page__password {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  align-items: end;
+  gap: 10px;
+
+  .form-field {
+    margin-bottom: 0;
+  }
+}
+
 @media (max-width: 600px) {
   .settings-page__row {
     grid-template-columns: 1fr;

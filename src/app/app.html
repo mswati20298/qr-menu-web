@@ -1,2 +1,5 @@
+@if (site.info()?.isDemo) {
+  <div class="demo-ribbon" role="note" title="Demo: sample data, test payments. Changes may be reset.">DEMO</div>
+}
 <router-outlet></router-outlet>
 <app-feedback-host />
