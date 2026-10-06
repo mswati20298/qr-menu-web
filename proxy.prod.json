@@ -1,0 +1,18 @@
+{
+  "/api": {
+    "target": "https://app.qrenvo.com",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "Origin": "https://app.qrenvo.com"
+    }
+  },
+  "/uploads": {
+    "target": "https://app.qrenvo.com",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "Origin": "https://app.qrenvo.com"
+    }
+  }
+}

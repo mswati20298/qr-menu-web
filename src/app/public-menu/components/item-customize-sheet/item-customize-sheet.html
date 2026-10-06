@@ -11,7 +11,9 @@
     <div class="item-customize-sheet__scroll">
       <div class="item-customize-sheet__header">
         @if (imageUrl(); as img) {
-          <img class="item-customize-sheet__image" [src]="img" [alt]="item().name" />
+          <span class="dish-tint item-customize-sheet__tint">
+            <img class="item-customize-sheet__image" [src]="img" [alt]="item().name" />
+          </span>
         }
         <div class="item-customize-sheet__title-row">
           <app-veg-badge [isVeg]="item().isVeg" />

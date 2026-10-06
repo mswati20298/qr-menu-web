@@ -25,7 +25,9 @@
   <div class="menu-list-item__photo-col">
     <div class="menu-list-item__photo-wrap">
       @if (imageUrl()) {
-        <img class="menu-list-item__image" [src]="imageUrl()" [alt]="item().name" loading="lazy" decoding="async" width="104" height="92" />
+        <span class="dish-tint menu-list-item__tint">
+          <img class="menu-list-item__image" [src]="imageUrl()" [alt]="item().name" loading="lazy" decoding="async" width="104" height="92" />
+        </span>
       } @else {
         <div class="menu-list-item__image menu-list-item__image--placeholder"></div>
       }

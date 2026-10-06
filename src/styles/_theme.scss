@@ -168,6 +168,9 @@ $accents: (
     --tag-text: #{$deep};
     --nav-active: #{$deep};
     --nav-active-bg: #{color.change($base, $alpha: 0.16)};
+    // Dish photos get a light wash of the brand colour, so food looks consistent with the theme
+    // (no strong yellow cast on a purple or blue menu).
+    --img-tint: #{$base};
   }
 
   [data-theme='dark'] .customer-shell[data-accent='#{$name}'],
@@ -183,6 +186,103 @@ $accents: (
     --admin-accent-dark: #{$deep};
     --admin-accent-soft: #{color.change($base, $alpha: 0.14)};
     --admin-accent-ring: #{color.change($base, $alpha: 0.3)};
+    // "Needs attention" (orders waiting, preparing, expiring plan) follows the brand colour instead of a
+    // fixed amber, so a purple or blue panel has no yellow in it. Red (danger) and green (done) stay.
+    --admin-warning: #{$base};
+    --admin-warning-soft: #{color.change($base, $alpha: 0.12)};
+    --admin-warning-text: #{$deep};
+  }
+
+  [data-theme='dark'] .admin-shell[data-accent='#{$name}'] {
+    --admin-warning-soft: #{color.change($base, $alpha: 0.2)};
+    --admin-warning-text: #{color.mix($base, #fff, 55%)};
+  }
+
+  // ---- Page backgrounds and surfaces tinted by the brand colour (no fixed orange/brown/green) ----
+  $dark-bg: color.mix($base, #0c0b0e, 7%);
+  $dark-surface: color.mix($base, #1d1b20, 10%);
+  $light-bg: color.mix($base, #ffffff, 6%);
+
+  .admin-shell[data-accent='#{$name}'] {
+    --admin-bg: #{$light-bg};
+    --admin-page-bg: linear-gradient(135deg, #{color.mix($base, #fff, 13%)} 0%, #f6f5f3 55%,
+      #{color.mix($base, #fff, 8%)} 100%);
+    --admin-sidebar-bg-hover: #{color.change($base, $alpha: 0.09)};
+    // New / placed orders: the brand colour as well (green = done, red = cancelled stay as they are).
+    --admin-info: #{$deep};
+    --admin-info-soft: #{color.change($base, $alpha: 0.16)};
+    --admin-info-text: #{$deep};
+  }
+
+  [data-theme='dark'] .admin-shell[data-accent='#{$name}'] {
+    --admin-bg: #{$dark-bg};
+    --admin-page-bg: radial-gradient(circle at 12% 8%, #{color.change($base, $alpha: 0.24)}, transparent 42%),
+      radial-gradient(circle at 90% 92%, #{color.change($deep, $alpha: 0.2)}, transparent 48%), #{$dark-bg};
+    --admin-scrim: linear-gradient(180deg, #{color.change($dark-bg, $alpha: 0.45)} 0%,
+      #{color.change($dark-bg, $alpha: 0.66)} 100%);
+    --admin-surface: #{color.change($dark-surface, $alpha: 0.88)};
+    --admin-sidebar-bg: #{color.change($dark-bg, $alpha: 0.7)};
+    --admin-sidebar-bg-hover: #{color.change($base, $alpha: 0.14)};
+    --admin-info: #{color.mix($base, #fff, 70%)};
+    --admin-info-soft: #{color.change($base, $alpha: 0.26)};
+    --admin-info-text: #{color.mix($base, #fff, 35%)};
+  }
+
+  .customer-shell[data-accent='#{$name}'],
+  .auth-page[data-accent='#{$name}'] {
+    --color-bg: #{$light-bg};
+    --sticky-bg: linear-gradient(180deg, #{color.change($light-bg, $alpha: 0.7)}, #{color.change($light-bg, $alpha: 0.25)});
+    --status-placed: #{$base};
+    --status-preparing: #{$deep};
+  }
+
+  [data-theme='dark'] .customer-shell[data-accent='#{$name}'],
+  [data-theme='dark'] .auth-page[data-accent='#{$name}'] {
+    --color-bg: #{$dark-bg};
+    --color-surface: #{$dark-surface};
+    --glass-bg: linear-gradient(135deg, #{color.change($dark-surface, $alpha: 0.62)}, #{color.change($dark-surface, $alpha: 0.44)});
+    --field-bg: #{color.change($dark-bg, $alpha: 0.5)};
+    --sticky-bg: linear-gradient(180deg, #{color.change($dark-bg, $alpha: 0.5)}, #{color.change($dark-bg, $alpha: 0.12)});
+    --scrim: linear-gradient(180deg, #{color.change($dark-bg, $alpha: 0.16)} 0%, #{color.change($dark-bg, $alpha: 0.42)} 100%);
+    --status-placed: #{color.mix($base, #fff, 60%)};
+    --status-preparing: #{color.mix($base, #fff, 40%)};
+  }
+
+  // Phones: denser panels instead of a live blur (same reason as the block at the end of this file).
+  @media (hover: none) and (pointer: coarse) {
+    [data-theme='dark'] .customer-shell[data-accent='#{$name}'],
+    [data-theme='dark'] .auth-page[data-accent='#{$name}'] {
+      --glass-bg: linear-gradient(135deg, #{color.change($dark-surface, $alpha: 0.94)}, #{color.change($dark-surface, $alpha: 0.86)});
+      --sticky-bg: linear-gradient(180deg, #{color.change($dark-bg, $alpha: 0.92)}, #{color.change($dark-bg, $alpha: 0.55)});
+      --field-bg: #{color.change($dark-surface, $alpha: 0.88)};
+    }
+
+    .customer-shell[data-accent='#{$name}'],
+    .auth-page[data-accent='#{$name}'] {
+      --sticky-bg: linear-gradient(180deg, #{color.change($light-bg, $alpha: 0.96)}, #{color.change($light-bg, $alpha: 0.7)});
+    }
+  }
+}
+
+// Wrapper around a dish photo: lays the brand colour over it (see --img-tint above).
+.dish-tint {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: inherit;
+
+  img {
+    display: block;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--img-tint, transparent);
+    mix-blend-mode: color;
+    opacity: 0.16;
+    pointer-events: none;
   }
 }
 

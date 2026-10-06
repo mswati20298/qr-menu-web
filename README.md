@@ -21,8 +21,15 @@ npm install
 npm start
 ```
 
-Open http://localhost:4200. `proxy.conf.json` forwards `/api` and `/uploads` to the API on http://localhost:5176,
-so start the API first.
+Open http://localhost:4200. Pick which API the local app talks to:
+
+| Command | API | Data |
+|---|---|---|
+| `npm start` | local API on http://localhost:5176 (`proxy.conf.json`) — start the API first | your local database |
+| `npm run start:demo` | https://demo.qrenvo.com (`proxy.demo.json`) | demo data, reset daily |
+| `npm run start:prod` | https://app.qrenvo.com (`proxy.prod.json`) | **live restaurants** — look, don't change |
+
+Only the API is remote; the Angular code is your local copy, so UI changes show straight away.
 
 ## Build
 

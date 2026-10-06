@@ -13,7 +13,8 @@
 
   // Glass card tinted by the order's status colour.
   &__hero {
-    --hero-tint: var(--status-placed);
+    // Placed / preparing use the restaurant's brand colour; served is green, cancelled red.
+    --hero-tint: var(--color-accent);
     @include glass(26px);
     margin: 0 16px;
     text-align: center;
@@ -23,7 +24,7 @@
       var(--glass-bg);
 
     &--preparing {
-      --hero-tint: var(--status-preparing);
+      --hero-tint: var(--color-accent);
     }
 
     &--served {
@@ -168,23 +169,28 @@
     cursor: pointer;
   }
 
-  // A real button, same size as the others, outlined in red so it reads as "careful" without shouting.
+  // Same quiet style as "Back to Menu"; only the red text and icon mark it as the careful choice.
   &__cancel-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     min-height: var(--touch-target);
-    border: 1.5px solid var(--color-danger);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-md);
-    background: color-mix(in srgb, var(--color-danger) 8%, var(--field-bg, transparent));
+    background: var(--field-bg);
     color: var(--color-danger);
     font-weight: 700;
     font-size: 14.5px;
     cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      border-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
+    }
 
     &:active:not(:disabled) {
-      background: color-mix(in srgb, var(--color-danger) 16%, var(--field-bg, transparent));
+      background: color-mix(in srgb, var(--color-danger) 10%, var(--field-bg, transparent));
     }
 
     &:focus-visible {

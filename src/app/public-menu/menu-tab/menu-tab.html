@@ -56,12 +56,20 @@
     }
 
     @if (!orderingEnabled()) {
-      <div class="menu-tab__closed-banner">
-        Online ordering is not available right now. You can browse the menu — please ask the staff to take your order.
+      <div class="menu-tab__closed-banner" role="status">
+        <svg class="menu-tab__closed-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/><path d="M12 16h.01"/></svg>
+        <div>
+          <strong>Online ordering is off</strong>
+          <span>You can browse the menu. Please ask the staff to take your order.</span>
+        </div>
       </div>
     } @else if (!isOpenNow()) {
-      <div class="menu-tab__closed-banner">
-        We're closed right now. You can browse the menu, but ordering is disabled until we reopen at {{ formatTime12h(session.menu()!.restaurant.openTime) }}.
+      <div class="menu-tab__closed-banner" role="status">
+        <svg class="menu-tab__closed-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div>
+          <strong>Closed now · opens at {{ formatTime12h(session.menu()!.restaurant.openTime) }}</strong>
+          <span>You can browse the menu. Ordering starts when we open.</span>
+        </div>
       </div>
     }
 

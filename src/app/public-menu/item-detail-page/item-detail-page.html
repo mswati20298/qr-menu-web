@@ -6,7 +6,9 @@
   <div class="item-detail-page">
     <div class="item-detail-page__image-wrap">
       @if (resolveImageUrl(item()!.imageUrl); as img) {
-        <img class="item-detail-page__image" [src]="img" [alt]="item()!.name" />
+        <span class="dish-tint item-detail-page__tint">
+          <img class="item-detail-page__image" [src]="img" [alt]="item()!.name" />
+        </span>
       } @else {
         <div class="item-detail-page__image item-detail-page__image--placeholder"></div>
       }
