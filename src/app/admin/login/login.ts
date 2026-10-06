@@ -21,6 +21,7 @@ export class Login {
   readonly accent = readAuthAccent() ?? 'masala';
   readonly notice = takeLoginNotice();
   readonly submitting = signal(false);
+  readonly showPassword = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.group({

@@ -1,7 +1,7 @@
 @use 'styles/admin-theme' as *;
 
 .settings-page {
-  max-width: 620px;
+  max-width: 780px;
 
   h1 {
     font-size: 26px;
@@ -44,9 +44,11 @@
   &__percent-field {
     margin-bottom: 0;
     display: flex;
+    flex-direction: row;
+    flex: none;
     align-items: center;
     gap: 6px;
-    width: 90px;
+    width: auto;
 
     input {
       width: 60px;
@@ -207,8 +209,80 @@
   font-size: 13px;
 }
 
-.settings-page__kitchen {
-  margin-top: 24px;
+// Section tabs at the top: wrap on desktop, scroll sideways on phones.
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  @media (max-width: 600px) {
+    flex-wrap: nowrap;
+  }
+
+  margin: 0 0 18px;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  background: var(--admin-surface);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.settings-tabs__tab {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--admin-muted);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--admin-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--admin-accent);
+    outline-offset: 1px;
+  }
+
+  &--active {
+    background: var(--admin-accent);
+    color: #fff;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.settings-tabs__num {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.settings-page__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
 .settings-page__kitchen-status {

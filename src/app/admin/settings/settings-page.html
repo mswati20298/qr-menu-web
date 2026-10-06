@@ -1,306 +1,347 @@
 <div class="settings-page">
   <h1>Settings</h1>
 
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <div class="settings-page__card">
-      <h2>Restaurant details</h2>
-
-      <div class="form-field">
-        <label for="name">Restaurant name</label>
-        <input id="name" type="text" formControlName="name" />
-      </div>
-
-      <div class="form-field">
-        <label for="tagline">Tagline</label>
-        <input id="tagline" type="text" formControlName="tagline" />
-      </div>
-
-      <div class="form-field">
-        <label for="address">Address</label>
-        <textarea id="address" formControlName="address"></textarea>
-      </div>
-
-      <div class="settings-page__row">
-        <div class="form-field">
-          <label for="phone">Phone</label>
-          <input id="phone" type="tel" formControlName="phone" />
-        </div>
-
-        <div class="form-field">
-          <label for="whatsAppNumber">WhatsApp number</label>
-          <input id="whatsAppNumber" type="tel" formControlName="whatsAppNumber" placeholder="919876543210" />
-          @if (form.controls.whatsAppNumber.touched && form.controls.whatsAppNumber.invalid) {
-            <span class="form-field__error">Enter a valid 10-15 digit number.</span>
-          }
-        </div>
-      </div>
-
-      <div class="settings-page__row">
-        <div class="form-field">
-          <label for="openTime">Opens at</label>
-          <input id="openTime" type="time" formControlName="openTime" />
-        </div>
-
-        <div class="form-field">
-          <label for="closeTime">Closes at</label>
-          <input id="closeTime" type="time" formControlName="closeTime" />
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-page__card">
-      <h2>Bill charges</h2>
-      <p class="settings-page__hint">
-        Configure GST and service charge. These apply automatically to every customer order and show up as
-        separate line items on the bill.
-      </p>
-
-      <div class="settings-page__charge-row">
-        <label class="settings-page__switch">
-          <input type="checkbox" formControlName="isGstEnabled" />
-          <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
-          <span>Charge GST</span>
-        </label>
-        <div class="form-field settings-page__percent-field">
-          <input type="number" min="0" max="100" step="0.5" formControlName="gstPercentage" />
-          <span>%</span>
-        </div>
-      </div>
-      <p class="settings-page__legal-note">
-        Standard GST for standalone restaurants in India is 5% (2.5% CGST + 2.5% SGST), with no input tax credit.
-        Restaurants operating inside a hotel charge 18%.
-      </p>
-
-      <div class="settings-page__charge-row">
-        <label class="settings-page__switch">
-          <input type="checkbox" formControlName="isServiceChargeEnabled" />
-          <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
-          <span>Charge Service Charge</span>
-        </label>
-        <div class="form-field settings-page__percent-field">
-          <input type="number" min="0" max="100" step="0.5" formControlName="serviceChargePercentage" />
-          <span>%</span>
-        </div>
-      </div>
-      <p class="settings-page__legal-note">
-        Service charge is not a government tax — it's discretionary. Per CCPA (2022) guidelines it must never be
-        forced on customers, and must be clearly disclosed as optional; customers can ask for it to be removed.
-      </p>
-
-      <div class="settings-page__row">
-        <div class="form-field">
-          <label for="gstNumber">GSTIN (optional)</label>
-          <input id="gstNumber" type="text" maxlength="15" formControlName="gstNumber" placeholder="07ABCDE1234F1Z5" />
-          <span class="form-field__hint">Printed on invoices. With a GSTIN the bill is a "Tax invoice" with CGST + SGST shown separately.</span>
-          @if (form.controls.gstNumber.touched && form.controls.gstNumber.invalid) {
-            <span class="form-field__error">Enter a valid 15-character GSTIN.</span>
-          }
-        </div>
-        <div class="form-field">
-          <label for="invoicePrefix">Invoice number prefix</label>
-          <input id="invoicePrefix" type="text" maxlength="10" formControlName="invoicePrefix" placeholder="INV" />
-          <span class="form-field__hint">Invoices are numbered {{ (form.controls.invoicePrefix.value || 'INV').toUpperCase() }}-0001, -0002 …</span>
-          @if (form.controls.invoicePrefix.touched && form.controls.invoicePrefix.invalid) {
-            <span class="form-field__error">Letters and numbers only (up to 10).</span>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-page__card">
-      <h2>UPI payments</h2>
-      <p class="settings-page__hint">
-        Customers see a UPI QR with the order amount on their order screen and pay straight into this account.
-        When they tap "I've paid", the order shows as "UPI claimed" — check your UPI app, then mark it received.
-        Leave empty to turn UPI payments off.
-      </p>
-      <div class="settings-page__row">
-        <div class="form-field">
-          <label for="upiId">UPI ID</label>
-          <input id="upiId" type="text" maxlength="100" autocapitalize="off" spellcheck="false" formControlName="upiId" placeholder="saketrasoi@okicici" />
-          @if (form.controls.upiId.touched && form.controls.upiId.invalid) {
-            <span class="form-field__error">Enter a valid UPI ID, like name&#64;bank.</span>
-          }
-        </div>
-        <div class="form-field">
-          <label for="upiPayeeName">Payee name</label>
-          <input id="upiPayeeName" type="text" maxlength="100" formControlName="upiPayeeName" placeholder="Saket Rasoi" />
-          @if (form.hasError('payeeRequired') && form.controls.upiPayeeName.touched) {
-            <span class="form-field__error">Enter the name customers will see when they pay.</span>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-page__card">
-      <h2>Menu display</h2>
-
-      <div class="form-field">
-        <label for="logo">Logo</label>
-        <input id="logo" type="file" accept="image/jpeg,image/png,image/webp" (change)="onLogoSelected($event)" />
-        @if (logoUploading()) {
-          <span class="settings-page__uploading">Uploading…</span>
-        }
-        @if (resolveLogoUrl()) {
-          <img class="settings-page__logo-preview" [src]="resolveLogoUrl()" alt="Restaurant logo" />
-        }
-      </div>
-
-      <div class="form-field">
-        <label id="theme-color-label">Brand color</label>
-        <div class="settings-page__swatches" role="radiogroup" aria-labelledby="theme-color-label">
-          @for (color of themeColors; track color.key) {
-            <button
-              type="button"
-              role="radio"
-              class="settings-page__swatch"
-              [class.settings-page__swatch--active]="themeColor() === color.key"
-              [attr.aria-checked]="themeColor() === color.key"
-              [style.--swatch]="color.hex"
-              (click)="selectColor(color.key)"
-            >
-              <span class="settings-page__swatch-dot"></span>
-              {{ color.label }}
-            </button>
-          }
-        </div>
-        <p class="settings-page__swatch-hint">
-          Buttons and highlights on your customer menu and this admin panel use this color. Press "Save changes" to keep it.
-        </p>
-      </div>
-
-      <app-background-manager />
-
-      <label class="settings-page__switch settings-page__switch--block">
-        <input type="checkbox" formControlName="showWelcomeMessage" />
-        <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
-        <span>Show welcome message</span>
-      </label>
-
-      @if (form.controls.showWelcomeMessage.value) {
-        <div class="form-field">
-          <label for="welcomeMessage">Welcome message</label>
-          <input id="welcomeMessage" type="text" formControlName="welcomeMessage" placeholder="Explore our fresh and delicious menu." />
-        </div>
-      }
-    </div>
-
-    @if (saved()) {
-      <p class="settings-page__saved">Settings saved.</p>
-    }
-
-    @if (saveError()) {
-      <p class="settings-page__error" role="alert">{{ saveError() }}</p>
-    }
-
-    <button type="submit" class="btn-admin-primary" [disabled]="saving()">
-      {{ saving() ? 'Saving…' : 'Save changes' }}
-    </button>
-  </form>
-
-  <!-- Separate from the form above: the PIN is saved on its own and never sent back to the browser. -->
-  <div class="settings-page__card settings-page__kitchen">
-    <h2>Kitchen screen</h2>
-    <p class="settings-page__hint">
-      A full-screen board for the kitchen: new orders appear with a sound and cooks tap to move them to Preparing and Served.
-      You can always open it from Orders → Kitchen screen. Set a PIN to let a kitchen tablet sign in on its own —
-      it can only see and move orders, nothing else.
-    </p>
-
-    <p class="settings-page__kitchen-status">
-      Kitchen login: <strong>{{ kitchenLoginEnabled() ? 'On' : 'Off' }}</strong>
-      @if (kitchenLoginUrl(); as url) {
-        · <a [href]="url" target="_blank" rel="noopener">{{ url }}</a>
-      }
-    </p>
-
-    <div class="settings-page__kitchen-row">
-      <div class="form-field">
-        <label for="kitchenPin">{{ kitchenLoginEnabled() ? 'New PIN' : 'PIN' }} (4–8 digits)</label>
-        <input
-          id="kitchenPin"
-          type="password"
-          inputmode="numeric"
-          autocomplete="new-password"
-          maxlength="8"
-          [value]="kitchenPin()"
-          (input)="kitchenPin.set($any($event.target).value)"
-        />
-      </div>
-      <button type="button" class="btn-admin-primary" [disabled]="kitchenSaving()" (click)="saveKitchenPin()">
-        {{ kitchenLoginEnabled() ? 'Change PIN' : 'Turn on' }}
+  <!-- One section at a time instead of one long page. -->
+  <nav class="settings-tabs" role="tablist" aria-label="Settings sections">
+    @for (t of tabs; track t.key; let i = $index) {
+      <button
+        type="button"
+        role="tab"
+        class="settings-tabs__tab"
+        [id]="'tab-' + t.key"
+        [class.settings-tabs__tab--active]="tab() === t.key"
+        [attr.aria-selected]="tab() === t.key"
+        [attr.aria-controls]="'panel-' + t.key"
+        (click)="selectTab(t.key)"
+      >
+        <span class="settings-tabs__num">{{ i + 1 }}</span>
+        <span>{{ t.label }}</span>
       </button>
-      @if (kitchenLoginEnabled()) {
-        <button type="button" class="btn-admin-secondary" [disabled]="kitchenSaving()" (click)="disableKitchenLogin()">Turn off</button>
-      }
-    </div>
-    <span class="form-field__hint">Changing or turning off the PIN signs out every kitchen screen.</span>
+    }
+  </nav>
 
-    @if (kitchenMessage(); as message) {
-      <p class="settings-page__saved" role="status">{{ message }}</p>
-    }
-    @if (kitchenError(); as message) {
-      <p class="settings-page__error" role="alert">{{ message }}</p>
-    }
-  </div>
-  <!-- The restaurant's own address (saket.qrenvo.com). Only on deployments that support it. -->
-  <div class="settings-page__card settings-page__kitchen">
-    <h2>Menu web address</h2>
-    <p class="settings-page__kitchen-status">
-      Customers open: <a [href]="menuUrl()" target="_blank" rel="noopener">{{ menuUrl() }}</a>
-    </p>
-    @if (rootDomain(); as root) {
-      <p class="settings-page__hint">
-        Your own short address. Printed QR codes use it, so after changing it, print the QR cards again.
-      </p>
-      <div class="settings-page__kitchen-row">
-        <div class="form-field">
-          <label for="subdomain">Address name</label>
-          <div class="settings-page__subdomain">
-            <input
-              id="subdomain"
-              type="text"
-              autocomplete="off"
-              autocapitalize="off"
-              spellcheck="false"
-              maxlength="30"
-              placeholder="your-restaurant"
-              [value]="subdomain()"
-              (input)="subdomain.set($any($event.target).value.toLowerCase())"
-            />
-            <span>.{{ root }}</span>
+  @if (isFormTab()) {
+    <form [formGroup]="form" (ngSubmit)="save()" role="tabpanel" [id]="'panel-' + tab()" [attr.aria-labelledby]="'tab-' + tab()">
+      @switch (tab()) {
+        @case ('details') {
+          <div class="settings-page__card">
+            <h2>Restaurant details</h2>
+
+            <div class="form-field">
+              <label for="name">Restaurant name</label>
+              <input id="name" type="text" formControlName="name" />
+            </div>
+
+            <div class="form-field">
+              <label for="tagline">Tagline</label>
+              <input id="tagline" type="text" formControlName="tagline" />
+            </div>
+
+            <div class="form-field">
+              <label for="address">Address</label>
+              <textarea id="address" formControlName="address"></textarea>
+            </div>
+
+            <div class="settings-page__row">
+              <div class="form-field">
+                <label for="phone">Phone</label>
+                <input id="phone" type="tel" formControlName="phone" />
+              </div>
+
+              <div class="form-field">
+                <label for="whatsAppNumber">WhatsApp number</label>
+                <input id="whatsAppNumber" type="tel" formControlName="whatsAppNumber" placeholder="919876543210" />
+                @if (form.controls.whatsAppNumber.touched && form.controls.whatsAppNumber.invalid) {
+                  <span class="form-field__error">Enter a valid 10-15 digit number.</span>
+                }
+              </div>
+            </div>
+
+            <div class="settings-page__row">
+              <div class="form-field">
+                <label for="openTime">Opens at</label>
+                <input id="openTime" type="time" formControlName="openTime" />
+              </div>
+
+              <div class="form-field">
+                <label for="closeTime">Closes at</label>
+                <input id="closeTime" type="time" formControlName="closeTime" />
+              </div>
+            </div>
           </div>
-        </div>
-        <button type="button" class="btn-admin-primary" [disabled]="subdomainSaving()" (click)="saveSubdomain()">
-          {{ subdomainSaving() ? 'Saving…' : 'Save address' }}
-        </button>
-      </div>
-      <span class="form-field__hint">3–30 lower-case letters, numbers or hyphens.</span>
-    }
-  </div>
+        }
+        @case ('billing') {
+          <div class="settings-page__card">
+            <h2>Bill charges</h2>
+            <p class="settings-page__hint">
+              Configure GST and service charge. These apply automatically to every customer order and show up as
+              separate line items on the bill.
+            </p>
 
-  <div class="settings-page__card settings-page__kitchen">
-    <h2>Change password</h2>
-    <p class="settings-page__hint">You stay signed in here; every other phone or computer is signed out.</p>
-    <form class="settings-page__password" (ngSubmit)="changePassword()" autocomplete="on">
-      <div class="form-field">
-        <label for="currentPassword">Current password</label>
-        <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password"
-          [value]="currentPassword()" (input)="currentPassword.set($any($event.target).value)" />
+            <div class="settings-page__charge-row">
+              <label class="settings-page__switch">
+                <input type="checkbox" formControlName="isGstEnabled" />
+                <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
+                <span>Charge GST</span>
+              </label>
+              <div class="form-field settings-page__percent-field">
+                <input type="number" min="0" max="100" step="0.5" formControlName="gstPercentage" />
+                <span>%</span>
+              </div>
+            </div>
+            <p class="settings-page__legal-note">
+              Standard GST for standalone restaurants in India is 5% (2.5% CGST + 2.5% SGST), with no input tax credit.
+              Restaurants operating inside a hotel charge 18%.
+            </p>
+
+            <div class="settings-page__charge-row">
+              <label class="settings-page__switch">
+                <input type="checkbox" formControlName="isServiceChargeEnabled" />
+                <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
+                <span>Charge Service Charge</span>
+              </label>
+              <div class="form-field settings-page__percent-field">
+                <input type="number" min="0" max="100" step="0.5" formControlName="serviceChargePercentage" />
+                <span>%</span>
+              </div>
+            </div>
+            <p class="settings-page__legal-note">
+              Service charge is not a government tax — it's discretionary. Per CCPA (2022) guidelines it must never be
+              forced on customers, and must be clearly disclosed as optional; customers can ask for it to be removed.
+            </p>
+
+            <div class="settings-page__row">
+              <div class="form-field">
+                <label for="gstNumber">GSTIN (optional)</label>
+                <input id="gstNumber" type="text" maxlength="15" formControlName="gstNumber" placeholder="07ABCDE1234F1Z5" />
+                <span class="form-field__hint">Printed on invoices. With a GSTIN the bill is a "Tax invoice" with CGST + SGST shown separately.</span>
+                @if (form.controls.gstNumber.touched && form.controls.gstNumber.invalid) {
+                  <span class="form-field__error">Enter a valid 15-character GSTIN.</span>
+                }
+              </div>
+              <div class="form-field">
+                <label for="invoicePrefix">Invoice number prefix</label>
+                <input id="invoicePrefix" type="text" maxlength="10" formControlName="invoicePrefix" placeholder="INV" />
+                <span class="form-field__hint">Invoices are numbered {{ (form.controls.invoicePrefix.value || 'INV').toUpperCase() }}-0001, -0002 …</span>
+                @if (form.controls.invoicePrefix.touched && form.controls.invoicePrefix.invalid) {
+                  <span class="form-field__error">Letters and numbers only (up to 10).</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-page__card">
+            <h2>UPI payments</h2>
+            <p class="settings-page__hint">
+              Customers see a UPI QR with the order amount on their order screen and pay straight into this account.
+              When they tap "I've paid", the order shows as "UPI claimed" — check your UPI app, then mark it received.
+              Leave empty to turn UPI payments off.
+            </p>
+            <div class="settings-page__row">
+              <div class="form-field">
+                <label for="upiId">UPI ID</label>
+                <input id="upiId" type="text" maxlength="100" autocapitalize="off" spellcheck="false" formControlName="upiId" placeholder="saketrasoi@okicici" />
+                @if (form.controls.upiId.touched && form.controls.upiId.invalid) {
+                  <span class="form-field__error">Enter a valid UPI ID, like name&#64;bank.</span>
+                }
+              </div>
+              <div class="form-field">
+                <label for="upiPayeeName">Payee name</label>
+                <input id="upiPayeeName" type="text" maxlength="100" formControlName="upiPayeeName" placeholder="Saket Rasoi" />
+                @if (form.hasError('payeeRequired') && form.controls.upiPayeeName.touched) {
+                  <span class="form-field__error">Enter the name customers will see when they pay.</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+        @case ('look') {
+          <div class="settings-page__card">
+            <h2>Menu display</h2>
+
+            <div class="form-field">
+              <label for="logo">Logo</label>
+              <input id="logo" type="file" accept="image/jpeg,image/png,image/webp" (change)="onLogoSelected($event)" />
+              @if (logoUploading()) {
+                <span class="settings-page__uploading">Uploading…</span>
+              }
+              @if (resolveLogoUrl()) {
+                <img class="settings-page__logo-preview" [src]="resolveLogoUrl()" alt="Restaurant logo" />
+              }
+            </div>
+
+            <div class="form-field">
+              <label id="theme-color-label">Brand color</label>
+              <div class="settings-page__swatches" role="radiogroup" aria-labelledby="theme-color-label">
+                @for (color of themeColors; track color.key) {
+                  <button
+                    type="button"
+                    role="radio"
+                    class="settings-page__swatch"
+                    [class.settings-page__swatch--active]="themeColor() === color.key"
+                    [attr.aria-checked]="themeColor() === color.key"
+                    [style.--swatch]="color.hex"
+                    (click)="selectColor(color.key)"
+                  >
+                    <span class="settings-page__swatch-dot"></span>
+                    {{ color.label }}
+                  </button>
+                }
+              </div>
+              <p class="settings-page__swatch-hint">
+                Buttons and highlights on your customer menu and this admin panel use this color. Press "Save changes" to keep it.
+              </p>
+            </div>
+
+            <app-background-manager />
+
+            <label class="settings-page__switch settings-page__switch--block">
+              <input type="checkbox" formControlName="showWelcomeMessage" />
+              <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
+              <span>Show welcome message</span>
+            </label>
+
+            @if (form.controls.showWelcomeMessage.value) {
+              <div class="form-field">
+                <label for="welcomeMessage">Welcome message</label>
+                <input id="welcomeMessage" type="text" formControlName="welcomeMessage" placeholder="Explore our fresh and delicious menu." />
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @if (saved()) {
+        <p class="settings-page__saved">Settings saved.</p>
+      }
+
+      @if (saveError()) {
+        <p class="settings-page__error" role="alert">{{ saveError() }}</p>
+      }
+
+      <div class="settings-page__footer">
+        <button type="submit" class="btn-admin-primary" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : 'Save changes' }}
+        </button>
+        @if (nextTab(); as next) {
+          <button type="button" class="btn-admin-secondary" (click)="selectTab(next.key)">Next: {{ next.label }} →</button>
+        }
       </div>
-      <div class="form-field">
-        <label for="newPassword">New password (at least 8 characters)</label>
-        <input id="newPassword" name="newPassword" type="password" autocomplete="new-password"
-          [value]="newPassword()" (input)="newPassword.set($any($event.target).value)" />
-      </div>
-      <div class="form-field">
-        <label for="confirmPassword">Repeat new password</label>
-        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
-          [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)" />
-      </div>
-      <button type="submit" class="btn-admin-primary" [disabled]="passwordSaving()">
-        {{ passwordSaving() ? 'Saving…' : 'Change password' }}
-      </button>
     </form>
-  </div>
+  } @else {
+    <div role="tabpanel" [id]="'panel-' + tab()" [attr.aria-labelledby]="'tab-' + tab()">
+      @switch (tab()) {
+        @case ('kitchen') {
+        <!-- Separate from the form above: the PIN is saved on its own and never sent back to the browser. -->
+        <div class="settings-page__card settings-page__kitchen-card">
+          <h2>Kitchen screen</h2>
+          <p class="settings-page__hint">
+            A full-screen board for the kitchen: new orders appear with a sound and cooks tap to move them to Preparing and Served.
+            You can always open it from Orders → Kitchen screen. Set a PIN to let a kitchen tablet sign in on its own —
+            it can only see and move orders, nothing else.
+          </p>
+
+          <p class="settings-page__kitchen-status">
+            Kitchen login: <strong>{{ kitchenLoginEnabled() ? 'On' : 'Off' }}</strong>
+            @if (kitchenLoginUrl(); as url) {
+              · <a [href]="url" target="_blank" rel="noopener">{{ url }}</a>
+            }
+          </p>
+
+          <div class="settings-page__kitchen-row">
+            <div class="form-field">
+              <label for="kitchenPin">{{ kitchenLoginEnabled() ? 'New PIN' : 'PIN' }} (4–8 digits)</label>
+              <input
+                id="kitchenPin"
+                type="password"
+                inputmode="numeric"
+                autocomplete="new-password"
+                maxlength="8"
+                [value]="kitchenPin()"
+                (input)="kitchenPin.set($any($event.target).value)"
+              />
+            </div>
+            <button type="button" class="btn-admin-primary" [disabled]="kitchenSaving()" (click)="saveKitchenPin()">
+              {{ kitchenLoginEnabled() ? 'Change PIN' : 'Turn on' }}
+            </button>
+            @if (kitchenLoginEnabled()) {
+              <button type="button" class="btn-admin-secondary" [disabled]="kitchenSaving()" (click)="disableKitchenLogin()">Turn off</button>
+            }
+          </div>
+          <span class="form-field__hint">Changing or turning off the PIN signs out every kitchen screen.</span>
+
+          @if (kitchenMessage(); as message) {
+            <p class="settings-page__saved" role="status">{{ message }}</p>
+          }
+          @if (kitchenError(); as message) {
+            <p class="settings-page__error" role="alert">{{ message }}</p>
+          }
+        </div>
+        }
+        @case ('address') {
+        <!-- The restaurant's own address (saket.qrenvo.com). Only on deployments that support it. -->
+        <div class="settings-page__card">
+          <h2>Menu web address</h2>
+          <p class="settings-page__kitchen-status">
+            Customers open: <a [href]="menuUrl()" target="_blank" rel="noopener">{{ menuUrl() }}</a>
+          </p>
+          @if (rootDomain(); as root) {
+            <p class="settings-page__hint">
+              Your own short address. Printed QR codes use it, so after changing it, print the QR cards again.
+            </p>
+            <div class="settings-page__kitchen-row">
+              <div class="form-field">
+                <label for="subdomain">Address name</label>
+                <div class="settings-page__subdomain">
+                  <input
+                    id="subdomain"
+                    type="text"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    maxlength="30"
+                    placeholder="your-restaurant"
+                    [value]="subdomain()"
+                    (input)="subdomain.set($any($event.target).value.toLowerCase())"
+                  />
+                  <span>.{{ root }}</span>
+                </div>
+              </div>
+              <button type="button" class="btn-admin-primary" [disabled]="subdomainSaving()" (click)="saveSubdomain()">
+                {{ subdomainSaving() ? 'Saving…' : 'Save address' }}
+              </button>
+            </div>
+            <span class="form-field__hint">3–30 lower-case letters, numbers or hyphens.</span>
+          }
+        </div>
+        }
+        @case ('password') {
+        <div class="settings-page__card">
+          <h2>Change password</h2>
+          <p class="settings-page__hint">You stay signed in here; every other phone or computer is signed out.</p>
+          <form class="settings-page__password" (ngSubmit)="changePassword()" autocomplete="on">
+            <div class="form-field">
+              <label for="currentPassword">Current password</label>
+              <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password"
+                [value]="currentPassword()" (input)="currentPassword.set($any($event.target).value)" />
+            </div>
+            <div class="form-field">
+              <label for="newPassword">New password (at least 8 characters)</label>
+              <input id="newPassword" name="newPassword" type="password" autocomplete="new-password"
+                [value]="newPassword()" (input)="newPassword.set($any($event.target).value)" />
+            </div>
+            <div class="form-field">
+              <label for="confirmPassword">Repeat new password</label>
+              <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
+                [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)" />
+            </div>
+            <button type="submit" class="btn-admin-primary" [disabled]="passwordSaving()">
+              {{ passwordSaving() ? 'Saving…' : 'Change password' }}
+            </button>
+          </form>
+        </div>
+        }
+      }
+    </div>
+  }
 </div>

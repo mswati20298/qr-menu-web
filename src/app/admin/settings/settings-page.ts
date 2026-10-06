@@ -9,6 +9,18 @@ import { DEFAULT_THEME_COLOR, THEME_COLORS } from '../../core/models/theme-color
 import { ThemeColorService } from '../../core/services/theme-color.service';
 
 /** UPI needs a name to show customers once a UPI ID is entered. */
+type SettingsTab = 'details' | 'billing' | 'look' | 'kitchen' | 'address' | 'password';
+
+/** Which tab each saved-form field lives on, so a failed save can open the tab with the problem. */
+const FIELD_TAB: Record<string, SettingsTab> = {
+  name: 'details', tagline: 'details', address: 'details', phone: 'details', whatsAppNumber: 'details',
+  openTime: 'details', closeTime: 'details',
+  isGstEnabled: 'billing', gstPercentage: 'billing', isServiceChargeEnabled: 'billing',
+  serviceChargePercentage: 'billing', gstNumber: 'billing', invoicePrefix: 'billing', upiId: 'billing',
+  upiPayeeName: 'billing',
+  showWelcomeMessage: 'look', welcomeMessage: 'look'
+};
+
 function payeeRequired(group: AbstractControl): ValidationErrors | null {
   const upiId = (group.get('upiId')?.value ?? '').trim();
   const payee = (group.get('upiPayeeName')?.value ?? '').trim();
@@ -28,6 +40,23 @@ export class SettingsPage implements OnInit, OnDestroy {
   private readonly themeColorService = inject(ThemeColorService);
   private readonly authService = inject(AuthService);
   private readonly feedback = inject(FeedbackService);
+
+  readonly tabs: { key: SettingsTab; label: string }[] = [
+    { key: 'details', label: 'Restaurant' },
+    { key: 'billing', label: 'Billing & UPI' },
+    { key: 'look', label: 'Menu look' },
+    { key: 'kitchen', label: 'Kitchen' },
+    { key: 'address', label: 'Web address' },
+    { key: 'password', label: 'Password' }
+  ];
+  readonly tab = signal<SettingsTab>(this.initialTab());
+  /** The first three tabs share one form and one Save button. */
+  readonly isFormTab = computed(() => ['details', 'billing', 'look'].includes(this.tab()));
+  readonly nextTab = computed(() => {
+    const i = this.tabs.findIndex((x) => x.key === this.tab());
+    const next = this.tabs[i + 1];
+    return next && ['details', 'billing', 'look'].includes(next.key) ? next : null;
+  });
 
   readonly saving = signal(false);
   readonly saved = signal(false);
@@ -115,6 +144,20 @@ export class SettingsPage implements OnInit, OnDestroy {
     this.themeColorService.set(this.savedThemeColor);
   }
 
+  selectTab(key: SettingsTab): void {
+    this.tab.set(key);
+    this.saved.set(false);
+    // Remembered in the address (#billing) so a reload or a shared link opens the same section.
+    history.replaceState(history.state, '', `${location.pathname}${location.search}#${key}`);
+  }
+
+  private initialTab(): SettingsTab {
+    const hash = location.hash.replace('#', '');
+    return (['details', 'billing', 'look', 'kitchen', 'address', 'password'] as string[]).includes(hash)
+      ? (hash as SettingsTab)
+      : 'details';
+  }
+
   /** Picks a colour and previews it straight away on this admin panel; Save keeps it. */
   selectColor(key: string): void {
     this.themeColor.set(key);
@@ -143,6 +186,13 @@ export class SettingsPage implements OnInit, OnDestroy {
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // The problem may be on another tab: open the first tab that has one.
+      const bad = Object.keys(this.form.controls).find((k) => this.form.get(k)?.invalid);
+      const target = bad ? FIELD_TAB[bad] : this.form.hasError('payeeRequired') ? 'billing' : null;
+      if (target) {
+        this.selectTab(target);
+      }
+      this.saveError.set('Please fix the highlighted field before saving.');
       return;
     }
 
