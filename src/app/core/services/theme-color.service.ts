@@ -1,12 +1,14 @@
 import { Injectable, signal } from '@angular/core';
-import { rememberAuthAccent } from '../auth-background';
+import { readAuthAccent, rememberAuthAccent } from '../auth-background';
 import { DEFAULT_THEME_COLOR, isThemeColor } from '../models/theme-color.model';
 
 /** The restaurant's brand colour as seen by the admin panel. Settings previews a colour
  * with set(); the saved colour comes from the API via setSaved(). */
 @Injectable({ providedIn: 'root' })
 export class ThemeColorService {
-  readonly color = signal<string>(DEFAULT_THEME_COLOR);
+  // Starts with the colour this browser saw last (same as the login screen), so the panel does not
+  // flash the default colour while the restaurant is loading.
+  readonly color = signal<string>(isThemeColor(readAuthAccent()) ? readAuthAccent()! : DEFAULT_THEME_COLOR);
 
   /** Preview (not remembered). */
   set(key: string | null | undefined): void {

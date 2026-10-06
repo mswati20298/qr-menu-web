@@ -42,3 +42,23 @@ export function readAuthAccent(): string | null {
     return null;
   }
 }
+
+const MENU_ACCENT_PREFIX = 'qrmenu_accent_';
+
+/** The brand colour a restaurant's menu showed last time, so the next visit opens in it straight away
+ * instead of the default colour until the menu has loaded. */
+export function rememberMenuAccent(slug: string, key: string): void {
+  try {
+    localStorage.setItem(MENU_ACCENT_PREFIX + slug, key);
+  } catch {
+    // ignore
+  }
+}
+
+export function readMenuAccent(slug: string): string | null {
+  try {
+    return localStorage.getItem(MENU_ACCENT_PREFIX + slug);
+  } catch {
+    return null;
+  }
+}

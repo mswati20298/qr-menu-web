@@ -52,18 +52,18 @@ export const routes: Routes = [
     loadComponent: () => import('./public-menu/customer-shell/customer-shell').then((m) => m.CustomerShell),
     children: [
       { path: '', redirectTo: 'menu', pathMatch: 'full' },
-      { path: 'menu', loadComponent: () => import('./public-menu/menu-tab/menu-tab').then((m) => m.MenuTab) },
-      { path: 'cart', loadComponent: () => import('./public-menu/cart-tab/cart-tab').then((m) => m.CartTab) },
-      { path: 'orders', loadComponent: () => import('./public-menu/orders-tab/orders-tab').then((m) => m.OrdersTab) },
+      { path: 'menu', data: { preload: true }, loadComponent: () => import('./public-menu/menu-tab/menu-tab').then((m) => m.MenuTab) },
+      { path: 'cart', data: { preload: true }, loadComponent: () => import('./public-menu/cart-tab/cart-tab').then((m) => m.CartTab) },
+      { path: 'orders', data: { preload: true }, loadComponent: () => import('./public-menu/orders-tab/orders-tab').then((m) => m.OrdersTab) },
       // Full-screen pages: same background and theme as the menu, but no bottom tab bar.
       {
         path: 'item/:itemId',
-        data: { hideNav: true },
+        data: { hideNav: true, preload: true },
         loadComponent: () => import('./public-menu/item-detail-page/item-detail-page').then((m) => m.ItemDetailPage)
       },
       {
         path: 'order/:orderId',
-        data: { hideNav: true },
+        data: { hideNav: true, preload: true },
         loadComponent: () => import('./public-menu/order-status-page/order-status-page').then((m) => m.OrderStatusPage)
       }
     ]
