@@ -3,9 +3,11 @@ import { SERVICE_REQUESTS, ServiceRequestType, serviceRequestMeta } from '../../
 import { PublicSessionService } from '../../../core/services/public-session.service';
 import { ServiceRequestService } from '../../../core/services/service-request.service';
 import { FeedbackService } from '../../../core/services/feedback.service';
+import { playDing } from '../../../core/tap-sound';
 
-/** How long a button stays "sent" before the customer can ask for the same thing again. */
-const COOLDOWN_MS = 60000;
+/** How long a button shows "Sent" before it can be tapped again. Short on purpose: a repeat while the
+ * first request is still open is merged by the server, so staff never get duplicates. */
+const COOLDOWN_MS = 3000;
 
 /** 🔔 Call waiter · 💧 Water · 🧾 Bill — shown to customers who scanned a table QR code. */
 @Component({
@@ -28,21 +30,26 @@ export class RequestActions {
 
   send(type: ServiceRequestType): void {
     const table = this.session.tableNumber();
-    if (!table || this.sending() || this.isSent(type)) {
+    if (!table || this.sending() === type || this.isSent(type)) {
       return;
     }
 
+    playDing();
     this.sending.set(type);
 
     this.requests.send(this.session.slug(), table, type).subscribe({
       next: () => {
-        this.sending.set(null);
+        if (this.sending() === type) {
+          this.sending.set(null);
+        }
         this.sent.set([...this.sent(), type]);
         this.feedback.success(serviceRequestMeta(type).sentMessage);
         setTimeout(() => this.sent.set(this.sent().filter((t) => t !== type)), COOLDOWN_MS);
       },
       error: (err) => {
-        this.sending.set(null);
+        if (this.sending() === type) {
+          this.sending.set(null);
+        }
         this.feedback.error(err?.error?.message ?? 'Could not send your request. Please try again or call a staff member.');
       }
     });

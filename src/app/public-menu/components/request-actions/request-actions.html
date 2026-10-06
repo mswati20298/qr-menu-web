@@ -5,7 +5,7 @@
         type="button"
         class="request-actions__btn"
         [class.request-actions__btn--sent]="isSent(option.type)"
-        [disabled]="sending() !== null || isSent(option.type)"
+        [disabled]="sending() === option.type || isSent(option.type)"
         (click)="send(option.type)"
       >
         <span class="request-actions__emoji" aria-hidden="true">{{ isSent(option.type) ? '✅' : option.emoji }}</span>
