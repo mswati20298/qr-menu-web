@@ -1,229 +1,264 @@
 @if (loading()) {
-  <p class="dashboard-page__loading">Loading dashboard…</p>
+  <p class="dash__loading">Loading dashboard…</p>
 } @else if (stats(); as s) {
-  <div class="dashboard-page">
-    <div class="dashboard-page__header">
+  <div class="dash">
+    <!-- 1. Title -->
+    <header class="dash__head">
       <div>
         <h1>Dashboard</h1>
-        <p class="dashboard-page__subtitle">Here's what's happening with your restaurant today.</p>
+        <p class="dash__sub">Here's what's happening with your restaurant today.</p>
       </div>
-    </div>
+      <span class="dash__date">{{ today }}</span>
+    </header>
 
-    @if (notifications.activeOrderCount() > 0) {
-      <button type="button" class="dashboard-page__attention" (click)="goTo('/admin/orders')">
-        <span class="dashboard-page__attention-dot"></span>
-        {{ notifications.activeOrderCount() }} order{{ notifications.activeOrderCount() === 1 ? '' : 's' }} need{{ notifications.activeOrderCount() === 1 ? 's' : '' }} attention
-        <span class="dashboard-page__attention-arrow">→</span>
-      </button>
-    }
-
-    <div class="dashboard-page__stats">
-      <div class="dashboard-page__stat-card">
-        <div class="dashboard-page__stat-top">
-          <span class="dashboard-page__stat-icon dashboard-page__stat-icon--info">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 2h9l3 3v17H6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
-              <path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </span>
-          <span class="dashboard-page__stat-label">Total Orders Today</span>
-        </div>
-        <span class="dashboard-page__stat-value">{{ s.totalOrdersToday }}</span>
-        @if (comparison(s.totalOrdersToday, s.totalOrdersYesterday); as c) {
-          <span class="dashboard-page__stat-compare dashboard-page__stat-compare--{{ c.cls }}">{{ c.arrow }} {{ c.text }}</span>
+    <!-- 2. Today at a glance: the answers an owner looks for first -->
+    <section class="glance" aria-label="Today at a glance">
+      <div class="glance__money">
+        <span class="glance__label">Earned today</span>
+        <strong>{{ s.totalRevenueToday | inr }}</strong>
+        <span class="glance__note">from {{ s.totalOrdersToday }} order{{ s.totalOrdersToday === 1 ? '' : 's' }}</span>
+      </div>
+      <ul class="glance__facts">
+        @if (waiting() > 0) {
+          <li>
+            <button type="button" class="glance__fact glance__fact--alert" (click)="goTo('/admin/orders')">
+              <span class="glance__pulse" aria-hidden="true"></span>
+              <b>{{ waiting() }} order{{ waiting() === 1 ? '' : 's' }}</b> need{{ waiting() === 1 ? 's' : '' }} attention
+              <span class="glance__go" aria-hidden="true">→</span>
+            </button>
+          </li>
+        } @else {
+          <li><span class="glance__fact glance__fact--ok"><span class="glance__dot" aria-hidden="true"></span>All orders handled</span></li>
         }
-      </div>
-
-      <div class="dashboard-page__stat-card">
-        <div class="dashboard-page__stat-top">
-          <span class="dashboard-page__stat-icon dashboard-page__stat-icon--success">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 2v20M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 3 5 3 5 1.1 5 3-2.2 3-5 3-5-1.1-5-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </span>
-          <span class="dashboard-page__stat-label">Total Revenue Today</span>
-        </div>
-        <span class="dashboard-page__stat-value">{{ s.totalRevenueToday | inr }}</span>
-        @if (comparison(s.totalRevenueToday, s.totalRevenueYesterday); as c) {
-          <span class="dashboard-page__stat-compare dashboard-page__stat-compare--{{ c.cls }}">{{ c.arrow }} {{ c.text }}</span>
-        }
-      </div>
-
-      <div class="dashboard-page__stat-card">
-        <div class="dashboard-page__stat-top">
-          <span class="dashboard-page__stat-icon dashboard-page__stat-icon--warning">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="dashboard-page__stat-label">Average Order Value</span>
-        </div>
-        <span class="dashboard-page__stat-value">{{ s.averageOrderValueToday | inr }}</span>
-        @if (comparison(s.averageOrderValueToday, s.averageOrderValueYesterday); as c) {
-          <span class="dashboard-page__stat-compare dashboard-page__stat-compare--{{ c.cls }}">{{ c.arrow }} {{ c.text }}</span>
-        }
-      </div>
-
-      <div class="dashboard-page__stat-card">
-        <div class="dashboard-page__stat-top">
-          <span class="dashboard-page__stat-icon dashboard-page__stat-icon--accent">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="9" width="18" height="6" rx="1" stroke="currentColor" stroke-width="1.8" />
-              <path d="M5 9V6M19 9V6M5 15v3M19 15v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </span>
-          <span class="dashboard-page__stat-label">Active Tables</span>
-        </div>
-        <span class="dashboard-page__stat-value">{{ s.activeTables }} / {{ s.totalTables }}</span>
-
-        @if (tableDots().length > 0) {
-          <button type="button" class="dashboard-page__table-dots" (click)="goTo('/admin/tables')" aria-label="Go to Table Management">
-            @for (t of tableDots(); track t.id) {
-              <span
-                class="dashboard-page__table-dot"
-                [class.dashboard-page__table-dot--occupied]="t.status === 'Occupied'"
-                [class.dashboard-page__table-dot--disabled]="t.status === 'Disabled'"
-                [title]="'Table ' + t.number + ' · ' + t.status"
-              ></span>
-            }
+        <li>
+          <button type="button" class="glance__fact" (click)="goTo('/admin/tables')">
+            <b>{{ s.activeTables }} of {{ s.totalTables }}</b> tables occupied
           </button>
+        </li>
+        @if (topItem(); as top) {
+          <li><span class="glance__fact"><b>{{ top.name }}</b> is selling most</span></li>
         }
-      </div>
-    </div>
+      </ul>
+    </section>
 
-    <div class="dashboard-page__actions-card">
-      <div class="dashboard-page__card-header">
-        <h2>Quick Actions</h2>
-      </div>
-      <div class="dashboard-page__actions">
-        <button type="button" class="dashboard-page__action-btn" (click)="goTo('/admin/menu')">
-          <span class="dashboard-page__action-icon dashboard-page__action-icon--accent">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+    <!-- 3. KPI cards -->
+    <section class="kpis" aria-label="Today's numbers">
+      <article class="kpi">
+        <div class="kpi__top">
+          <span class="kpi__icon kpi__icon--accent" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z" /><path d="M9 7V5a3 3 0 0 1 6 0v2" /></svg>
           </span>
-          Add Menu Item
-        </button>
-        <button type="button" class="dashboard-page__action-btn" (click)="goTo('/admin/qr')">
-          <span class="dashboard-page__action-icon dashboard-page__action-icon--info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.8" /><rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.8" /><rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="1.8" /><path d="M14 14h3v3h-3zM18 18h3v3h-3z" fill="currentColor" /></svg>
-          </span>
-          Generate QR Code
-        </button>
-        <button type="button" class="dashboard-page__action-btn" (click)="goTo('/admin/tables')">
-          <span class="dashboard-page__action-icon dashboard-page__action-icon--warning">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="9" width="18" height="6" rx="1" stroke="currentColor" stroke-width="1.8" /><path d="M5 9V6M19 9V6M5 15v3M19 15v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
-          </span>
-          Manage Tables
-        </button>
-        <button type="button" class="dashboard-page__action-btn" (click)="goTo('/admin/orders')">
-          <span class="dashboard-page__action-icon dashboard-page__action-icon--success">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 2h9l3 3v17H6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
-          </span>
-          View Orders
-        </button>
-      </div>
-    </div>
+          <span class="kpi__label">Orders today</span>
+        </div>
+        <div class="kpi__body">
+          <div>
+            <strong class="kpi__value">{{ s.totalOrdersToday }}</strong>
+            @if (delta(s.totalOrdersToday, s.totalOrdersYesterday, false); as d) {
+              <span class="kpi__delta kpi__delta--{{ d.cls }}">{{ d.text }}</span>
+            }
+          </div>
+          @if (ordersSpark(); as sp) {
+            <svg class="kpi__spark kpi__spark--accent" viewBox="0 0 96 34" preserveAspectRatio="none" aria-hidden="true"><path class="area" [attr.d]="sp.area" /><path class="line" [attr.d]="sp.line" /></svg>
+          }
+        </div>
+      </article>
 
-    <div class="dashboard-page__row">
-      <div class="dashboard-page__chart-card">
-        <div class="dashboard-page__card-header">
-          <h2>Sales Overview</h2>
-          <div class="dashboard-page__range-toggle">
-            <button type="button" [class.dashboard-page__range-btn--active]="chartRange() === 'today'" class="dashboard-page__range-btn" (click)="chartRange.set('today')">Today</button>
-            <button type="button" [class.dashboard-page__range-btn--active]="chartRange() === '7d'" class="dashboard-page__range-btn" (click)="chartRange.set('7d')">7d</button>
-            <button type="button" [class.dashboard-page__range-btn--active]="chartRange() === '30d'" class="dashboard-page__range-btn" (click)="chartRange.set('30d')">30d</button>
+      <article class="kpi kpi--money">
+        <div class="kpi__top">
+          <span class="kpi__icon kpi__icon--success" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M6 4h12M6 9h12M6 14l8 7M6 14h3c6 0 6-10 0-10" /></svg>
+          </span>
+          <span class="kpi__label">Revenue today</span>
+        </div>
+        <div class="kpi__body">
+          <div>
+            <strong class="kpi__value">{{ s.totalRevenueToday | inr }}</strong>
+            @if (delta(s.totalRevenueToday, s.totalRevenueYesterday, true); as d) {
+              <span class="kpi__delta kpi__delta--{{ d.cls }}">{{ d.text }}</span>
+            }
+          </div>
+          @if (revenueSpark(); as sp) {
+            <svg class="kpi__spark kpi__spark--success" viewBox="0 0 96 34" preserveAspectRatio="none" aria-hidden="true"><path class="area" [attr.d]="sp.area" /><path class="line" [attr.d]="sp.line" /></svg>
+          }
+        </div>
+      </article>
+
+      <article class="kpi">
+        <div class="kpi__top">
+          <span class="kpi__icon kpi__icon--info" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" /></svg>
+          </span>
+          <span class="kpi__label">Average bill</span>
+        </div>
+        <div class="kpi__body">
+          <div>
+            <strong class="kpi__value">{{ s.averageOrderValueToday | inr }}</strong>
+            @if (delta(s.averageOrderValueToday, s.averageOrderValueYesterday, true); as d) {
+              <span class="kpi__delta kpi__delta--{{ d.cls }}">{{ d.text }}</span>
+            }
+          </div>
+          @if (avgSpark(); as sp) {
+            <svg class="kpi__spark kpi__spark--info" viewBox="0 0 96 34" preserveAspectRatio="none" aria-hidden="true"><path class="area" [attr.d]="sp.area" /><path class="line" [attr.d]="sp.line" /></svg>
+          }
+        </div>
+      </article>
+
+      <button type="button" class="kpi kpi--button" (click)="goTo('/admin/tables')" aria-label="Active tables, open Table Management">
+        <div class="kpi__top">
+          <span class="kpi__icon kpi__icon--warning" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 9h18M5 9v11M19 9v11M8 9V6h8v3" /></svg>
+          </span>
+          <span class="kpi__label">Active tables</span>
+        </div>
+        <div class="kpi__body">
+          <div>
+            <strong class="kpi__value">{{ s.activeTables }} <small>/ {{ s.totalTables }}</small></strong>
+            <span class="kpi__delta kpi__delta--flat">{{ s.totalTables - s.activeTables }} free right now</span>
+          </div>
+        </div>
+        @if (tableDots().length > 0) {
+          <span class="kpi__dots" aria-hidden="true">
+            @for (t of tableDots(); track t.id) {
+              <span class="kpi__dot" [class.kpi__dot--busy]="t.occupied" [title]="'Table ' + t.number + (t.occupied ? ' · occupied' : ' · free')"></span>
+            }
+          </span>
+        }
+      </button>
+    </section>
+
+    <!-- 4. Quick actions -->
+    <section class="actions" aria-label="Quick actions">
+      <button type="button" class="action" (click)="goTo('/admin/menu')">
+        <span class="action__icon action__icon--accent" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg></span>
+        <span class="action__text"><b>Add menu item</b><small>New dish or price</small></span>
+        <span class="action__arrow" aria-hidden="true">→</span>
+      </button>
+      <button type="button" class="action" (click)="goTo('/admin/qr')">
+        <span class="action__icon action__icon--info" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3" /></svg></span>
+        <span class="action__text"><b>Table QR codes</b><small>Print or download</small></span>
+        <span class="action__arrow" aria-hidden="true">→</span>
+      </button>
+      <button type="button" class="action" (click)="goTo('/admin/tables')">
+        <span class="action__icon action__icon--warning" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9h18M5 9v11M19 9v11M8 9V6h8v3" /></svg></span>
+        <span class="action__text"><b>Manage tables</b><small>Add, rename, reset QR</small></span>
+        <span class="action__arrow" aria-hidden="true">→</span>
+      </button>
+      <button type="button" class="action" (click)="goTo('/admin/orders')">
+        <span class="action__icon action__icon--success" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z" /><path d="M9 9h6M9 13h6M9 17h4" /></svg></span>
+        <span class="action__text"><b>View orders</b><small>{{ waiting() > 0 ? waiting() + ' waiting now' : 'Kitchen board' }}</small></span>
+        <span class="action__arrow" aria-hidden="true">→</span>
+      </button>
+    </section>
+
+    <!-- 5. Sales + recent orders -->
+    <div class="dash__row">
+      <section class="card chart" aria-labelledby="sales-title">
+        <div class="card__head">
+          <div>
+            <h2 id="sales-title">Sales overview</h2>
+            <p class="card__note">
+              @if (chartHasSales()) {
+                {{ chartTotal() | inr }} {{ chartRange() === 'today' ? 'today' : chartRange() === '7d' ? 'in the last 7 days' : 'in the last 30 days' }}
+                @if (bestBar(); as best) { · best {{ chartRange() === 'today' ? 'hour' : 'day' }} {{ best.label }} }
+              } @else {
+                No sales {{ chartRange() === 'today' ? 'yet today' : 'in this period' }}
+              }
+            </p>
+          </div>
+          <div class="seg" role="group" aria-label="Period">
+            <button type="button" [class.seg--on]="chartRange() === 'today'" [attr.aria-pressed]="chartRange() === 'today'" (click)="chartRange.set('today')">Today</button>
+            <button type="button" [class.seg--on]="chartRange() === '7d'" [attr.aria-pressed]="chartRange() === '7d'" (click)="chartRange.set('7d')">7 days</button>
+            <button type="button" [class.seg--on]="chartRange() === '30d'" [attr.aria-pressed]="chartRange() === '30d'" (click)="chartRange.set('30d')">30 days</button>
           </div>
         </div>
 
         @if (chartBars().length > 0) {
-          <svg class="dashboard-page__chart" [attr.viewBox]="chartViewBox">
-            @for (tick of chartTicks(); track tick.y) {
-              <line
-                class="dashboard-page__chart-gridline"
-                [attr.x1]="chartAxisX"
-                [attr.x2]="chartAxisX2"
-                [attr.y1]="tick.y"
-                [attr.y2]="tick.y"
-              />
-              <text class="dashboard-page__chart-axis-label" [attr.x]="chartAxisX - 8" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle">
-                {{ tick.label }}
-              </text>
-            }
-
-            @for (bar of chartBars(); track bar.date) {
-              @if (showChartLabels() && !bar.isZero) {
-                <text class="dashboard-page__chart-bar-label" [attr.x]="bar.x + bar.width / 2" [attr.y]="bar.y - 6" text-anchor="middle">
-                  {{ formatCompactInr(bar.revenue) }}
-                </text>
+          <div class="chart__scroll">
+            <svg class="chart__svg" [attr.viewBox]="chartViewBox" role="img" [attr.aria-label]="'Sales chart, total ' + (chartTotal() | inr)">
+              @for (tick of chartTicks(); track tick.y) {
+                <line class="chart__grid" [attr.x1]="axisX" [attr.x2]="axisX2" [attr.y1]="tick.y" [attr.y2]="tick.y" />
+                <text class="chart__axis" [attr.x]="axisX - 8" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle">{{ tick.label }}</text>
               }
-              <rect
-                class="dashboard-page__bar"
-                [class.dashboard-page__bar--zero]="bar.isZero"
-                [attr.x]="bar.x"
-                [attr.y]="bar.y"
-                [attr.width]="bar.width"
-                [attr.height]="bar.height"
-                rx="2"
-              >
-                <title>{{ formatShortDate(bar.date) }}: {{ bar.revenue | inr }}</title>
-              </rect>
-            }
-          </svg>
-          @if (showChartLabels()) {
-            <div class="dashboard-page__chart-labels" [style.padding-left.px]="48">
-              @for (bar of chartBars(); track bar.date) {
-                <span>{{ formatShortDate(bar.date) }}</span>
+              @for (bar of chartBars(); track bar.key; let i = $index) {
+                <rect class="chart__bar" [class.chart__bar--zero]="bar.isZero" [class.chart__bar--best]="bestBar()?.key === bar.key"
+                  [attr.x]="bar.x" [attr.y]="bar.y" [attr.width]="bar.width" [attr.height]="bar.height" rx="4">
+                  <title>{{ bar.label }}: {{ bar.revenue | inr }} · {{ bar.orders }} order{{ bar.orders === 1 ? '' : 's' }}</title>
+                </rect>
+                @if (bestBar()?.key === bar.key) {
+                  <text class="chart__value" [attr.x]="bar.x + bar.width / 2" [attr.y]="bar.y - 7" text-anchor="middle">{{ compactInr(bar.revenue) }}</text>
+                }
+                @if (i % labelEvery() === 0) {
+                  <text class="chart__axis" [attr.x]="bar.x + bar.width / 2" [attr.y]="axisLabelY" text-anchor="middle">{{ bar.label }}</text>
+                }
               }
-            </div>
-          }
-        } @else {
-          <p class="dashboard-page__empty">No sales data yet.</p>
+            </svg>
+          </div>
         }
-      </div>
+      </section>
 
-      <div class="dashboard-page__recent-card">
-        <div class="dashboard-page__card-header">
-          <h2>Recent Orders</h2>
-          <button type="button" class="dashboard-page__link-btn" (click)="goTo('/admin/orders')">View all</button>
+      <section class="card recent" aria-labelledby="recent-title">
+        <div class="card__head">
+          <h2 id="recent-title">Recent orders</h2>
+          <button type="button" class="card__link" (click)="goTo('/admin/orders')">View all →</button>
         </div>
-
         @if (s.recentOrders.length === 0) {
-          <p class="dashboard-page__empty">No orders yet.</p>
+          <p class="empty">No orders yet. They show up here the moment a guest orders.</p>
         } @else {
-          <ul class="dashboard-page__recent-list">
+          <ul class="recent__list">
             @for (order of s.recentOrders; track order.id) {
-              <li class="dashboard-page__recent-item">
-                <div>
-                  <div class="dashboard-page__recent-table">{{ recentTableLabel(order.tableNumber) }}</div>
-                  <div class="dashboard-page__recent-items">{{ firstItemLabel(order.itemsSummary) }}</div>
+              <li class="recent__item">
+                @if (imageUrl(order.imageUrl); as img) {
+                  <img class="thumb" [src]="img" alt="" width="44" height="44" loading="lazy" />
+                } @else {
+                  <span class="thumb thumb--empty" aria-hidden="true">{{ initial(itemsLabel(order.itemsSummary)) }}</span>
+                }
+                <div class="recent__main">
+                  <b>{{ tableLabel(order.tableNumber) }}</b>
+                  <span>{{ itemsLabel(order.itemsSummary) }}</span>
                 </div>
-                <div class="dashboard-page__recent-right">
-                  <span class="dashboard-page__recent-total">{{ order.total | inr }}</span>
+                <div class="recent__side">
+                  <b>{{ order.total | inr }}</b>
                   <app-status-pill [status]="pillStatus(order.status)" />
+                  <small>{{ timeAgo(order.createdAt) }}</small>
                 </div>
               </li>
             }
           </ul>
         }
-      </div>
+      </section>
     </div>
 
-    <div class="dashboard-page__top-items-card dashboard-page__top-items-card--full">
-      <div class="dashboard-page__card-header">
-        <h2>Top Selling Items</h2>
-      </div>
-
-      @if (s.topSellingItems.length === 0) {
-        <p class="dashboard-page__empty">No sales data yet.</p>
-      } @else {
-        <div class="dashboard-page__top-items dashboard-page__top-items--grid">
-          @for (item of s.topSellingItems; track item.name) {
-            <div class="dashboard-page__top-item">
-              <span class="dashboard-page__top-item-name">{{ item.name }}</span>
-              <span class="dashboard-page__top-item-qty">{{ item.qtySold }} orders</span>
-            </div>
+    <!-- 6. Top selling -->
+    <section class="card top" aria-labelledby="top-title">
+      <div class="card__head">
+        <div>
+          <h2 id="top-title">Top selling items</h2>
+          @if (topItem(); as t) {
+            <p class="card__note">{{ t.name }} is your best seller this week</p>
           }
         </div>
+        <button type="button" class="card__link" (click)="goTo('/admin/menu')">Menu →</button>
+      </div>
+      @if (s.topSellingItems.length === 0) {
+        <p class="empty">No sales in the last 7 days yet.</p>
+      } @else {
+        <ol class="top__grid">
+          @for (item of s.topSellingItems; track item.name; let i = $index) {
+            <li class="top__item">
+              @if (imageUrl(item.imageUrl); as img) {
+                <img class="top__img" [src]="img" alt="" width="88" height="72" loading="lazy" />
+              } @else {
+                <span class="top__img top__img--empty" aria-hidden="true">{{ initial(item.name) }}</span>
+              }
+              <span class="top__rank" [class.top__rank--first]="i === 0">{{ i + 1 }}</span>
+              <div class="top__text">
+                <b>{{ item.name }}</b>
+                <span>{{ item.qtySold }} sold</span>
+              </div>
+            </li>
+          }
+        </ol>
       }
-    </div>
+    </section>
   </div>
 }

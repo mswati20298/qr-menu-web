@@ -1,0 +1,290 @@
+// Motion layer for the admin panel and the customer menu: page changes, cards rising into place,
+// hover lifts and press feedback. Everything here is skipped when the device asks for reduced motion.
+//
+// Animations use the individual `translate` / `scale` properties, not `transform`, so they never
+// fight an element's own transform (centred bars, rotated badges...). Card entrances only animate the
+// card itself: an ancestor with opacity < 1 would switch off the glass blur of every card inside it.
+
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes qm-rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+
+@keyframes qm-reveal {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    scale: 0.97;
+  }
+}
+
+@keyframes qm-slide {
+  from {
+    opacity: 0;
+    translate: -10px 0;
+  }
+}
+
+@keyframes qm-pop {
+  0% {
+    opacity: 0;
+    scale: 0.5;
+  }
+  70% {
+    opacity: 1;
+    scale: 1.12;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes qm-glow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 9px transparent;
+  }
+}
+
+@keyframes qm-vt-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes qm-vt-in {
+  from {
+    opacity: 0;
+  }
+}
+
+// Rise into place; siblings follow one after another.
+@mixin enter($duration: 0.5s, $step: 45ms) {
+  animation: qm-rise $duration var(--ease-out) backwards;
+
+  @for $i from 2 through 8 {
+    &:nth-child(#{$i}) {
+      animation-delay: ($i - 1) * $step;
+    }
+  }
+}
+
+@mixin lift {
+  transition:
+    translate 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    border-color 0.25s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      translate: 0 -3px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  // --- Page changes (router view transitions): a quick cross-fade ---
+  ::view-transition-old(root) {
+    animation: qm-vt-out 0.16s ease both;
+  }
+
+  ::view-transition-new(root) {
+    animation: qm-vt-in 0.24s ease both;
+  }
+
+  // --- Press feedback on every button and button-like link ---
+  // :where() keeps these at zero specificity, so a component's own transition always wins.
+  :where(.admin-shell, .customer-shell) {
+    :where(button:not(:disabled), .btn-admin-primary, .btn-admin-secondary) {
+      transition-property: scale, background-color, color, border-color, box-shadow, opacity, translate;
+      transition-duration: 0.15s;
+
+      &:active {
+        scale: 0.96;
+      }
+    }
+  }
+
+  .admin-shell .btn-admin-primary:hover:not(:disabled) {
+    box-shadow: 0 6px 18px var(--admin-accent-ring);
+  }
+
+  // ==================== Admin ====================
+
+  .admin-layout__nav-link {
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    svg {
+      transition: translate 0.25s var(--ease-spring);
+    }
+
+    &:hover svg {
+      translate: 2px 0;
+    }
+
+    &--active {
+      animation: qm-slide 0.35s var(--ease-out);
+    }
+  }
+
+  .admin-layout__nav-badge {
+    animation: qm-pop 0.45s var(--ease-spring) backwards;
+  }
+
+  .admin-layout__plan-banner {
+    animation: qm-rise 0.45s var(--ease-out) backwards;
+  }
+
+  .admin-layout__open-dot {
+    animation: qm-glow 1.8s ease-out infinite;
+  }
+
+  // Cards rise in, one after another, whenever a page opens.
+  app-dashboard-page .glance,
+  app-dashboard-page .kpi,
+  app-dashboard-page .action,
+  app-dashboard-page .card,
+  .orders-page__card,
+  .invoices-page__table-wrap,
+  .menu-page__table-wrap,
+  .category-list,
+  .new-bill__menu,
+  .new-bill__bill,
+  .plan-page__card,
+  .plan-page__option,
+  .qr-page__card,
+  .requests-page__card,
+  .settings-page__card,
+  .tables-page__add-form,
+  .tables-page__card,
+  .sa-dashboard__card {
+    @include enter;
+  }
+
+  // Order cards slide in as they arrive or move to the next column (brand-new ones keep their pulse).
+  .kanban-card {
+    animation: qm-reveal 0.4s var(--ease-out) backwards;
+  }
+
+  // Table rows fade in top to bottom.
+  .menu-page__table-wrap tbody tr,
+  .invoices-page__table-wrap tbody tr {
+    @include enter(0.4s, 30ms);
+  }
+
+  .tables-page__card,
+  .plan-page__option,
+  .qr-page__card,
+  .requests-page__card,
+  .kanban-card {
+    @include lift;
+
+    @media (hover: hover) {
+      &:hover {
+        box-shadow: var(--admin-shadow-md);
+      }
+    }
+  }
+
+  // ==================== Customer menu ====================
+
+  .menu-tab__hero,
+  .menu-tab__sticky-bar,
+  .cart-tab__card,
+  .orders-tab__card,
+  .orders-tab__phone-form,
+  .order-status-page__hero,
+  .order-status-page__card,
+  .item-detail-page__body,
+  .upi-pay {
+    @include enter(0.55s, 60ms);
+  }
+
+  .menu-tab__sticky-bar {
+    animation-delay: 0.08s;
+  }
+
+  // Dishes rise in as they scroll into view (plain fade-in where scroll-driven animation is missing).
+  .menu-list-item {
+    animation: qm-rise 0.45s var(--ease-out) backwards;
+  }
+
+  @supports (animation-timeline: view()) {
+    .menu-list-item {
+      animation: qm-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+
+  .menu-list-item__tint {
+    overflow: hidden;
+  }
+
+  .menu-list-item__image {
+    transition: scale 0.5s var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .menu-list-item:not(.menu-list-item--sold-out):hover .menu-list-item__image {
+      scale: 1.07;
+    }
+  }
+
+  // "Add +" turning into the − 1 + stepper.
+  .menu-list-item__stepper,
+  .menu-list-item__hint--in-cart {
+    animation: qm-pop 0.38s var(--ease-spring);
+  }
+
+  .menu-tab__cart-bar {
+    transition: scale 0.15s ease;
+
+    &:active {
+      scale: 0.97;
+    }
+  }
+
+  .menu-tab__cart-bar-cta {
+    display: inline-block;
+    transition: translate 0.25s var(--ease-spring);
+  }
+
+  .menu-tab__cart-bar:hover .menu-tab__cart-bar-cta {
+    translate: 3px 0;
+  }
+
+  .menu-tab__open-dot {
+    animation: qm-glow 1.8s ease-out infinite;
+  }
+
+  .menu-tab__open-pill--closed .menu-tab__open-dot {
+    animation: none;
+  }
+
+  .customer-shell__nav-link {
+    transition: color 0.2s ease, background-color 0.25s ease;
+
+    svg {
+      transition: translate 0.3s var(--ease-spring);
+    }
+
+    &--active svg {
+      animation: qm-pop 0.4s var(--ease-spring);
+    }
+  }
+
+  // Order tracking: the current step breathes.
+  .order-status-page__step--done:not(:has(+ .order-status-page__step--done)) .order-status-page__step-dot {
+    animation: qm-glow 1.6s ease-out infinite;
+  }
+}

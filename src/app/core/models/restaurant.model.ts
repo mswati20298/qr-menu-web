@@ -80,6 +80,14 @@ export interface DailyRevenue {
 export interface TopSellingItem {
   name: string;
   qtySold: number;
+  imageUrl?: string | null;
+}
+
+/** Sales in one hour of today (Indian time). */
+export interface HourlyRevenue {
+  hour: number;
+  revenue: number;
+  orderCount: number;
 }
 
 export interface RecentOrder {
@@ -89,6 +97,7 @@ export interface RecentOrder {
   total: number;
   status: string;
   createdAt: string;
+  imageUrl?: string | null;
 }
 
 export interface DashboardStats {
@@ -105,4 +114,5 @@ export interface DashboardStats {
   revenueLast30Days: DailyRevenue[];
   topSellingItems: TopSellingItem[];
   recentOrders: RecentOrder[];
+  revenueTodayByHour: HourlyRevenue[];
 }
