@@ -125,7 +125,7 @@ export class MenuTab implements AfterViewInit, OnDestroy {
   }
 
   canOrder(): boolean {
-    return this.isOpenNow() && this.orderingEnabled();
+    return this.isOpenNow() && this.orderingEnabled() && this.session.canOrderHere();
   }
 
   formatTime12h(time: string): string {

@@ -18,7 +18,8 @@ const FIELD_TAB: Record<string, SettingsTab> = {
   isGstEnabled: 'billing', gstPercentage: 'billing', isServiceChargeEnabled: 'billing',
   serviceChargePercentage: 'billing', gstNumber: 'billing', invoicePrefix: 'billing', upiId: 'billing',
   upiPayeeName: 'billing',
-  showWelcomeMessage: 'look', welcomeMessage: 'look'
+  showWelcomeMessage: 'look', welcomeMessage: 'look',
+  requireTableQr: 'details', qrSessionHours: 'details', allowLinkTakeaway: 'details'
 };
 
 function payeeRequired(group: AbstractControl): ValidationErrors | null {
@@ -101,8 +102,13 @@ export class SettingsPage implements OnInit, OnDestroy {
     gstNumber: this.fb.control('', [Validators.pattern(/^[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z][1-9A-Za-z][Zz][0-9A-Za-z]$/)]),
     invoicePrefix: this.fb.control('INV', [Validators.pattern(/^[A-Za-z0-9]{1,10}$/)]),
     upiId: this.fb.control('', [Validators.pattern(/^[A-Za-z0-9._-]{2,256}@[A-Za-z][A-Za-z0-9]{1,63}$/)]),
-    upiPayeeName: this.fb.control('', [Validators.maxLength(100)])
+    upiPayeeName: this.fb.control('', [Validators.maxLength(100)]),
+    requireTableQr: this.fb.control(false),
+    qrSessionHours: this.fb.control(3),
+    allowLinkTakeaway: this.fb.control(true)
   }, { validators: payeeRequired });
+
+  readonly sessionHourOptions = [1, 2, 3, 4, 6, 8, 12];
 
   /** Link to give the kitchen tablet; the restaurant is filled in. */
   readonly kitchenLoginUrl = computed(() => {
@@ -129,7 +135,10 @@ export class SettingsPage implements OnInit, OnDestroy {
         gstNumber: restaurant.gstNumber ?? '',
         invoicePrefix: restaurant.invoicePrefix,
         upiId: restaurant.upiId ?? '',
-        upiPayeeName: restaurant.upiPayeeName ?? ''
+        upiPayeeName: restaurant.upiPayeeName ?? '',
+        requireTableQr: restaurant.requireTableQr,
+        qrSessionHours: restaurant.qrSessionHours,
+        allowLinkTakeaway: restaurant.allowLinkTakeaway
       });
       this.kitchenLoginEnabled.set(restaurant.kitchenLoginEnabled);
       this.applyAddress(restaurant);
@@ -222,7 +231,10 @@ export class SettingsPage implements OnInit, OnDestroy {
         gstNumber: value.gstNumber?.trim() || null,
         invoicePrefix: value.invoicePrefix?.trim() || null,
         upiId: value.upiId?.trim() || null,
-        upiPayeeName: value.upiPayeeName?.trim() || null
+        upiPayeeName: value.upiPayeeName?.trim() || null,
+        requireTableQr: !!value.requireTableQr,
+        qrSessionHours: Number(value.qrSessionHours) || 3,
+        allowLinkTakeaway: !!value.allowLinkTakeaway
       })
       .subscribe({
         next: () => {

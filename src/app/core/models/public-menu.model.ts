@@ -57,6 +57,17 @@ export interface PublicRestaurant {
   upiPayeeName: string | null;
   /** False when the restaurant's plan has run out: the menu can be browsed but not ordered from. */
   orderingEnabled: boolean;
+  /** True: only phones that scanned a table's QR (with its secret code) can order for a table. */
+  requireTableQr: boolean;
+  /** False: orders without a table (takeaway) are taken only at the counter. */
+  allowLinkTakeaway: boolean;
+}
+
+/** Returned after scanning a table QR; lets this phone order for that table until expiresAt (UTC). */
+export interface TableSession {
+  token: string;
+  tableNumber: string;
+  expiresAt: string;
 }
 
 export interface PublicMenuResponse {

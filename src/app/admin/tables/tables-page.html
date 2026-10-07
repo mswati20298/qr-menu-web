@@ -75,6 +75,11 @@
                   <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="1.8" />
                 </svg>
               </button>
+              <button type="button" class="tables-page__icon-btn" (click)="resetCode(table)" aria-label="Reset QR code for table {{ table.number }}" title="Reset QR code">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
               <button type="button" class="tables-page__icon-btn" (click)="startEdit(table)" aria-label="Edit table {{ table.number }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />

@@ -4,6 +4,8 @@ export interface RestaurantTable {
   capacity: number | null;
   isActive: boolean;
   hasActiveOrder: boolean;
+  /** Secret printed in this table's QR link (?k=). */
+  qrCode: string;
 }
 
 export interface CreateTableRequest {

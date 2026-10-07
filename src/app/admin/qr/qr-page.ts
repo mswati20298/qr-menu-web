@@ -74,14 +74,26 @@ export class QrPage implements OnInit {
     const { tables } = this.parsed();
     if (tables.length === 0 || this.generating()) return;
 
+    // A card for a table that isn't set up under Tables has no secret code, so it can only show the menu.
+    const known = new Set(this.tables().map((t) => t.number));
+    const missing = tables.filter((t) => !known.has(t));
+    if (missing.length > 0) {
+      this.error.set(`Add ${missing.length === 1 ? 'table' : 'tables'} ${missing.join(', ')} under Table Management first, so their QR codes can take orders.`);
+      return;
+    }
+
     this.generating.set(true);
     this.error.set('');
     try {
       const blob = await buildQrCardsPdf({
         brand: this.brand(),
         tables,
-        // Must match the URL format your menu page reads the table from.
-        linkFor: (table) => `${this.menuLink}${this.ownAddress() ? '/' : ''}?table=${encodeURIComponent(table)}`
+        // ?t= table and ?k= its secret code (the menu needs both to take orders for that table).
+        linkFor: (table) => {
+          const code = this.tables().find((t) => t.number === table)?.qrCode;
+          const key = code ? `&k=${encodeURIComponent(code)}` : '';
+          return `${this.menuLink}${this.ownAddress() ? '/' : ''}?t=${encodeURIComponent(table)}${key}`;
+        }
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

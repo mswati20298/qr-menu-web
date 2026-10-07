@@ -62,7 +62,7 @@ export class CartTab {
   });
 
   tableLabel(): string {
-    return this.session.tableNumber() ? `Table ${this.session.tableNumber()}` : 'Takeaway';
+    return this.session.orderTable() ? `Table ${this.session.orderTable()}` : 'Takeaway';
   }
 
   decrementLine(line: CartLine): void {
@@ -102,7 +102,9 @@ export class CartTab {
   }
 
   /** False when the restaurant's plan has run out. */
-  readonly orderingEnabled = computed(() => this.session.menu()?.restaurant?.orderingEnabled ?? true);
+  readonly orderingEnabled = computed(
+    () => (this.session.menu()?.restaurant?.orderingEnabled ?? true) && this.session.canOrderHere()
+  );
 
   placeOrder(): void {
     if (!this.orderingEnabled()) {
@@ -137,7 +139,8 @@ export class CartTab {
 
     this.orderService
       .createOrder(this.session.slug(), {
-        tableNumber: this.session.tableNumber(),
+        tableNumber: this.session.orderTable(),
+        tableSession: this.session.hasValidSession() ? this.session.tableSession()!.token : null,
         customerName: name,
         customerPhone: phone,
         note: this.note().trim() || null,
@@ -153,6 +156,9 @@ export class CartTab {
         },
         error: (err) => {
           this.placingOrder.set(false);
+          if (err?.error?.code === 'table_session_expired') {
+            this.session.endSession();
+          }
           this.feedback.error(err?.error?.message ?? 'Could not place your order. Please try again.');
         }
       });

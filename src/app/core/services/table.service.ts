@@ -22,6 +22,11 @@ export class TableService {
     return this.http.put<RestaurantTable>(`${this.baseUrl}/${id}`, request);
   }
 
+  /** New secret QR code: the table's old printed QR stops working. */
+  resetCode(id: string): Observable<RestaurantTable> {
+    return this.http.post<RestaurantTable>(`${this.baseUrl}/${id}/reset-code`, {});
+  }
+
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }

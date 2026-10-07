@@ -102,6 +102,28 @@ export class TablesPage implements OnInit {
     });
   }
 
+  async resetCode(table: RestaurantTable): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: `Reset Table ${table.number}'s QR code?`,
+      message: 'Its printed QR stops taking orders straight away. Print the new QR for this table afterwards.',
+      confirmLabel: 'Reset QR code',
+      danger: true
+    });
+    if (!confirmed) {
+      return;
+    }
+    this.tableService.resetCode(table.id).subscribe({
+      next: (updated) => {
+        this.tables.set(this.tables().map((t) => (t.id === updated.id ? updated : t)));
+        this.feedback.success(`Table ${table.number} has a new QR code. Download it and replace the old card.`);
+        // Show the new QR straight away so it can be downloaded.
+        this.previewTableId.set(null);
+        this.showQrPreview(updated);
+      },
+      error: (err) => this.feedback.error(err?.error?.message ?? 'Could not reset the QR code.')
+    });
+  }
+
   showQrPreview(table: RestaurantTable): void {
     const slug = this.authService.currentSession()?.restaurantSlug;
     if (!slug) {

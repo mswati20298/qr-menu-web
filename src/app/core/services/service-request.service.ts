@@ -9,8 +9,8 @@ export class ServiceRequestService {
   constructor(private readonly http: HttpClient) {}
 
   /** Customer side (no login). */
-  send(slug: string, tableNumber: string, type: ServiceRequestType): Observable<ServiceRequest> {
-    return this.http.post<ServiceRequest>(`${environment.apiBaseUrl}/public/${slug}/requests`, { tableNumber, type });
+  send(slug: string, tableNumber: string, type: ServiceRequestType, tableSession: string | null = null): Observable<ServiceRequest> {
+    return this.http.post<ServiceRequest>(`${environment.apiBaseUrl}/public/${slug}/requests`, { tableNumber, type, tableSession });
   }
 
   /** Owner side: requests waiting for staff, oldest first. */

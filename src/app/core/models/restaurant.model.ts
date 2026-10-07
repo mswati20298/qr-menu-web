@@ -32,6 +32,12 @@ export interface Restaurant {
   /** False on deployments without restaurant addresses (Demo, local). */
   subdomainsEnabled: boolean;
   rootDomain: string | null;
+  /** Only phones that scanned a table's QR can order for a table. */
+  requireTableQr: boolean;
+  /** Hours a scan lets that phone order (1-12). */
+  qrSessionHours: number;
+  /** Orders without a table (takeaway) from the menu link. */
+  allowLinkTakeaway: boolean;
 }
 
 export interface UpdateRestaurantRequest {
@@ -55,6 +61,9 @@ export interface UpdateRestaurantRequest {
   invoicePrefix: string | null;
   upiId: string | null;
   upiPayeeName: string | null;
+  requireTableQr?: boolean;
+  qrSessionHours?: number;
+  allowLinkTakeaway?: boolean;
 }
 
 export interface ScanStats {

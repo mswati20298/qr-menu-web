@@ -423,3 +423,12 @@
 :host-context(html[data-theme='dark']) .menu-tab__diet {
   --diet-nonveg: #f87171;
 }
+
+// "Scan the QR on your table": a hint in the brand colour, not an error.
+.menu-tab__scan-banner {
+  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border));
+}
+
+.menu-tab__scan-banner .menu-tab__closed-icon {
+  stroke: var(--color-accent);
+}

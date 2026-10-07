@@ -77,7 +77,8 @@ export class CustomerShell implements OnInit, OnDestroy {
     // Printed QR cards use "?t=" (server PDF) or "?table=" (QR page PDF); accept both.
     const query = this.route.snapshot.queryParamMap;
     const table = query.get('t') ?? query.get('table');
-    this.session.init(slug, table);
+    // k = the table's secret code, printed in its QR; it starts a time-limited table session.
+    this.session.init(slug, table, query.get('k'));
     this.clockHandle = setInterval(() => this.now.set(new Date()), 60000);
     document.documentElement.classList.add('customer-page');
 

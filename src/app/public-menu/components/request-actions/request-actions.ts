@@ -29,7 +29,7 @@ export class RequestActions {
   }
 
   send(type: ServiceRequestType): void {
-    const table = this.session.tableNumber();
+    const table = this.session.orderTable();
     if (!table || this.sending() === type || this.isSent(type)) {
       return;
     }
@@ -37,7 +37,8 @@ export class RequestActions {
     playDing();
     this.sending.set(type);
 
-    this.requests.send(this.session.slug(), table, type).subscribe({
+    const token = this.session.hasValidSession() ? this.session.tableSession()!.token : null;
+    this.requests.send(this.session.slug(), table, type, token).subscribe({
       next: () => {
         if (this.sending() === type) {
           this.sending.set(null);
@@ -49,6 +50,9 @@ export class RequestActions {
       error: (err) => {
         if (this.sending() === type) {
           this.sending.set(null);
+        }
+        if (err?.error?.code === 'table_session_expired') {
+          this.session.endSession();
         }
         this.feedback.error(err?.error?.message ?? 'Could not send your request. Please try again or call a staff member.');
       }

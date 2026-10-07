@@ -43,7 +43,7 @@
       </div>
 
       <div class="menu-tab__pills">
-        <span class="menu-tab__table-pill">{{ session.tableNumber() ? 'Table ' + session.tableNumber() : 'Takeaway' }}</span>
+        <span class="menu-tab__table-pill">{{ session.orderTable() ? 'Table ' + session.orderTable() : 'Takeaway' }}</span>
         <span class="menu-tab__open-pill" [class.menu-tab__open-pill--closed]="!isOpenNow()">
           <span class="menu-tab__open-dot"></span>
           {{ isOpenNow() ? 'Open till ' + formatTime12h(session.menu()!.restaurant.closeTime) : 'Closed now' }}
@@ -51,8 +51,19 @@
       </div>
     </header>
 
-    @if (session.tableNumber()) {
+    @if (session.orderTable()) {
       <app-request-actions />
+    }
+
+    @if (session.scanState(); as scan) {
+      <!-- "Only table QR orders" is on and this phone has no live table session. -->
+      <div class="menu-tab__closed-banner menu-tab__scan-banner" role="status">
+        <svg class="menu-tab__closed-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+        <div>
+          <strong>{{ scan === 'invalid' ? 'This QR code is no longer valid' : scan === 'expired' ? 'Scan the table QR again to order' : 'Scan the QR code on your table to order' }}</strong>
+          <span>{{ scan === 'invalid' ? 'Please ask the staff for help.' : session.menu()?.restaurant?.allowLinkTakeaway ? 'You can still order takeaway from here.' : 'You can browse the menu here.' }}</span>
+        </div>
+      </div>
     }
 
     @if (!orderingEnabled()) {

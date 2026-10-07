@@ -69,6 +69,40 @@
               </div>
             </div>
           </div>
+          <div class="settings-page__card">
+            <h2>Who can order</h2>
+            <p class="settings-page__hint">
+              Stop orders from people who are not at your restaurant. Each table's QR has its own secret code;
+              a shared or typed menu link can show the menu but cannot order for a table.
+            </p>
+
+            <label class="settings-page__switch settings-page__switch--block">
+              <input type="checkbox" formControlName="requireTableQr" />
+              <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
+              <span>Only take orders from table QR codes</span>
+            </label>
+            <p class="settings-page__legal-note">
+              Turn this on after you print the new QR cards (QR Codes page). QR cards printed before this update don't
+              have the code and will only show the menu.
+            </p>
+
+            <div class="form-field">
+              <label for="qrSessionHours">After scanning, a phone can order for</label>
+              <select id="qrSessionHours" formControlName="qrSessionHours">
+                @for (h of sessionHourOptions; track h) {
+                  <option [ngValue]="h">{{ h }} hour{{ h === 1 ? '' : 's' }}</option>
+                }
+              </select>
+              <span class="form-field__hint">Then the guest scans the same table QR again. Nothing to reprint.</span>
+            </div>
+
+            <label class="settings-page__switch settings-page__switch--block">
+              <input type="checkbox" formControlName="allowLinkTakeaway" />
+              <span class="settings-page__switch-track"><span class="settings-page__switch-knob"></span></span>
+              <span>Allow takeaway orders from the menu link</span>
+            </label>
+            <p class="settings-page__legal-note">Off: takeaway is billed at the counter (Invoices → New bill).</p>
+          </div>
         }
         @case ('billing') {
           <div class="settings-page__card">

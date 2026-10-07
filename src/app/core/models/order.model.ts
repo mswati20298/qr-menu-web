@@ -57,6 +57,8 @@ export interface CreateOrderRequest {
   note: string | null;
   skipServiceCharge: boolean;
   items: OrderItemInput[];
+  /** Token from scanning the table's QR; needed when the restaurant only takes table-QR orders. */
+  tableSession?: string | null;
 }
 
 /** An order entered by staff. tableNumber null = takeaway. sendToKitchen false = already served at the counter. */
