@@ -35,7 +35,17 @@
   }
 
   @if (!loaded()) {
-    <p class="kds__loading">Loading orders…</p>
+<div class="skel-grid" role="status" style="--skel-min:260px;padding:16px">
+  <span class="skel-sr">Loading orders…</span>
+    @for (c of [1, 2, 3]; track c) {
+      <div class="skel-stack">
+        <span class="skel skel--title" style="width:40%"></span>
+        @for (i of [1, 2]; track i) {
+          <div class="skel-card skel-stack"><span class="skel skel--title" style="width:30%"></span><span class="skel" style="width:80%"></span><span class="skel" style="width:65%"></span><span class="skel skel--btn"></span></div>
+        }
+      </div>
+    }
+</div>
   } @else {
     <main class="kds__board">
       @for (column of columns; track column.status) {

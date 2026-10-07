@@ -92,7 +92,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="9" class="sa-restaurants__empty">{{ loading() ? 'Loading…' : 'No restaurants match.' }}</td>
+            <td colspan="9" class="sa-restaurants__empty">@if (loading()) { <div class="skel-stack" role="status"><span class="skel-sr">Loading…</span>@for (i of [1, 2, 3, 4, 5]; track i) { <span class="skel" style="height:18px"></span> }</div> } @else { No restaurants match. }</td>
           </tr>
         }
       </tbody>

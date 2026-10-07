@@ -51,7 +51,17 @@
       </div>
 
       @if (loading()) {
-        <p class="menu-page__loading">Loading items…</p>
+<div class="skel-stack" role="status" style="padding:16px">
+  <span class="skel-sr">Loading items…</span>
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <div class="skel-row" style="padding:6px 0">
+              <span class="skel skel--thumb" style="width:48px;height:48px;border-radius:10px"></span>
+              <div class="skel-stack"><span class="skel" style="width:40%"></span><span class="skel skel--sm" style="width:22%"></span></div>
+              <span class="skel skel--pill" style="width:64px"></span>
+              <span class="skel skel--pill" style="width:44px"></span>
+            </div>
+          }
+</div>
       } @else if (filteredItems().length === 0) {
         <p class="menu-page__empty">No items match.</p>
       } @else {

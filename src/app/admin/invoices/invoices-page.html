@@ -63,7 +63,7 @@
         } @empty {
           <tr>
             <td colspan="7" class="invoices-page__empty">
-              {{ loading() ? 'Loading…' : 'No invoices yet. Bill a table above, or use "Create bill" on an order.' }}
+              @if (loading()) { <div class="skel-stack" role="status"><span class="skel-sr">Loading…</span>@for (i of [1, 2, 3, 4, 5]; track i) { <span class="skel" style="height:18px"></span> }</div> } @else { No invoices yet. Bill a table above, or use "Create bill" on an order. }
             </td>
           </tr>
         }

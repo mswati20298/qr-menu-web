@@ -66,6 +66,9 @@
       </p>
     </div>
   } @else if (!error()) {
-    <p class="sa-settings__muted">Loading…</p>
+<div class="skel-stack" role="status">
+  <span class="skel-sr">Loading…</span>
+    <div class="skel-card skel-stack"><span class="skel skel--title"></span><span class="skel" style="width:90%"></span><span class="skel" style="width:75%"></span><span class="skel" style="width:60%"></span></div>
+</div>
   }
 </div>

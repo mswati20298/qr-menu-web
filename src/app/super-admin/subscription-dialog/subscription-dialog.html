@@ -217,7 +217,10 @@
     } @else if (error()) {
       <p class="sub-dialog__error" role="alert">{{ error() }}</p>
     } @else {
-      <p class="sub-dialog__muted">Loading…</p>
+<div class="skel-stack" role="status">
+  <span class="skel-sr">Loading…</span>
+      <span class="skel" style="width:90%"></span><span class="skel" style="width:70%"></span><span class="skel" style="width:80%"></span>
+</div>
     }
   </div>
 </div>

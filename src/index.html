@@ -19,6 +19,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <!-- Shown until the app starts (Angular replaces it). -->
+    <div style="position:fixed;inset:0;display:grid;place-items:center" role="status" aria-label="Loading">
+      <span class="boot-ring"></span>
+    </div>
+    <style>
+      .boot-ring { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(128, 128, 128, 0.22); border-top-color: rgba(128, 128, 128, 0.75); animation: boot-spin 0.8s linear infinite; }
+      @keyframes boot-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .boot-ring { animation-duration: 2.4s; } }
+    </style>
+  </app-root>
 </body>
 </html>

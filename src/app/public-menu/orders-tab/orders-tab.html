@@ -14,7 +14,15 @@
       <button type="submit" class="orders-tab__submit-btn">View Orders</button>
     </form>
   } @else if (loading()) {
-    <p class="orders-tab__empty">Loading orders…</p>
+<div class="skel-stack" role="status">
+  <span class="skel-sr">Loading orders…</span>
+    @for (i of [1, 2, 3]; track i) {
+      <div class="skel-card skel-stack">
+        <div class="skel-row"><span class="skel" style="width:40%"></span><span class="skel skel--pill" style="width:70px;height:22px;margin-left:auto"></span></div>
+        <span class="skel skel--sm" style="width:75%"></span><span class="skel skel--sm" style="width:30%"></span>
+      </div>
+    }
+</div>
   } @else if (orders().length === 0) {
     <div class="orders-tab__empty">
       <p>No orders found for this number yet.</p>

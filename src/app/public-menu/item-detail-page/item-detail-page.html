@@ -1,5 +1,13 @@
 @if (session.loading() && !item()) {
-  <div class="item-detail-page__loading">Loading…</div>
+<div class="skel-page" role="status">
+  <span class="skel-sr">Loading dish…</span>
+  <span class="skel skel--block" style="height:260px;border-radius:22px"></span>
+  <div class="skel-card skel-stack">
+    <span class="skel skel--title" style="width:60%"></span><span class="skel" style="width:25%"></span>
+    <span class="skel skel--sm" style="width:95%"></span><span class="skel skel--sm" style="width:80%"></span>
+    <span class="skel skel--btn" style="height:48px;margin-top:10px;border-radius:14px"></span>
+  </div>
+</div>
 } @else if (!item()) {
   <div class="item-detail-page__loading">Item not found.</div>
 } @else {

@@ -50,7 +50,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="sa-plans__empty">{{ loading() ? 'Loading…' : 'No plans yet. Create one so owners can subscribe.' }}</td>
+            <td colspan="7" class="sa-plans__empty">@if (loading()) { <div class="skel-stack" role="status"><span class="skel-sr">Loading…</span>@for (i of [1, 2, 3, 4, 5]; track i) { <span class="skel" style="height:18px"></span> }</div> } @else { No plans yet. Create one so owners can subscribe. }</td>
           </tr>
         }
       </tbody>

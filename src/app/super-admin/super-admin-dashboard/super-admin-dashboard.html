@@ -7,7 +7,10 @@
   @if (error()) {
     <p class="sa-dashboard__error">{{ error() }}</p>
   } @else if (!stats()) {
-    <p class="sa-dashboard__muted">Loading…</p>
+<div class="skel-grid" role="status" style="--skel-min:200px">
+  <span class="skel-sr">Loading…</span>
+    @for (i of [1, 2, 3, 4]; track i) { <div class="skel-card skel-stack"><span class="skel skel--big" style="width:40%"></span><span class="skel" style="width:70%"></span></div> }
+</div>
   } @else {
     <div class="sa-dashboard__grid">
       <div class="sa-dashboard__card">

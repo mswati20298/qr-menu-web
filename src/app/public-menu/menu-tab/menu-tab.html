@@ -1,5 +1,21 @@
 @if (session.loading()) {
-  <div class="menu-tab__loading">Loading menu…</div>
+<div class="skel-page" role="status" style="gap:14px">
+  <span class="skel-sr">Loading menu…</span>
+  <div class="skel-card skel-stack" style="border-radius:28px;padding:18px">
+    <div class="skel-row"><span class="skel skel--thumb" style="width:64px;height:64px;border-radius:16px"></span><div class="skel-stack"><span class="skel skel--title" style="width:70%"></span><span class="skel skel--sm" style="width:55%"></span></div></div>
+    <div class="skel-row"><span class="skel skel--pill" style="width:120px"></span><span class="skel skel--pill" style="width:70px;margin-left:auto"></span></div>
+  </div>
+  <div class="skel-row" style="gap:8px">@for (i of [1, 2, 3]; track i) { <span class="skel" style="height:64px;border-radius:16px"></span> }</div>
+  <span class="skel skel--btn" style="height:46px;border-radius:14px"></span>
+  <div class="skel-row" style="gap:8px;overflow:hidden">@for (i of [1, 2, 3, 4]; track i) { <span class="skel skel--pill" style="width:90px;height:36px"></span> }</div>
+  <span class="skel skel--title" style="width:35%;margin-top:6px"></span>
+  @for (i of [1, 2, 3, 4]; track i) {
+    <div class="skel-card skel-row" style="align-items:flex-start">
+      <div class="skel-stack"><span class="skel skel--sm" style="width:30%"></span><span class="skel" style="width:65%;height:15px"></span><span class="skel" style="width:30%"></span><span class="skel skel--sm" style="width:85%"></span></div>
+      <span class="skel skel--thumb"></span>
+    </div>
+  }
+</div>
 } @else if (session.loadError() || !session.menu()) {
   <div class="menu-tab__error">
     <h2>Menu not found</h2>

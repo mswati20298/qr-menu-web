@@ -1,5 +1,42 @@
 @if (loading()) {
-  <p class="dash__loading">Loading dashboard…</p>
+<div class="skel-stack" role="status" style="gap:16px">
+  <span class="skel-sr">Loading dashboard…</span>
+  <span class="skel skel--big" style="width:220px"></span>
+  <div class="skel-card skel-row" style="flex-wrap:wrap">
+    <div class="skel-stack" style="flex:0 0 150px"><span class="skel skel--sm" style="width:60%"></span><span class="skel skel--big" style="width:100%"></span></div>
+    <span class="skel skel--pill" style="width:180px"></span><span class="skel skel--pill" style="width:150px"></span><span class="skel skel--pill" style="width:160px"></span>
+  </div>
+  <div class="skel-grid" style="--skel-min:200px">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="skel-card skel-stack">
+        <div class="skel-row"><span class="skel skel--circle" style="width:38px;height:38px;border-radius:11px"></span><span class="skel" style="width:50%"></span></div>
+        <span class="skel skel--big" style="width:40%"></span>
+        <span class="skel skel--sm" style="width:65%"></span>
+      </div>
+    }
+  </div>
+  <div class="skel-grid" style="--skel-min:200px">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="skel-card skel-row">
+        <span class="skel skel--circle" style="width:40px;height:40px;border-radius:11px"></span>
+        <div class="skel-stack"><span class="skel" style="width:70%"></span><span class="skel skel--sm" style="width:50%"></span></div>
+      </div>
+    }
+  </div>
+  <div class="skel-grid" style="--skel-min:320px">
+    <div class="skel-card skel-stack"><span class="skel skel--title"></span><span class="skel skel--block" style="height:210px"></span></div>
+    <div class="skel-card skel-stack">
+      <span class="skel skel--title"></span>
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="skel-row">
+          <span class="skel skel--thumb" style="width:44px;height:44px;border-radius:10px"></span>
+          <div class="skel-stack"><span class="skel" style="width:45%"></span><span class="skel skel--sm" style="width:65%"></span></div>
+          <span class="skel skel--pill" style="width:56px;height:22px"></span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
 } @else if (stats(); as s) {
   <div class="dash">
     <!-- 1. Title -->

@@ -1,5 +1,12 @@
 @if (loading()) {
-  <div class="order-status-page__loading">Loading order…</div>
+<div class="skel-page" role="status">
+  <span class="skel-sr">Loading order…</span>
+  <div class="skel-card skel-stack" style="align-items:center;border-radius:26px;padding:26px">
+    <span class="skel skel--circle" style="width:64px;height:64px"></span><span class="skel skel--title" style="width:55%"></span><span class="skel skel--sm" style="width:40%"></span>
+    <div class="skel-row" style="width:100%;margin-top:10px">@for (i of [1, 2, 3, 4]; track i) { <span class="skel skel--circle" style="width:18px;height:18px"></span><span class="skel skel--sm"></span> }</div>
+  </div>
+  <div class="skel-card skel-stack">@for (i of [1, 2, 3]; track i) { <div class="skel-row"><span class="skel" style="width:60%"></span><span class="skel" style="width:20%;margin-left:auto"></span></div> }</div>
+</div>
 } @else if (!order()) {
   <div class="order-status-page__loading">Order not found.</div>
 } @else {

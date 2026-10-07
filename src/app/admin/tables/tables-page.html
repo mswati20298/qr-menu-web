@@ -16,7 +16,16 @@
   </form>
 
   @if (loading()) {
-    <p class="tables-page__empty">Loading tables…</p>
+<div class="skel-grid" role="status" style="--skel-min:200px">
+  <span class="skel-sr">Loading tables…</span>
+    @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+      <div class="skel-card skel-stack">
+        <div class="skel-row"><span class="skel" style="width:45%;height:16px"></span><span class="skel skel--pill" style="width:64px;height:20px;margin-left:auto"></span></div>
+        <span class="skel skel--sm" style="width:35%"></span>
+        <div class="skel-row" style="gap:8px">@for (b of [1, 2, 3, 4]; track b) { <span class="skel" style="width:30px;height:30px;border-radius:8px"></span> }</div>
+      </div>
+    }
+</div>
   } @else if (tables().length === 0) {
     <p class="tables-page__empty">No tables yet. Add your first table above.</p>
   } @else {
