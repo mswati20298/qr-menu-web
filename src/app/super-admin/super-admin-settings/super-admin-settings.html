@@ -5,6 +5,27 @@
     <p class="sa-settings__error" role="alert">{{ error() }}</p>
   }
 
+  <section class="sa-settings__card">
+    <h2>Panel theme</h2>
+    <p class="sa-settings__hint">Colour of this super admin panel. Saved in this browser only; restaurants are not affected.</p>
+    <div class="sa-settings__swatches" role="radiogroup" aria-label="Panel colour">
+      @for (c of themeColors; track c.key) {
+        <button
+          type="button"
+          role="radio"
+          class="sa-settings__swatch"
+          [class.sa-settings__swatch--on]="accent.color() === c.key"
+          [attr.aria-checked]="accent.color() === c.key"
+          [style.--swatch]="c.hex"
+          (click)="accent.set(c.key)"
+        >
+          <span class="sa-settings__swatch-dot" aria-hidden="true"></span>
+          {{ c.label }}
+        </button>
+      }
+    </div>
+  </section>
+
   @if (settings(); as s) {
     <form class="sa-settings__card" [formGroup]="form" (ngSubmit)="save()">
       <h2>Free trial for new restaurants</h2>

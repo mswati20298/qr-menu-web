@@ -2,6 +2,8 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PlatformSettings } from '../../core/models/super-admin.model';
+import { THEME_COLORS } from '../../core/models/theme-color.model';
+import { SuperAdminAccentService } from '../../core/services/super-admin-accent.service';
 import { SuperAdminService } from '../../core/services/super-admin.service';
 import { DemoResetCard } from './demo-reset-card/demo-reset-card';
 import { PlatformKeysCard } from './platform-keys-card/platform-keys-card';
@@ -16,6 +18,8 @@ import { PlatformKeysCard } from './platform-keys-card/platform-keys-card';
 export class SuperAdminSettings implements OnInit {
   private readonly service = inject(SuperAdminService);
   private readonly fb = inject(FormBuilder);
+  readonly accent = inject(SuperAdminAccentService);
+  readonly themeColors = THEME_COLORS;
 
   readonly settings = signal<PlatformSettings | null>(null);
   readonly saving = signal(false);

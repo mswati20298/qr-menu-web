@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { SuperAdminAccentService } from '../../core/services/super-admin-accent.service';
 import { SuperAdminAuthService } from '../../core/services/super-admin-auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 
@@ -13,6 +14,7 @@ import { ThemeService } from '../../core/services/theme.service';
 export class SuperAdminLayout {
   readonly auth = inject(SuperAdminAuthService);
   readonly theme = inject(ThemeService);
+  readonly accent = inject(SuperAdminAccentService);
 
   logout(): void {
     this.auth.logout();
