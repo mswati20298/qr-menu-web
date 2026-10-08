@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { SuperAdminRestaurant } from '../../core/models/super-admin.model';
 import { PLAN_STATUS_LABELS, SubscriptionDetails } from '../../core/models/subscription.model';
@@ -17,6 +18,7 @@ type StatusFilter = '' | 'active' | 'suspended';
 export class SuperAdminRestaurants implements OnInit, OnDestroy {
   private readonly service = inject(SuperAdminService);
   private readonly feedback = inject(FeedbackService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly pageSize = 20;
   readonly items = signal<SuperAdminRestaurant[]>([]);
@@ -32,10 +34,16 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
 
   private search = '';
   private status: StatusFilter = '';
-  private plan: PlanFilter = '';
+  plan: PlanFilter = '';
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
+    // The dashboard links here with ?plan=expiring etc.
+    const plan = this.route.snapshot.queryParamMap.get('plan');
+    if (plan) {
+      this.onPlan(plan);
+      return;
+    }
     this.load();
   }
 

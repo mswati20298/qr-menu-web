@@ -3,11 +3,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PlatformSettings } from '../../core/models/super-admin.model';
 import { SuperAdminService } from '../../core/services/super-admin.service';
+import { DemoResetCard } from './demo-reset-card/demo-reset-card';
+import { PlatformKeysCard } from './platform-keys-card/platform-keys-card';
 
-/** Platform-wide settings. For now: how long the free trial of a new restaurant lasts. */
+/** Platform-wide settings: free trial length, payment and AI keys, and (on the demo) the demo reset. */
 @Component({
   selector: 'app-super-admin-settings',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, PlatformKeysCard, DemoResetCard],
   templateUrl: './super-admin-settings.html',
   styleUrl: './super-admin-settings.scss'
 })

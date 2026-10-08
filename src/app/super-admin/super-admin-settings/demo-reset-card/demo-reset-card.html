@@ -1,0 +1,45 @@
+@if (status(); as s) {
+  @if (s.isDemo) {
+    <section class="demo">
+      <h2>Reset demo</h2>
+      <p class="demo__hint">
+        Brings the demo back to the sample restaurant <b>Saket Rasoi</b> with its menu and photos. Everything people
+        added on the demo (restaurants, orders, invoices, photos) is deleted. Plans, these settings, the keys and super
+        admin logins stay.
+      </p>
+
+      <div class="demo__facts">
+        <div>
+          <span>Last reset</span>
+          <b>{{ s.lastResetAt ? (s.lastResetAt | date: 'd MMM y, h:mm a') : 'Not yet' }}</b>
+        </div>
+        <div>
+          <span>Next auto reset</span>
+          <b>{{ s.nextResetAt ? (s.nextResetAt | date: 'd MMM y, h:mm a') : s.autoResetDays === 0 ? 'Off' : 'Within the hour' }}</b>
+        </div>
+      </div>
+
+      <span class="demo__label">Reset automatically</span>
+      <div class="demo__presets" role="group" aria-label="Reset automatically">
+        @for (days of dayOptions; track days) {
+          <button
+            type="button"
+            class="demo__preset"
+            [class.demo__preset--active]="s.autoResetDays === days"
+            [disabled]="savingDays()"
+            (click)="setAutoReset(days)"
+          >
+            {{ days === 0 ? 'Off' : 'Every ' + days + ' days' }}
+          </button>
+        }
+      </div>
+
+      <button type="button" class="demo__reset" [disabled]="resetting()" (click)="reset()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        {{ resetting() ? 'Resetting…' : 'Reset demo now' }}
+      </button>
+    </section>
+  }
+}

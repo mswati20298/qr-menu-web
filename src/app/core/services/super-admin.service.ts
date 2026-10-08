@@ -2,7 +2,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PagedResult, PlatformSettings, SuperAdminRestaurant, SuperAdminStats } from '../models/super-admin.model';
+import {
+  DemoStatus,
+  KeyCheckResult,
+  PagedResult,
+  PlatformKeys,
+  PlatformSettings,
+  SuperAdminRestaurant,
+  SuperAdminStats,
+  UpdatePlatformKeysRequest
+} from '../models/super-admin.model';
 import {
   ExtendPlanRequest,
   GrantFreePlanRequest,
@@ -81,6 +90,31 @@ export class SuperAdminService {
 
   updateSettings(trialDays: number): Observable<PlatformSettings> {
     return this.http.put<PlatformSettings>(`${this.baseUrl}/settings`, { trialDays });
+  }
+
+  keys(): Observable<PlatformKeys> {
+    return this.http.get<PlatformKeys>(`${this.baseUrl}/settings/keys`);
+  }
+
+  updateKeys(request: UpdatePlatformKeysRequest): Observable<PlatformKeys> {
+    return this.http.put<PlatformKeys>(`${this.baseUrl}/settings/keys`, request);
+  }
+
+  /** Empty fields are checked with the keys in use now. */
+  testRazorpay(keyId: string | null, keySecret: string | null): Observable<KeyCheckResult> {
+    return this.http.post<KeyCheckResult>(`${this.baseUrl}/settings/keys/test-razorpay`, { keyId, keySecret });
+  }
+
+  demoStatus(): Observable<DemoStatus> {
+    return this.http.get<DemoStatus>(`${this.baseUrl}/demo`);
+  }
+
+  updateDemo(autoResetDays: number): Observable<DemoStatus> {
+    return this.http.put<DemoStatus>(`${this.baseUrl}/demo`, { autoResetDays });
+  }
+
+  resetDemo(): Observable<DemoStatus> {
+    return this.http.post<DemoStatus>(`${this.baseUrl}/demo/reset`, {});
   }
 
   plans(): Observable<PricingPlanAdmin[]> {

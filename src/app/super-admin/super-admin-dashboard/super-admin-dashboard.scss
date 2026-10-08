@@ -1,56 +1,121 @@
-@use 'styles/admin-theme' as *;
+// Extras on top of the restaurant dashboard styles (../../admin/dashboard/dashboard-page.scss).
 
-.sa-dashboard {
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+.sa-error {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--admin-danger-soft);
+  color: var(--admin-danger-text);
+}
 
-    h1 {
-      font-size: 26px;
-      font-family: var(--font-heading);
-    }
-  }
+.sa-row {
+  grid-template-columns: 1fr 1fr;
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 14px;
-  }
-
-  &__card {
-    @include admin-card;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 18px 20px;
-  }
-
-  &__value {
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.1;
-  }
-
-  &__label {
-    font-size: 13px;
-    color: var(--admin-muted);
-  }
-
-  &__muted {
-    color: var(--admin-muted);
-  }
-
-  &__error {
-    color: var(--admin-danger-text);
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
   }
 }
 
-.sa-dashboard__section {
-  margin: 28px 0 12px;
-  font-size: 16px;
-  color: var(--admin-muted);
+.sa-pill {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--success {
+    background: var(--admin-success-soft);
+    color: var(--admin-success-text);
+  }
+
+  &--info {
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+  }
+
+  &--warning {
+    background: var(--admin-warning-soft);
+    color: var(--admin-warning-text);
+  }
+
+  &--muted {
+    background: var(--admin-completed-soft);
+    color: var(--admin-completed-text);
+  }
+}
+
+.sa-rank {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  font-size: 12px;
+  font-weight: 700;
+
+  &--first {
+    background: var(--admin-accent);
+    border-color: var(--admin-accent);
+    color: #fff;
+  }
+}
+
+.sa-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.sa-tile {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  border-left: 4px solid var(--tile, var(--admin-accent));
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: translate 0.2s ease, box-shadow 0.2s ease;
+
+  strong {
+    font-size: 26px;
+    line-height: 1.1;
+  }
+
+  span {
+    color: var(--admin-muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  &:hover {
+    translate: 0 -2px;
+    box-shadow: var(--admin-shadow-md);
+  }
+
+  &--success {
+    --tile: var(--admin-success);
+  }
+
+  &--info {
+    --tile: var(--admin-accent);
+  }
+
+  &--warning {
+    --tile: var(--admin-warning);
+  }
+
+  &--danger {
+    --tile: var(--admin-danger);
+  }
+}
+
+.kpi__spark--warning {
+  color: var(--admin-warning);
 }

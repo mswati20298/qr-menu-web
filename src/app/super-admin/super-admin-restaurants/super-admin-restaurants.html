@@ -18,7 +18,7 @@
       <option value="active">Active</option>
       <option value="suspended">Suspended</option>
     </select>
-    <select #p class="sa-restaurants__filter" aria-label="Filter by plan" (change)="onPlan(p.value)">
+    <select #p class="sa-restaurants__filter" aria-label="Filter by plan" [value]="plan" (change)="onPlan(p.value)">
       <option value="">All plans</option>
       <option value="trial">On trial</option>
       <option value="free">Free</option>
