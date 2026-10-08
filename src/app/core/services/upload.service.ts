@@ -29,4 +29,16 @@ export class UploadService {
     }
     return url.startsWith('http') ? url : `${environment.apiOrigin}${url}`;
   }
+
+  /**
+   * A small copy of one of our uploaded photos, for lists and thumbnails (the server makes each size once and
+   * it is then cached). 320 suits a ~100 px box on a sharp phone screen. Other URLs are returned as they are.
+   */
+  thumbUrl(url: string | null | undefined, width: 160 | 320 | 640 = 320): string | null {
+    if (!url) {
+      return null;
+    }
+    const match = /^\/uploads\/([0-9a-fA-F-]{36}\.(?:jpg|jpeg|png|webp))$/.exec(url);
+    return match ? `${environment.apiOrigin}/uploads/w${width}/${match[1]}` : this.resolveUrl(url);
+  }
 }

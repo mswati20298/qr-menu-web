@@ -26,7 +26,7 @@
     <header class="menu-tab__hero">
       <div class="menu-tab__hero-top">
         <div class="menu-tab__brand">
-          @if (resolveImageUrl(session.menu()!.restaurant.logoUrl); as logo) {
+          @if (thumbUrl(session.menu()!.restaurant.logoUrl, 160); as logo) {
             <img class="menu-tab__brand-mark menu-tab__brand-mark--img" [src]="logo" alt="" />
           } @else {
             <span class="menu-tab__brand-mark">{{ initials() }}</span>
@@ -154,7 +154,7 @@
             @for (item of category.items; track item.id) {
               <app-menu-list-item
                 [item]="item"
-                [imageUrl]="resolveImageUrl(item.imageUrl)"
+                [imageUrl]="thumbUrl(item.imageUrl)"
                 [qty]="cart.getSimpleQty(item.id)"
                 [totalQty]="cart.getItemQty(item.id)"
                 [disabled]="!canOrder() && !needsTableScan()"

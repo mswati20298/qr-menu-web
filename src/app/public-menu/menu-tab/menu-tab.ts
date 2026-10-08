@@ -115,6 +115,11 @@ export class MenuTab implements AfterViewInit, OnDestroy {
     return this.uploadService.resolveUrl(url);
   }
 
+  /** Small copy for the dish list and the cart (the dish page still shows the full photo). */
+  thumbUrl(url: string | null, width: 160 | 320 = 320): string | null {
+    return this.uploadService.thumbUrl(url, width);
+  }
+
   isOpenNow(): boolean {
     return this.session.menu()?.restaurant?.isOpenNow ?? true;
   }
@@ -175,7 +180,7 @@ export class MenuTab implements AfterViewInit, OnDestroy {
     this.cart.add(
       item.id,
       item.name,
-      this.resolveImageUrl(item.imageUrl),
+      this.thumbUrl(item.imageUrl, 160),
       result.variantId,
       result.variantName,
       result.unitPrice,
@@ -200,7 +205,7 @@ export class MenuTab implements AfterViewInit, OnDestroy {
       this.activeItem.set(item);
       return;
     }
-    this.cart.quickAdd(item.id, item.name, this.resolveImageUrl(item.imageUrl), item.price);
+    this.cart.quickAdd(item.id, item.name, this.thumbUrl(item.imageUrl, 160), item.price);
   }
 
   quickIncrement(item: PublicMenuItem): void {

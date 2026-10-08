@@ -164,7 +164,7 @@ export class SuperAdminDashboard implements OnInit {
   }
 
   imageUrl(url: string | null | undefined): string | null {
-    return this.uploadService.resolveUrl(url ?? null);
+    return this.uploadService.thumbUrl(url, 160);
   }
 
   initial(name: string): string {

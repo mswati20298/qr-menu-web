@@ -30,7 +30,7 @@ export class ItemCustomizeSheet implements OnInit {
   readonly selectedAddOnIds = signal<Set<string>>(new Set());
   readonly qty = signal(1);
 
-  readonly imageUrl = computed(() => this.uploadService.resolveUrl(this.item().imageUrl));
+  readonly imageUrl = computed(() => this.uploadService.thumbUrl(this.item().imageUrl, 320));
 
   readonly selectedVariant = computed<PublicItemVariant | null>(() => {
     const variantId = this.selectedVariantId();

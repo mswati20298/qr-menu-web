@@ -73,7 +73,7 @@ export class MenuPage implements OnInit {
   }
 
   resolveImageUrl(url: string | null): string | null {
-    return this.uploadService.resolveUrl(url);
+    return this.uploadService.thumbUrl(url, 160);
   }
 
   onAddCategory(name: string): void {

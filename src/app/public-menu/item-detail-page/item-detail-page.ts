@@ -121,7 +121,7 @@ export class ItemDetailPage implements OnInit {
     this.cart.add(
       item.id,
       item.name,
-      this.resolveImageUrl(item.imageUrl),
+      this.uploadService.thumbUrl(item.imageUrl, 160),
       variant?.id ?? null,
       variant?.name ?? null,
       variant?.price ?? item.price,
