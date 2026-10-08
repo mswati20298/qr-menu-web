@@ -128,6 +128,18 @@ export class MenuTab implements AfterViewInit, OnDestroy {
     return this.isOpenNow() && this.orderingEnabled() && this.session.canOrderHere();
   }
 
+  /**
+   * Open and taking orders, but this phone has no table (no scan, or the scan ran out) and takeaway is off.
+   * The Add buttons stay visible; tapping one explains that the table QR has to be scanned.
+   */
+  needsTableScan(): boolean {
+    return this.isOpenNow() && this.orderingEnabled() && !this.session.canOrderHere();
+  }
+
+  private warnScan(): void {
+    this.feedback.error('Scan the QR code on your table to order.');
+  }
+
   formatTime12h(time: string): string {
     const [h, m] = time.split(':').map(Number);
     const period = h >= 12 ? 'PM' : 'AM';
@@ -136,6 +148,10 @@ export class MenuTab implements AfterViewInit, OnDestroy {
   }
 
   onItemOpen(item: PublicMenuItem): void {
+    if (this.needsTableScan()) {
+      this.warnScan();
+      return;
+    }
     if (!this.canOrder()) {
       return;
     }
@@ -172,6 +188,10 @@ export class MenuTab implements AfterViewInit, OnDestroy {
   }
 
   quickAdd(item: PublicMenuItem): void {
+    if (this.needsTableScan()) {
+      this.warnScan();
+      return;
+    }
     if (!this.canOrder()) {
       return;
     }

@@ -59,7 +59,7 @@
       </div>
 
       <div class="menu-tab__pills">
-        <span class="menu-tab__table-pill">{{ session.orderTable() ? 'Table ' + session.orderTable() : 'Takeaway' }}</span>
+        <span class="menu-tab__table-pill">{{ session.orderTable() ? 'Table ' + session.orderTable() : session.canOrderHere() ? 'Takeaway' : 'No table' }}</span>
         <span class="menu-tab__open-pill" [class.menu-tab__open-pill--closed]="!isOpenNow()">
           <span class="menu-tab__open-dot"></span>
           {{ isOpenNow() ? 'Open till ' + formatTime12h(session.menu()!.restaurant.closeTime) : 'Closed now' }}
@@ -71,8 +71,8 @@
       <app-request-actions />
     }
 
-    @if (session.scanState(); as scan) {
-      <!-- "Only table QR orders" is on and this phone has no live table session. -->
+    @if (session.scanState() ?? (needsTableScan() ? 'missing' : null); as scan) {
+      <!-- No live table for this phone ("Only table QR orders" is on, or takeaway is off and no table was scanned). -->
       <div class="menu-tab__closed-banner menu-tab__scan-banner" role="status">
         <svg class="menu-tab__closed-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
         <div>
@@ -157,7 +157,7 @@
                 [imageUrl]="resolveImageUrl(item.imageUrl)"
                 [qty]="cart.getSimpleQty(item.id)"
                 [totalQty]="cart.getItemQty(item.id)"
-                [disabled]="!canOrder()"
+                [disabled]="!canOrder() && !needsTableScan()"
                 (open)="onItemOpen(item)"
                 (add)="quickAdd(item)"
                 (increment)="quickIncrement(item)"
