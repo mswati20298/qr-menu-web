@@ -1,8 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
 import { RestaurantTable } from '../../core/models/table.model';
-import { QrService } from '../../core/services/qr.service';
+import { RestaurantService } from '../../core/services/restaurant.service';
+import { buildQrCardPng, qrBrandFor, tableLinkFor } from '../qr/qr-card-pdf';
+import { firstValueFrom } from 'rxjs';
 import { TableService } from '../../core/services/table.service';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { errorMessage } from '../../core/utils/http-error';
@@ -16,8 +17,7 @@ import { errorMessage } from '../../core/utils/http-error';
 export class TablesPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly tableService = inject(TableService);
-  private readonly qrService = inject(QrService);
-  private readonly authService = inject(AuthService);
+  private readonly restaurantService = inject(RestaurantService);
   private readonly feedback = inject(FeedbackService);
 
   readonly tables = signal<RestaurantTable[]>([]);
@@ -125,23 +125,23 @@ export class TablesPage implements OnInit {
     });
   }
 
-  showQrPreview(table: RestaurantTable): void {
-    const slug = this.authService.currentSession()?.restaurantSlug;
-    if (!slug) {
-      return;
-    }
-
+  /** Same printable card as the QR Codes page, for one table. */
+  async showQrPreview(table: RestaurantTable): Promise<void> {
     if (this.previewTableId() === table.id) {
       this.previewTableId.set(null);
       this.revokePreview();
       return;
     }
 
-    this.qrService.getTableQrPng(slug, table.number).subscribe((blob) => {
+    try {
+      const restaurant = await firstValueFrom(this.restaurantService.get());
+      const blob = await buildQrCardPng(table.number, tableLinkFor(restaurant, table), qrBrandFor(restaurant));
       this.revokePreview();
       this.previewUrl.set(URL.createObjectURL(blob));
       this.previewTableId.set(table.id);
-    });
+    } catch {
+      this.feedback.error('Could not make the QR card. Please try again.');
+    }
   }
 
   downloadPreview(table: RestaurantTable): void {

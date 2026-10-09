@@ -1,8 +1,9 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
+import { Restaurant } from '../../core/models/restaurant.model';
 import { RestaurantTable } from '../../core/models/table.model';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { TableService } from '../../core/services/table.service';
-import { QrCardBrand, buildQrCardsPdf, parseTableInput } from './qr-card-pdf';
+import { buildQrCardsPdf, menuLinkFor, parseTableInput, qrBrandFor, tableLinkFor } from './qr-card-pdf';
 
 @Component({
   selector: 'app-qr-page',
@@ -10,10 +11,7 @@ import { QrCardBrand, buildQrCardsPdf, parseTableInput } from './qr-card-pdf';
   styleUrl: './qr-page.scss'
 })
 export class QrPage implements OnInit {
-  readonly slug = signal('');
-  /** The restaurant's own address (https://saket.qrenvo.com) when it has one. */
-  private readonly ownAddress = signal<string | null>(null);
-  readonly brand = signal<QrCardBrand>({ name: '' });
+  readonly restaurant = signal<Restaurant | null>(null);
   readonly tables = signal<RestaurantTable[]>([]);
   readonly copied = signal(false);
   readonly generating = signal(false);
@@ -30,26 +28,15 @@ export class QrPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.restaurantService.get().subscribe((restaurant) => {
-      this.slug.set(restaurant.slug);
-      this.ownAddress.set(restaurant.subdomainsEnabled && restaurant.subdomain ? restaurant.menuUrl : null);
-      // TODO: rename these fields to match your Restaurant model.
-      const r = restaurant as any;
-      this.brand.set({
-        name: r.name ?? '',
-        tagline: r.tagline ?? r.description ?? '',
-        logoUrl: r.logoUrl ?? r.logo ?? null,
-        primaryColor: r.primaryColor ?? undefined,
-        accentColor: r.accentColor ?? undefined
-      });
-    });
+    this.restaurantService.get().subscribe((restaurant) => this.restaurant.set(restaurant));
     this.tableService.getAll().subscribe((tables) => this.tables.set(tables));
   }
 
   get menuLink(): string {
     // Own address first (saket.qrenvo.com). Otherwise the address the admin is using right now,
     // so QR codes made through a tunnel or a LAN IP work on phones.
-    return this.ownAddress() ?? `${window.location.origin}/m/${this.slug()}`;
+    const restaurant = this.restaurant();
+    return restaurant ? menuLinkFor(restaurant) : '';
   }
 
   copyLink(): void {
@@ -65,14 +52,13 @@ export class QrPage implements OnInit {
 
   /** Fill the input with every configured table. */
   useAllTables(): void {
-    // TODO: rename `number` if your RestaurantTable uses another field (tableNumber, name...).
-    const labels = this.tables().map((t) => String((t as any).number ?? (t as any).tableNumber ?? (t as any).name));
-    this.tableInput.set(labels.join(', '));
+    this.tableInput.set(this.tables().map((t) => t.number).join(', '));
   }
 
   async downloadPdf(): Promise<void> {
     const { tables } = this.parsed();
-    if (tables.length === 0 || this.generating()) return;
+    const restaurant = this.restaurant();
+    if (tables.length === 0 || this.generating() || !restaurant) return;
 
     // A card for a table that isn't set up under Tables has no secret code, so it can only show the menu.
     const known = new Set(this.tables().map((t) => t.number));
@@ -85,20 +71,16 @@ export class QrPage implements OnInit {
     this.generating.set(true);
     this.error.set('');
     try {
+      const byNumber = new Map(this.tables().map((t) => [t.number, t]));
       const blob = await buildQrCardsPdf({
-        brand: this.brand(),
+        brand: qrBrandFor(restaurant),
         tables,
-        // ?t= table and ?k= its secret code (the menu needs both to take orders for that table).
-        linkFor: (table) => {
-          const code = this.tables().find((t) => t.number === table)?.qrCode;
-          const key = code ? `&k=${encodeURIComponent(code)}` : '';
-          return `${this.menuLink}${this.ownAddress() ? '/' : ''}?t=${encodeURIComponent(table)}${key}`;
-        }
+        linkFor: (table) => tableLinkFor(restaurant, byNumber.get(table)!)
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${this.slug()}-qr-cards.pdf`;
+      link.download = `${restaurant.slug}-qr-cards.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch {
