@@ -1,0 +1,96 @@
+// Same look as the Help sheet: dim backdrop, panel sliding up from the bottom.
+.rating-sheet__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  animation: rating-sheet-fade-in 0.15s ease-out;
+}
+
+.rating-sheet__panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-lg);
+  animation: rating-sheet-slide-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rating-sheet__handle {
+  width: 36px;
+  height: 4px;
+  margin: 10px auto 16px;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.rating-sheet__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.rating-sheet__title {
+  margin: 0 40px 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.rating-sheet__hint {
+  margin: 0 0 16px;
+  color: var(--color-muted);
+  font-size: 13.5px;
+}
+
+.rating-sheet__later {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  border: none;
+  background: none;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes rating-sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rating-sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rating-sheet__backdrop,
+  .rating-sheet__panel {
+    animation: none;
+  }
+}

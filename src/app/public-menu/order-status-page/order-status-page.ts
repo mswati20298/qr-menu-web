@@ -7,7 +7,7 @@ import { FeedbackService } from '../../core/services/feedback.service';
 import { PublicSessionService } from '../../core/services/public-session.service';
 import { ReviewService } from '../../core/services/review.service';
 import { UploadService } from '../../core/services/upload.service';
-import { RatingForm } from '../../shared/rating-form/rating-form';
+import { RatingSheet } from '../components/rating-sheet/rating-sheet';
 import { BillSummary } from '../components/bill-summary/bill-summary';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { UpiPayCard } from '../components/upi-pay-card/upi-pay-card';
@@ -17,7 +17,7 @@ const POLL_INTERVAL_MS = 8000;
 
 @Component({
   selector: 'app-order-status-page',
-  imports: [BillSummary, ConfirmDialog, UpiPayCard, RatingForm],
+  imports: [BillSummary, ConfirmDialog, UpiPayCard, RatingSheet],
   templateUrl: './order-status-page.html',
   styleUrl: './order-status-page.scss'
 })
@@ -38,11 +38,21 @@ export class OrderStatusPage implements OnInit, OnDestroy {
 
   // Rating this order: shown once the order is placed (not for a cancelled one).
   readonly review = signal<Review | null>(null);
-  readonly editingReview = signal(false);
+  readonly reviewSheetOpen = signal(false);
   readonly savingReview = signal(false);
+  /** Star tapped on the page card, carried into the sheet. */
+  private readonly pickedStar = signal(0);
   readonly reviewStart = computed<ReviewInput | null>(() => {
     const r = this.review();
     return r ? { rating: r.rating, name: r.name, comment: r.comment, imageUrl: r.imageUrl } : null;
+  });
+  readonly sheetStart = computed<ReviewInput | null>(() => {
+    const start = this.reviewStart();
+    const star = this.pickedStar();
+    if (star) {
+      return { rating: star, name: start?.name ?? null, comment: start?.comment ?? null, imageUrl: start?.imageUrl ?? null };
+    }
+    return start;
   });
   readonly uploadPhoto = (file: File) => this.reviews.uploadGuestPhoto(this.slug, this.orderId, file);
   readonly resolveUrl = (url: string | null) => this.uploads.thumbUrl(url, 160);
@@ -84,6 +94,7 @@ export class OrderStatusPage implements OnInit, OnDestroy {
       next: (order) => {
         this.order.set(order);
         this.loading.set(false);
+        this.maybeAskForReview(order);
       },
       error: () => this.loading.set(false)
     });
@@ -123,7 +134,7 @@ export class OrderStatusPage implements OnInit, OnDestroy {
       next: (review) => {
         this.savingReview.set(false);
         this.review.set(review);
-        this.editingReview.set(false);
+        this.reviewSheetOpen.set(false);
         this.feedback.success('Thank you for your rating!');
       },
       error: (err) => {
@@ -134,6 +145,46 @@ export class OrderStatusPage implements OnInit, OnDestroy {
         this.feedback.error(first ?? err?.error?.message ?? 'Could not send your rating. Please try again.');
       }
     });
+  }
+
+  openReview(star = 0): void {
+    this.pickedStar.set(star);
+    this.reviewSheetOpen.set(true);
+  }
+
+  closeReview(): void {
+    this.reviewSheetOpen.set(false);
+    this.rememberAsked();
+  }
+
+  /** Once the food is served, ask once (not again after "Maybe later", not after a rating). */
+  private maybeAskForReview(order: Order): void {
+    const done = order.status === 'Served' || order.status === 'Completed';
+    if (!done || this.review() || this.reviewSheetOpen() || this.alreadyAsked()) {
+      return;
+    }
+    this.rememberAsked();
+    setTimeout(() => {
+      if (!this.review()) {
+        this.openReview();
+      }
+    }, 1500);
+  }
+
+  private alreadyAsked(): boolean {
+    try {
+      return localStorage.getItem(`qrenvo_review_asked_${this.orderId}`) === '1';
+    } catch {
+      return true;
+    }
+  }
+
+  private rememberAsked(): void {
+    try {
+      localStorage.setItem(`qrenvo_review_asked_${this.orderId}`, '1');
+    } catch {
+      // Private mode: the sheet may ask again next time, which is fine.
+    }
   }
 
   starsText(rating: number): string {

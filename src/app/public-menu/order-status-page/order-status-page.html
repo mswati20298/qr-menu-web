@@ -75,29 +75,40 @@
 
     @if (order()!.status !== 'Cancelled') {
       <section class="order-status-page__card order-status-page__review" aria-labelledby="review-title">
-        @if (review() && !editingReview()) {
+        @if (review()) {
           <div class="order-status-page__review-done">
             <span class="order-status-page__review-stars" [attr.aria-label]="review()!.rating + ' out of 5 stars'">{{ starsText(review()!.rating) }}</span>
             <h2 id="review-title">Thanks for your rating, {{ review()!.name }}!</h2>
             @if (review()!.comment) {
               <p>“{{ review()!.comment }}”</p>
             }
-            <button type="button" class="order-status-page__review-edit" (click)="editingReview.set(true)">Edit rating</button>
+            <button type="button" class="order-status-page__review-edit" (click)="openReview()">Edit rating</button>
           </div>
         } @else {
-          <h2 id="review-title">How was your experience?</h2>
-          <p class="order-status-page__review-hint">Your rating helps {{ session.menu()?.restaurant?.name ?? 'the restaurant' }} get better.</p>
-          <app-rating-form
-            [initial]="reviewStart()"
-            [busy]="savingReview()"
-            [upload]="uploadPhoto"
-            [resolveUrl]="resolveUrl"
-            [submitLabel]="review() ? 'Update rating' : 'Send rating'"
-            commentPlaceholder="What did you like? What can be better?"
-            (submitted)="saveReview($event)"
-          />
+          <div class="order-status-page__review-ask">
+            <h2 id="review-title">How was your experience?</h2>
+            <p class="order-status-page__review-hint">Tap a star to rate {{ session.menu()?.restaurant?.name ?? 'the restaurant' }}.</p>
+            <div class="order-status-page__review-pick" role="group" aria-label="Rate from 1 to 5 stars">
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <button type="button" [attr.aria-label]="star + (star === 1 ? ' star' : ' stars')" (click)="openReview(star)">★</button>
+              }
+            </div>
+          </div>
         }
       </section>
+    }
+
+    @if (reviewSheetOpen()) {
+      <app-rating-sheet
+        [restaurantName]="session.menu()?.restaurant?.name ?? 'the restaurant'"
+        [initial]="sheetStart()"
+        [busy]="savingReview()"
+        [editing]="!!review()"
+        [upload]="uploadPhoto"
+        [resolveUrl]="resolveUrl"
+        (submitted)="saveReview($event)"
+        (close)="closeReview()"
+      />
     }
 
     <div class="order-status-page__actions">

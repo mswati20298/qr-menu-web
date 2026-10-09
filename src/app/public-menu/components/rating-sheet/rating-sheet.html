@@ -1,0 +1,26 @@
+<div class="rating-sheet__backdrop" (click)="close.emit()">
+  <div class="rating-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="rating-sheet-title" (click)="$event.stopPropagation()">
+    <div class="rating-sheet__handle"></div>
+
+    <button type="button" class="rating-sheet__close" (click)="close.emit()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <h2 id="rating-sheet-title" class="rating-sheet__title">How was your experience?</h2>
+    <p class="rating-sheet__hint">Your rating helps {{ restaurantName() }} get better. It takes 10 seconds.</p>
+
+    <app-rating-form
+      [initial]="initial()"
+      [busy]="busy()"
+      [upload]="upload()"
+      [resolveUrl]="resolveUrl()"
+      [submitLabel]="editing() ? 'Update rating' : 'Send rating'"
+      commentPlaceholder="What did you like? What can be better?"
+      (submitted)="submitted.emit($event)"
+    />
+
+    <button type="button" class="rating-sheet__later" (click)="close.emit()">Maybe later</button>
+  </div>
+</div>

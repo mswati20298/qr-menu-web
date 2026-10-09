@@ -272,3 +272,46 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+.order-status-page__review-ask {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 4px;
+  }
+}
+
+.order-status-page__review-pick {
+  display: flex;
+  gap: 6px;
+
+  button {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: none;
+    color: var(--color-border);
+    font-size: 34px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s ease, scale 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  // Hovering a star lights it and the ones before it.
+  &:hover button {
+    color: #f5a524;
+  }
+
+  button:hover ~ button {
+    color: var(--color-border);
+  }
+
+  button:hover {
+    scale: 1.15;
+  }
+}
