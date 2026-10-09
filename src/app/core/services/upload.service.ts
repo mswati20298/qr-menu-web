@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export type ImagePurpose = 'item' | 'background' | 'logo';
+export type ImagePurpose = 'item' | 'background' | 'logo' | 'feedback';
 
 interface UploadResponse {
   url: string;

@@ -1,0 +1,337 @@
+@use 'styles/admin-theme' as *;
+
+.sa-pay {
+  &__head {
+    margin-bottom: 16px;
+
+    h1 {
+      font-size: 26px;
+      font-family: var(--font-heading);
+    }
+  }
+
+  &__sub {
+    max-width: 700px;
+    margin: 6px 0 0;
+    color: var(--admin-muted);
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  &__tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__tile {
+    @include admin-card;
+    display: grid;
+    gap: 2px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--admin-accent);
+
+    span {
+      color: var(--admin-muted);
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    strong {
+      font-size: 24px;
+    }
+
+    &--money {
+      border-left-color: var(--admin-success);
+    }
+
+    &--warn {
+      border-left-color: var(--admin-warning);
+    }
+  }
+
+  &__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  &__tabs {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+
+    button {
+      min-height: 36px;
+      padding: 0 14px;
+      border: none;
+      border-radius: 9px;
+      background: none;
+      color: var(--admin-muted);
+      font: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  }
+
+  &__tab--on {
+    background: var(--admin-accent) !important;
+    color: #fff !important;
+  }
+
+  &__search {
+    flex: 1;
+    min-width: 220px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-control);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font: inherit;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 3px var(--admin-accent-ring);
+    }
+  }
+
+  &__empty {
+    color: var(--admin-muted);
+  }
+
+  &__table-wrap {
+    @include admin-card;
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    th {
+      padding: 12px 14px;
+      text-align: left;
+      color: var(--admin-muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--admin-border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--admin-border);
+      white-space: nowrap;
+    }
+
+    tbody tr:not(.sa-pay__details) {
+      cursor: pointer;
+
+      &:hover {
+        background: var(--admin-accent-soft);
+      }
+    }
+  }
+
+  &__row--open {
+    background: var(--admin-accent-soft);
+  }
+
+  &__num {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__method {
+    color: var(--admin-muted);
+  }
+
+  &__pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--admin-warning-soft);
+    color: var(--admin-warning-text);
+    font-size: 12px;
+    font-weight: 700;
+
+    &--paid {
+      background: var(--admin-success-soft);
+      color: var(--admin-success-text);
+    }
+  }
+
+  &__chev {
+    color: var(--admin-muted);
+    text-align: right;
+  }
+
+  &__details td {
+    white-space: normal;
+    background: var(--admin-bg);
+  }
+
+  &__details dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px 20px;
+    margin: 0;
+
+    div {
+      display: grid;
+      gap: 2px;
+    }
+
+    dt {
+      color: var(--admin-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    dd {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    button {
+      padding: 0;
+      border: none;
+      background: none;
+      color: var(--admin-accent);
+      font: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  }
+
+  &__hint {
+    grid-column: 1 / -1;
+    color: var(--admin-muted);
+    font-size: 13px;
+  }
+}
+
+// Razorpay log (inside an opened row).
+.sa-pay__gw {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--admin-border);
+  cursor: default;
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+  }
+}
+
+.sa-pay__timeline {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  border-left: 2px solid var(--admin-border);
+  list-style: none;
+}
+
+.sa-pay__event {
+  position: relative;
+  display: grid;
+  gap: 4px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: -25px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--admin-accent);
+    border: 2px solid var(--admin-bg);
+  }
+
+  &--webhook::before {
+    background: var(--admin-info);
+  }
+
+  &--result::before {
+    background: var(--admin-success);
+  }
+}
+
+.sa-pay__event-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+
+  small {
+    color: var(--admin-muted);
+    font-size: 12px;
+  }
+}
+
+.sa-pay__code {
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--admin-success-soft);
+  color: var(--admin-success-text);
+  font-size: 11.5px;
+  font-weight: 700;
+
+  &--bad {
+    background: var(--admin-danger-soft);
+    color: var(--admin-danger-text);
+  }
+}
+
+.sa-pay__note {
+  margin: 0;
+  font-size: 13px;
+}
+
+.sa-pay__bodies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--admin-accent);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.sa-pay__json {
+  max-height: 320px;
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  overflow: auto;
+  border-radius: 10px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre;
+}

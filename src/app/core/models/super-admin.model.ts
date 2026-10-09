@@ -3,6 +3,20 @@ import { SubscriptionPlan, SubscriptionStatus } from './subscription.model';
 export interface SuperAdminAuthResponse {
   token: string;
   name: string;
+  /** Two-step login on: no token yet; send the 6-digit code with this challenge to verify-2fa. */
+  requiresTwoFactor?: boolean;
+  challengeToken?: string | null;
+}
+
+export interface TwoFactorStatus {
+  enabled: boolean;
+  recoveryCodesLeft: number;
+}
+
+export interface TwoFactorSetup {
+  secret: string;
+  otpAuthUri: string;
+  qrPngDataUrl: string;
 }
 
 export interface SuperAdminRestaurant {
@@ -146,4 +160,41 @@ export interface DemoStatus {
   autoResetDays: number;
   lastResetAt: string | null;
   nextResetAt: string | null;
+}
+
+/** One plan payment in the super admin's log. */
+export interface PaymentLogEntry {
+  id: string;
+  /** 'online' = Razorpay checkout; 'manual' = recorded by a super admin. */
+  source: 'online' | 'manual';
+  /** 'Paid', or 'Not completed' (checkout opened, never paid). */
+  status: 'Paid' | 'Not completed';
+  restaurantId: string;
+  restaurantName: string;
+  planName: string | null;
+  amount: number;
+  method: string | null;
+  gatewayOrderId: string | null;
+  gatewayPaymentId: string | null;
+  reference: string | null;
+  note: string | null;
+  performedBy: string | null;
+  createdAt: string;
+  paidAt: string | null;
+}
+
+export interface PaymentLog {
+  summary: { receivedTotal: number; paidCount: number; notCompletedCount: number };
+  items: PaymentLogEntry[];
+}
+
+/** One message to or from Razorpay for an order (raw JSON bodies). */
+export interface PaymentGatewayLogEntry {
+  /** 'order.create' | 'checkout.confirm' | 'webhook' | 'result' */
+  kind: string;
+  statusCode: number | null;
+  requestBody: string | null;
+  responseBody: string | null;
+  note: string | null;
+  createdAt: string;
 }

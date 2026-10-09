@@ -15,7 +15,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      const isSuperAdminCall = req.url.includes('/api/superadmin/') && !req.url.includes('/api/superadmin/auth/');
+      // Super admin sign-in (wrong password, wrong 2-step code): the login page shows the message itself.
+      // Without this, its 401 fell through to the restaurant rule below and jumped to /admin/login.
+      if (req.url.includes('/api/superadmin/auth/')) {
+        return throwError(() => error);
+      }
+
+      const isSuperAdminCall = req.url.includes('/api/superadmin/');
 
       if (isSuperAdminCall) {
         // Expired or rejected super admin token: back to the super admin login.

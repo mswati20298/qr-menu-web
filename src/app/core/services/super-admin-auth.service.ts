@@ -22,17 +22,28 @@ export class SuperAdminAuthService {
     private readonly router: Router
   ) {}
 
+  /** With two-step login on, this returns requiresTwoFactor + challengeToken and does not sign in yet. */
   login(email: string, password: string): Observable<SuperAdminAuthResponse> {
     return this.http
       .post<SuperAdminAuthResponse>(`${environment.apiBaseUrl}/superadmin/auth/login`, { email, password })
-      .pipe(
-        tap((response) => {
-          localStorage.setItem(TOKEN_KEY, response.token);
-          localStorage.setItem(NAME_KEY, response.name);
-          this.token.set(response.token);
-          this.adminName.set(response.name);
-        })
-      );
+      .pipe(tap((response) => this.store(response)));
+  }
+
+  /** Second step: the 6-digit code from the authenticator app, or a recovery code. */
+  verifyTwoFactor(challengeToken: string, code: string): Observable<SuperAdminAuthResponse> {
+    return this.http
+      .post<SuperAdminAuthResponse>(`${environment.apiBaseUrl}/superadmin/auth/verify-2fa`, { challengeToken, code })
+      .pipe(tap((response) => this.store(response)));
+  }
+
+  private store(response: SuperAdminAuthResponse): void {
+    if (response.requiresTwoFactor || !response.token) {
+      return;
+    }
+    localStorage.setItem(TOKEN_KEY, response.token);
+    localStorage.setItem(NAME_KEY, response.name);
+    this.token.set(response.token);
+    this.adminName.set(response.name);
   }
 
   logout(): void {

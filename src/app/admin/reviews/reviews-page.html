@@ -1,0 +1,94 @@
+<div class="reviews">
+  <header class="reviews__head">
+    <h1>Reviews</h1>
+    <p class="reviews__sub">What your guests say after ordering, and your own rating of QRenvo.</p>
+  </header>
+
+  <div class="reviews__layout">
+    <!-- Guests -->
+    <section class="reviews__card" aria-labelledby="guests-title">
+      <h2 id="guests-title">Guest ratings</h2>
+
+      @if (loading()) {
+        <div class="skel-stack" role="status">
+          <span class="skel-sr">Loading…</span>
+          <span class="skel skel--big" style="width:30%"></span>
+          @for (i of [1, 2, 3, 4]; track i) { <span class="skel" style="height:16px"></span> }
+        </div>
+      } @else if (summary(); as s) {
+        <div class="reviews__overview">
+          <div class="reviews__avg">
+            <strong>{{ s.count ? s.average.toFixed(1) : '–' }}</strong>
+            <span class="reviews__stars">{{ starsText(s.count ? Math.round(s.average) : 0) }}</span>
+            <small>{{ s.count }} rating{{ s.count === 1 ? '' : 's' }}</small>
+          </div>
+          <ul class="reviews__bars">
+            @for (b of bars(); track b.star) {
+              <li>
+                <button type="button" class="reviews__bar" [class.reviews__bar--on]="filter() === b.star" (click)="filter.set(filter() === b.star ? 0 : $any(b.star))">
+                  <span>{{ b.star }}★</span>
+                  <span class="reviews__track"><span [style.width.%]="b.percent"></span></span>
+                  <span>{{ b.count }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+
+        @if (s.count === 0) {
+          <p class="reviews__empty">No ratings yet. After ordering, guests see "How was your experience?" on their order page.</p>
+        } @else {
+          @if (filter() !== 0) {
+            <button type="button" class="reviews__clear" (click)="filter.set(0)">Showing {{ filter() }}★ only · Show all</button>
+          }
+          <ul class="reviews__list">
+            @for (r of shownItems(); track r.id) {
+              <li class="reviews__item">
+                @if (image(r); as img) {
+                  <img class="reviews__avatar" [src]="img" alt="" width="44" height="44" loading="lazy" />
+                } @else {
+                  <span class="reviews__avatar reviews__avatar--letter" aria-hidden="true">{{ initial(r.name) }}</span>
+                }
+                <div class="reviews__body">
+                  <div class="reviews__line">
+                    <b>{{ r.name }}</b>
+                    <span class="reviews__stars reviews__stars--sm" [attr.aria-label]="r.rating + ' out of 5'">{{ starsText(r.rating) }}</span>
+                  </div>
+                  @if (r.comment) {
+                    <p>{{ r.comment }}</p>
+                  }
+                  <small>{{ r.tableNumber ? 'Table ' + r.tableNumber + ' · ' : '' }}{{ r.createdAt | date: 'd MMM, h:mm a' }}</small>
+                </div>
+              </li>
+            } @empty {
+              <li class="reviews__empty">No {{ filter() }}★ ratings.</li>
+            }
+          </ul>
+        }
+      }
+    </section>
+
+    <!-- Owner rates QRenvo -->
+    <section class="reviews__card reviews__mine" aria-labelledby="mine-title">
+      <h2 id="mine-title">Rate QRenvo</h2>
+      <p class="reviews__sub">How is QRenvo working for you? Good words may appear on qrenvo.com after we check them.</p>
+      @if (mine(); as m) {
+        <p class="reviews__status" [class.reviews__status--live]="m.isPublished">
+          {{ m.isPublished ? '✓ Shown on qrenvo.com' : 'Waiting for review' }}
+        </p>
+      }
+      <app-rating-form
+        [initial]="myStart()"
+        [nameRequired]="true"
+        [busy]="saving()"
+        [upload]="uploadPhoto"
+        [resolveUrl]="resolveUrl"
+        [fallbackImageUrl]="logoUrl()"
+        [submitLabel]="mine() ? 'Update my rating' : 'Send my rating'"
+        commentPlaceholder="What changed for your restaurant since QRenvo?"
+        (submitted)="saveMine($event)"
+      />
+      <p class="reviews__note">No photo? We show your restaurant logo, or your name's first letter.</p>
+    </section>
+  </div>
+</div>

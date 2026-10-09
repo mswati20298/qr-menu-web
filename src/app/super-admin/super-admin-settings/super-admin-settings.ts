@@ -7,11 +7,12 @@ import { SuperAdminAccentService } from '../../core/services/super-admin-accent.
 import { SuperAdminService } from '../../core/services/super-admin.service';
 import { DemoResetCard } from './demo-reset-card/demo-reset-card';
 import { PlatformKeysCard } from './platform-keys-card/platform-keys-card';
+import { TwoFactorCard } from './two-factor-card/two-factor-card';
 
 /** Platform-wide settings: free trial length, payment and AI keys, and (on the demo) the demo reset. */
 @Component({
   selector: 'app-super-admin-settings',
-  imports: [DatePipe, ReactiveFormsModule, PlatformKeysCard, DemoResetCard],
+  imports: [DatePipe, ReactiveFormsModule, PlatformKeysCard, DemoResetCard, TwoFactorCard],
   templateUrl: './super-admin-settings.html',
   styleUrl: './super-admin-settings.scss'
 })

@@ -1,0 +1,219 @@
+@use 'styles/admin-theme' as *;
+
+.sa-fb {
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+
+    h1 {
+      font-size: 26px;
+      font-family: var(--font-heading);
+    }
+  }
+
+  &__sub {
+    max-width: 680px;
+    margin: 6px 0 0;
+    color: var(--admin-muted);
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  &__tabs {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+
+    button {
+      min-height: 36px;
+      padding: 0 14px;
+      border: none;
+      border-radius: 9px;
+      background: none;
+      color: var(--admin-muted);
+      font: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  }
+
+  &__tab--on {
+    background: var(--admin-accent) !important;
+    color: #fff !important;
+  }
+
+  &__empty {
+    color: var(--admin-muted);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    @include admin-card;
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--admin-border);
+
+    &--live {
+      border-left-color: var(--admin-success);
+    }
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+
+    &--letter {
+      display: grid;
+      place-items: center;
+      background: var(--admin-accent-soft);
+      color: var(--admin-accent);
+      font-weight: 800;
+      font-size: 18px;
+    }
+  }
+
+  &__who {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+
+    span {
+      color: var(--admin-muted);
+      font-size: 12.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__kind {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+
+    &--owner {
+      background: var(--admin-accent-soft);
+      color: var(--admin-accent);
+    }
+
+    &--customer {
+      background: var(--admin-completed-soft);
+      color: var(--admin-completed-text);
+    }
+  }
+
+  &__stars {
+    color: #f5a524;
+    font-size: 17px;
+    letter-spacing: 1px;
+  }
+
+  &__comment {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+
+    small {
+      flex: 1;
+      color: var(--admin-muted);
+      font-size: 12px;
+    }
+  }
+
+  &__delete {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--admin-danger);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  &__switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--admin-text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+
+    &::before {
+      content: '';
+      order: -1;
+      width: 36px;
+      height: 20px;
+      border-radius: 99px;
+      background: var(--admin-border);
+      transition: background-color 0.2s ease;
+    }
+
+    &--on::before {
+      background: var(--admin-success);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  &__knob {
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: translate 0.2s ease;
+    pointer-events: none;
+  }
+
+  &__switch--on .sa-fb__knob {
+    translate: 16px 0;
+  }
+}

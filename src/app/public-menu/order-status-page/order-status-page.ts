@@ -1,9 +1,13 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Order, OrderStatus } from '../../core/models/order.model';
+import { Review, ReviewInput } from '../../core/models/review.model';
 import { OrderService } from '../../core/services/order.service';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { PublicSessionService } from '../../core/services/public-session.service';
+import { ReviewService } from '../../core/services/review.service';
+import { UploadService } from '../../core/services/upload.service';
+import { RatingForm } from '../../shared/rating-form/rating-form';
 import { BillSummary } from '../components/bill-summary/bill-summary';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { UpiPayCard } from '../components/upi-pay-card/upi-pay-card';
@@ -13,7 +17,7 @@ const POLL_INTERVAL_MS = 8000;
 
 @Component({
   selector: 'app-order-status-page',
-  imports: [BillSummary, ConfirmDialog, UpiPayCard],
+  imports: [BillSummary, ConfirmDialog, UpiPayCard, RatingForm],
   templateUrl: './order-status-page.html',
   styleUrl: './order-status-page.scss'
 })
@@ -23,12 +27,25 @@ export class OrderStatusPage implements OnInit, OnDestroy {
   readonly session = inject(PublicSessionService);
   private readonly router = inject(Router);
   private readonly feedback = inject(FeedbackService);
+  private readonly reviews = inject(ReviewService);
+  private readonly uploads = inject(UploadService);
 
   readonly statusSteps = STATUS_STEPS;
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
   readonly cancelling = signal(false);
   readonly showCancelConfirm = signal(false);
+
+  // Rating this order: shown once the order is placed (not for a cancelled one).
+  readonly review = signal<Review | null>(null);
+  readonly editingReview = signal(false);
+  readonly savingReview = signal(false);
+  readonly reviewStart = computed<ReviewInput | null>(() => {
+    const r = this.review();
+    return r ? { rating: r.rating, name: r.name, comment: r.comment, imageUrl: r.imageUrl } : null;
+  });
+  readonly uploadPhoto = (file: File) => this.reviews.uploadGuestPhoto(this.slug, this.orderId, file);
+  readonly resolveUrl = (url: string | null) => this.uploads.thumbUrl(url, 160);
   slug = '';
   private orderId = '';
   private pollHandle: ReturnType<typeof setInterval> | null = null;
@@ -38,6 +55,12 @@ export class OrderStatusPage implements OnInit, OnDestroy {
     this.orderId = this.route.snapshot.paramMap.get('orderId') ?? '';
     this.session.init(this.slug, this.session.tableNumber());
     this.fetchOrder();
+    this.reviews.forOrder(this.slug, this.orderId).subscribe({
+      next: (review) => this.review.set(review),
+      error: () => {
+        // Not critical: the rating card simply starts empty.
+      }
+    });
 
     this.pollHandle = setInterval(() => {
       // Keep checking while the kitchen is working, and while staff have not yet confirmed a UPI payment.
@@ -92,6 +115,29 @@ export class OrderStatusPage implements OnInit, OnDestroy {
       case 'Cancelled': return 'Order cancelled';
       default: return 'Order placed!';
     }
+  }
+
+  saveReview(input: ReviewInput): void {
+    this.savingReview.set(true);
+    this.reviews.submitForOrder(this.slug, this.orderId, input).subscribe({
+      next: (review) => {
+        this.savingReview.set(false);
+        this.review.set(review);
+        this.editingReview.set(false);
+        this.feedback.success('Thank you for your rating!');
+      },
+      error: (err) => {
+        this.savingReview.set(false);
+        // Validation errors come as a list or as { field: [messages] }.
+        const errors = err?.error?.errors;
+        const first = Array.isArray(errors) ? errors[0] : errors ? (Object.values(errors)[0] as string[] | undefined)?.[0] : null;
+        this.feedback.error(first ?? err?.error?.message ?? 'Could not send your rating. Please try again.');
+      }
+    });
+  }
+
+  starsText(rating: number): string {
+    return '★★★★★'.slice(0, rating) + '☆☆☆☆☆'.slice(0, 5 - rating);
   }
 
   backToMenu(): void {

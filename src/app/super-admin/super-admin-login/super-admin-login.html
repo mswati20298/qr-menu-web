@@ -6,6 +6,43 @@
     <h1 class="auth-page__title">Super admin</h1>
     <p class="auth-page__subtitle">Platform administration. Restaurant owners log in from the normal login page.</p>
 
+    @if (challenge()) {
+    <form class="auth-page__twofa" (ngSubmit)="verifyCode()">
+      <p class="auth-page__subtitle">
+        {{ useRecovery() ? 'Type one of your recovery codes.' : 'Open your authenticator app and type the 6-digit code for QRenvo.' }}
+      </p>
+      <div class="form-field">
+        <label for="code">{{ useRecovery() ? 'Recovery code' : 'Code' }}</label>
+        <input
+          id="code"
+          name="code"
+          [attr.inputmode]="useRecovery() ? 'text' : 'numeric'"
+          [attr.maxlength]="useRecovery() ? 11 : 6"
+          [placeholder]="useRecovery() ? 'abcde-fghij' : '123456'"
+          autocomplete="one-time-code"
+          autofocus
+          [(ngModel)]="code"
+          (ngModelChange)="onCodeChange($event)"
+          (keydown.enter)="$event.preventDefault(); verifyCode()"
+        />
+      </div>
+
+      @if (errorMessage()) {
+        <p class="auth-page__error">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" class="btn-primary auth-page__submit" [disabled]="submitting() || !code.trim()">
+        {{ submitting() ? 'Checking…' : 'Verify' }}
+      </button>
+      <p class="auth-page__switch">
+        <button type="button" class="auth-page__link-btn" (click)="useRecovery.set(!useRecovery()); code = ''">
+          {{ useRecovery() ? 'Use the app code instead' : 'Lost your phone? Use a recovery code' }}
+        </button>
+        ·
+        <button type="button" class="auth-page__link-btn" (click)="backToPassword()">Back</button>
+      </p>
+    </form>
+    } @else {
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-field">
         <label for="email">Email</label>
@@ -31,5 +68,6 @@
         {{ submitting() ? 'Logging in…' : 'Log in' }}
       </button>
     </form>
+    }
   </div>
 </div>

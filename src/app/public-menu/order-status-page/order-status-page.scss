@@ -229,3 +229,46 @@
   font-weight: 700;
   text-align: center;
 }
+
+// "How was your experience?"
+.order-status-page__review {
+  h2 {
+    margin: 0 0 4px;
+  }
+}
+
+.order-status-page__review-hint {
+  margin: 0 0 14px;
+  color: var(--color-muted);
+  font-size: 13.5px;
+}
+
+.order-status-page__review-done {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: var(--color-muted);
+    font-style: italic;
+  }
+}
+
+.order-status-page__review-stars {
+  color: #f5a524;
+  font-size: 26px;
+  letter-spacing: 2px;
+}
+
+.order-status-page__review-edit {
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

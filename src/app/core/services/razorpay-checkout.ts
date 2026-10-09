@@ -66,7 +66,7 @@ export async function openRazorpayCheckout(checkout: Checkout, themeColor: strin
       order_id: checkout.orderId,
       amount: checkout.amount,
       currency: checkout.currency,
-      name: 'QR Menu',
+      name: 'QRenvo',
       description: `${checkout.planName} plan · ${checkout.restaurantName}`,
       prefill: {
         name: checkout.ownerName ?? undefined,

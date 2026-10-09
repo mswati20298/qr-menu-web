@@ -1,0 +1,64 @@
+<form class="rf" (ngSubmit)="submit()" novalidate>
+  <div class="rf__stars" role="radiogroup" aria-label="Rating" tabindex="0" (keydown)="onKey($event)" (mouseleave)="hover.set(0)">
+    @for (star of stars; track star) {
+      <button
+        type="button"
+        role="radio"
+        class="rf__star"
+        [class.rf__star--on]="star <= shown()"
+        [attr.aria-checked]="rating() === star"
+        [attr.aria-label]="star + (star === 1 ? ' star' : ' stars')"
+        tabindex="-1"
+        (mouseenter)="hover.set(star)"
+        (click)="pick(star)"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.8l2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.36l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93z" />
+        </svg>
+      </button>
+    }
+    <span class="rf__label" aria-live="polite">{{ label() || 'Tap to rate' }}</span>
+  </div>
+
+  <div class="rf__who">
+    <div class="rf__avatar">
+      @if (preview(); as img) {
+        <img [src]="img" alt="" />
+      } @else {
+        <span>{{ initialLetter() }}</span>
+      }
+      @if (uploading()) {
+        <span class="rf__spinner" aria-label="Uploading"></span>
+      }
+    </div>
+    <div class="rf__photo-actions">
+      <label class="rf__photo-btn">
+        <input type="file" accept="image/jpeg,image/png,image/webp" (change)="choosePhoto($event)" [disabled]="uploading()" />
+        {{ imageUrl() ? 'Change photo' : 'Add a photo' }}
+      </label>
+      @if (imageUrl()) {
+        <button type="button" class="rf__link" (click)="removePhoto()">Remove</button>
+      }
+      <small>Optional</small>
+    </div>
+  </div>
+
+  <label class="rf__field">
+    <span>Name{{ nameRequired() ? '' : ' (optional)' }}</span>
+    <input type="text" name="name" maxlength="60" autocomplete="name" [placeholder]="namePlaceholder()" [ngModel]="name()" (ngModelChange)="name.set($event)" />
+  </label>
+
+  <label class="rf__field">
+    <span>Comment (optional)</span>
+    <textarea name="comment" rows="3" maxlength="600" [placeholder]="commentPlaceholder()" [ngModel]="comment()" (ngModelChange)="comment.set($event)"></textarea>
+    <small class="rf__count">{{ comment().length }}/600</small>
+  </label>
+
+  @if (error()) {
+    <p class="rf__error" role="alert">{{ error() }}</p>
+  }
+
+  <button type="submit" class="rf__submit" [disabled]="!canSubmit()">
+    {{ busy() ? 'Sending…' : submitLabel() }}
+  </button>
+</form>

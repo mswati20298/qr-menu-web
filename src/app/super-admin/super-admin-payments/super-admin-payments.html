@@ -1,0 +1,165 @@
+<div class="sa-pay">
+  <header class="sa-pay__head">
+    <div>
+      <h1>Payments</h1>
+      <p class="sa-pay__sub">
+        Every plan purchase: Razorpay checkouts (paid, or opened and left without paying) and payments you recorded by
+        hand. Only you can see this page.
+      </p>
+    </div>
+  </header>
+
+  @if (log(); as l) {
+    <section class="sa-pay__tiles" aria-label="Summary">
+      <div class="sa-pay__tile sa-pay__tile--money">
+        <span>Received</span>
+        <strong>{{ l.summary.receivedTotal | inr }}</strong>
+      </div>
+      <div class="sa-pay__tile">
+        <span>Paid</span>
+        <strong>{{ l.summary.paidCount }}</strong>
+      </div>
+      <div class="sa-pay__tile sa-pay__tile--warn">
+        <span>Not completed</span>
+        <strong>{{ l.summary.notCompletedCount }}</strong>
+      </div>
+    </section>
+  }
+
+  <div class="sa-pay__bar">
+    <div class="sa-pay__tabs" role="group" aria-label="Filter by status">
+      <button type="button" [class.sa-pay__tab--on]="status() === ''" (click)="setStatus('')">All</button>
+      <button type="button" [class.sa-pay__tab--on]="status() === 'paid'" (click)="setStatus('paid')">Paid</button>
+      <button type="button" [class.sa-pay__tab--on]="status() === 'unpaid'" (click)="setStatus('unpaid')">Not completed</button>
+    </div>
+    <input
+      #q
+      class="sa-pay__search"
+      type="search"
+      placeholder="Restaurant, order id, payment id or UTR…"
+      aria-label="Search payments"
+      (input)="onSearch(q.value)"
+    />
+  </div>
+
+  @if (loading() && !log()) {
+    <div class="skel-stack" role="status">
+      <span class="skel-sr">Loading…</span>
+      @for (i of [1, 2, 3, 4, 5]; track i) { <span class="skel" style="height:44px"></span> }
+    </div>
+  } @else if (log(); as l) {
+    @if (l.items.length === 0) {
+      <p class="sa-pay__empty">No payments match.</p>
+    } @else {
+      <div class="sa-pay__table-wrap">
+        <table class="sa-pay__table">
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Restaurant</th>
+              <th>Plan</th>
+              <th class="sa-pay__num">Amount</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th><span class="skel-sr">Details</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of l.items; track p.id) {
+              <tr [class.sa-pay__row--open]="expandedId() === p.id" (click)="toggle(p)">
+                <td>{{ p.createdAt | date: 'd MMM y, h:mm a' }}</td>
+                <td><b>{{ p.restaurantName }}</b></td>
+                <td>{{ p.planName ?? '—' }}</td>
+                <td class="sa-pay__num">{{ p.amount | inr }}</td>
+                <td>
+                  <span class="sa-pay__method">{{ p.source === 'online' ? 'Razorpay' : methodLabel(p.method) }}</span>
+                </td>
+                <td>
+                  <span class="sa-pay__pill" [class.sa-pay__pill--paid]="p.status === 'Paid'">{{ p.status }}</span>
+                </td>
+                <td class="sa-pay__chev" aria-hidden="true">{{ expandedId() === p.id ? '▴' : '▾' }}</td>
+              </tr>
+              @if (expandedId() === p.id) {
+                <tr class="sa-pay__details">
+                  <td colspan="7">
+                    <dl>
+                      @if (p.gatewayOrderId) {
+                        <div><dt>Razorpay order</dt><dd><code>{{ p.gatewayOrderId }}</code> <button type="button" (click)="copy(p.gatewayOrderId); $event.stopPropagation()">Copy</button></dd></div>
+                      }
+                      @if (p.gatewayPaymentId) {
+                        <div><dt>Razorpay payment</dt><dd><code>{{ p.gatewayPaymentId }}</code> <button type="button" (click)="copy(p.gatewayPaymentId); $event.stopPropagation()">Copy</button></dd></div>
+                      }
+                      @if (p.reference) {
+                        <div><dt>Reference / UTR</dt><dd><code>{{ p.reference }}</code></dd></div>
+                      }
+                      @if (p.paidAt) {
+                        <div><dt>Paid at</dt><dd>{{ p.paidAt | date: 'd MMM y, h:mm:ss a' }}</dd></div>
+                      }
+                      <div><dt>By</dt><dd>{{ p.performedBy ?? '—' }}</dd></div>
+                      @if (p.note) {
+                        <div><dt>Note</dt><dd>{{ p.note }}</dd></div>
+                      }
+                      @if (p.status !== 'Paid') {
+                        <div class="sa-pay__hint">The owner opened the Razorpay checkout but the payment did not finish (closed, failed or cancelled). No money was taken.</div>
+                      }
+                    </dl>
+
+                    @if (p.gatewayOrderId) {
+                      <section class="sa-pay__gw" (click)="$event.stopPropagation()">
+                        <h3>Razorpay log</h3>
+                        @switch (logState(p.gatewayOrderId)) {
+                          @case ('loading') {
+                            <p class="sa-pay__hint">Loading…</p>
+                          }
+                          @case ('error') {
+                            <p class="sa-pay__hint">Could not load the Razorpay log.</p>
+                          }
+                          @case ('ready') {
+                            @if (entries(p.gatewayOrderId).length === 0) {
+                              <p class="sa-pay__hint">No Razorpay messages saved for this order (payments made before this log existed have none).</p>
+                            } @else {
+                              <ol class="sa-pay__timeline">
+                                @for (e of entries(p.gatewayOrderId); track $index; let i = $index) {
+                                  <li class="sa-pay__event" [class.sa-pay__event--webhook]="e.kind === 'webhook'" [class.sa-pay__event--result]="e.kind === 'result'">
+                                    <div class="sa-pay__event-head">
+                                      <b>{{ kindLabel(e.kind) }}</b>
+                                      @if (e.statusCode) {
+                                        <span class="sa-pay__code" [class.sa-pay__code--bad]="e.statusCode >= 400">HTTP {{ e.statusCode }}</span>
+                                      }
+                                      <small>{{ e.createdAt | date: 'd MMM, h:mm:ss a' }}</small>
+                                    </div>
+                                    @if (e.note) {
+                                      <p class="sa-pay__note">{{ e.note }}</p>
+                                    }
+                                    <div class="sa-pay__bodies">
+                                      @if (e.requestBody) {
+                                        <button type="button" (click)="toggleBody(i + ':req', $event)">{{ openBodies().has(i + ':req') ? 'Hide' : 'Show' }} {{ e.kind === 'webhook' ? 'received' : 'sent' }} JSON</button>
+                                      }
+                                      @if (e.responseBody) {
+                                        <button type="button" (click)="toggleBody(i + ':res', $event)">{{ openBodies().has(i + ':res') ? 'Hide' : 'Show' }} Razorpay's answer</button>
+                                      }
+                                    </div>
+                                    @if (openBodies().has(i + ':req')) {
+                                      <pre class="sa-pay__json">{{ pretty(e.requestBody) }}</pre>
+                                    }
+                                    @if (openBodies().has(i + ':res')) {
+                                      <pre class="sa-pay__json">{{ pretty(e.responseBody) }}</pre>
+                                    }
+                                  </li>
+                                }
+                              </ol>
+                            }
+                          }
+                        }
+                      </section>
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

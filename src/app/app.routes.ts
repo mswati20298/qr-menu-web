@@ -30,6 +30,14 @@ export const routes: Routes = [
         loadComponent: () => import('./super-admin/super-admin-plans/super-admin-plans').then((m) => m.SuperAdminPlans)
       },
       {
+        path: 'payments',
+        loadComponent: () => import('./super-admin/super-admin-payments/super-admin-payments').then((m) => m.SuperAdminPayments)
+      },
+      {
+        path: 'testimonials',
+        loadComponent: () => import('./super-admin/super-admin-feedback/super-admin-feedback').then((m) => m.SuperAdminFeedback)
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./super-admin/super-admin-settings/super-admin-settings').then((m) => m.SuperAdminSettings)
@@ -85,6 +93,7 @@ export const routes: Routes = [
       { path: 'dashboard', loadComponent: () => import('./admin/dashboard/dashboard-page').then((m) => m.DashboardPage) },
       { path: 'orders', loadComponent: () => import('./admin/orders/orders-page').then((m) => m.OrdersPage) },
       { path: 'requests', loadComponent: () => import('./admin/requests/requests-page').then((m) => m.RequestsPage) },
+      { path: 'reviews', loadComponent: () => import('./admin/reviews/reviews-page').then((m) => m.ReviewsPage) },
       { path: 'menu', loadComponent: () => import('./admin/menu/menu-page').then((m) => m.MenuPage) },
       { path: 'tables', loadComponent: () => import('./admin/tables/tables-page').then((m) => m.TablesPage) },
       { path: 'qr', loadComponent: () => import('./admin/qr/qr-page').then((m) => m.QrPage) },

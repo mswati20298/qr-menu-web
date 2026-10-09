@@ -1,0 +1,101 @@
+<section class="tf">
+  <div class="tf__head">
+    <div>
+      <h2>Two-step login</h2>
+      <p class="tf__hint">
+        After your password, also ask for a 6-digit code from an app on your phone (Google Authenticator, Microsoft
+        Authenticator or Authy). Someone who learns your password still cannot get in.
+      </p>
+    </div>
+    @if (status(); as s) {
+      <span class="tf__badge" [class.tf__badge--on]="s.enabled">{{ s.enabled ? 'On' : 'Off' }}</span>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="tf__error" role="alert">{{ error() }}</p>
+  }
+
+  @switch (step()) {
+    @case ('scan') {
+      @if (setup(); as st) {
+        <ol class="tf__steps">
+          <li>Open the authenticator app and add an account (the <b>+</b> button).</li>
+          <li>Scan this QR code. Cannot scan? Choose "enter a setup key" and type the key below.</li>
+          <li>Type the 6-digit code the app shows, then press <b>Turn on</b>.</li>
+        </ol>
+        <div class="tf__setup">
+          <img class="tf__qr" [src]="st.qrPngDataUrl" alt="QR code for the authenticator app" width="180" height="180" />
+          <div class="tf__setup-side">
+            <span class="tf__label">Setup key</span>
+            <code class="tf__secret">{{ st.secret }}</code>
+            <form class="tf__row" (ngSubmit)="enable()">
+              <input class="tf__code" name="code" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code" [(ngModel)]="code" />
+              <button type="submit" class="btn-admin-primary" [disabled]="busy() || code.trim().length !== 6">{{ busy() ? 'Checking…' : 'Turn on' }}</button>
+            </form>
+            <button type="button" class="tf__link" (click)="open('idle')">Cancel</button>
+          </div>
+        </div>
+      }
+    }
+
+    @case ('codes') {
+      <div class="tf__codes-box">
+        <p><b>Save these recovery codes now.</b> Each one works once, if you lose your phone. They will not be shown again.</p>
+        <ul class="tf__codes">
+          @for (c of recoveryCodes(); track c) {
+            <li><code>{{ c }}</code></li>
+          }
+        </ul>
+        <div class="tf__row">
+          <button type="button" class="btn-admin-secondary" (click)="copyCodes()">Copy</button>
+          <button type="button" class="btn-admin-secondary" (click)="downloadCodes()">Download .txt</button>
+          <button type="button" class="btn-admin-primary" (click)="done()">I saved them</button>
+        </div>
+      </div>
+    }
+
+    @case ('regen') {
+      <form class="tf__form" (ngSubmit)="newCodes()">
+        <p class="tf__hint">The old recovery codes stop working. Enter the current 6-digit code from the app.</p>
+        <div class="tf__row">
+          <input class="tf__code" name="code" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code" [(ngModel)]="code" />
+          <button type="submit" class="btn-admin-primary" [disabled]="busy() || code.trim().length !== 6">Make new codes</button>
+          <button type="button" class="tf__link" (click)="open('idle')">Cancel</button>
+        </div>
+      </form>
+    }
+
+    @case ('disable') {
+      <form class="tf__form" (ngSubmit)="disable()">
+        <p class="tf__hint">To turn it off, confirm with your password and a code from the app (or a recovery code).</p>
+        <div class="form-field">
+          <label for="tfPassword">Password</label>
+          <input id="tfPassword" name="password" type="password" autocomplete="current-password" [(ngModel)]="password" />
+        </div>
+        <div class="form-field">
+          <label for="tfCode">Code</label>
+          <input id="tfCode" name="code" maxlength="11" placeholder="123456 or abcde-fghij" autocomplete="one-time-code" [(ngModel)]="code" />
+        </div>
+        <div class="tf__row">
+          <button type="submit" class="tf__danger" [disabled]="busy() || !password || !code.trim()">{{ busy() ? 'Turning off…' : 'Turn off' }}</button>
+          <button type="button" class="tf__link" (click)="open('idle')">Cancel</button>
+        </div>
+      </form>
+    }
+
+    @default {
+      @if (status(); as s) {
+        @if (s.enabled) {
+          <p class="tf__hint">Recovery codes left: <b>{{ s.recoveryCodesLeft }}</b>{{ s.recoveryCodesLeft <= 2 ? ': make new ones soon.' : '' }}</p>
+          <div class="tf__row">
+            <button type="button" class="btn-admin-secondary" (click)="open('regen')">New recovery codes</button>
+            <button type="button" class="tf__danger tf__danger--soft" (click)="open('disable')">Turn off</button>
+          </div>
+        } @else {
+          <button type="button" class="btn-admin-primary" [disabled]="busy()" (click)="start()">{{ busy() ? 'Starting…' : 'Turn on two-step login' }}</button>
+        }
+      }
+    }
+  }
+</section>

@@ -585,3 +585,27 @@
     }
   }
 }
+
+// Super admin two-step login: the links under the code box.
+.auth-page__switch {
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.auth-page__link-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-page__twofa input {
+  letter-spacing: 0.3em;
+  font-size: 18px;
+  text-align: center;
+}

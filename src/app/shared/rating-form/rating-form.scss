@@ -1,0 +1,228 @@
+// Works on the customer menu (--color-*) and in the admin panels (--admin-*).
+:host {
+  --rf-text: var(--admin-text, var(--color-text));
+  --rf-muted: var(--admin-muted, var(--color-muted));
+  --rf-border: var(--admin-border, var(--color-border));
+  --rf-field: var(--admin-surface, var(--field-bg, var(--color-surface)));
+  --rf-accent: var(--admin-accent, var(--color-accent));
+  --rf-star: #f5a524;
+  display: block;
+  color: var(--rf-text);
+}
+
+.rf {
+  display: grid;
+  gap: 14px;
+
+  &__stars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 12px;
+    outline: none;
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--rf-accent) 35%, transparent);
+    }
+  }
+
+  &__star {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      width: 34px;
+      height: 34px;
+      fill: transparent;
+      stroke: var(--rf-muted);
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      transition: fill 0.15s ease, stroke 0.15s ease, scale 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    &--on svg {
+      fill: var(--rf-star);
+      stroke: var(--rf-star);
+    }
+
+    &:hover svg {
+      scale: 1.12;
+    }
+  }
+
+  &__label {
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--rf-muted);
+  }
+
+  &__who {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  &__avatar {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--rf-accent) 16%, transparent);
+    color: var(--rf-accent);
+    font-size: 22px;
+    font-weight: 800;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__spinner {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: var(--rf-accent);
+    animation: rf-spin 0.8s linear infinite;
+  }
+
+  &__photo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+
+    small {
+      color: var(--rf-muted);
+      font-size: 12px;
+    }
+  }
+
+  &__photo-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--rf-border);
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+
+    input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--rf-accent) 35%, transparent);
+    }
+  }
+
+  &__link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--rf-accent);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  &__field {
+    position: relative;
+    display: grid;
+    gap: 6px;
+
+    span {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px 13px;
+      border: 1px solid var(--rf-border);
+      border-radius: 12px;
+      background: var(--rf-field);
+      color: var(--rf-text);
+      font: inherit;
+      font-size: 15px;
+      resize: vertical;
+
+      &:focus {
+        outline: none;
+        border-color: var(--rf-accent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--rf-accent) 25%, transparent);
+      }
+    }
+  }
+
+  &__count {
+    justify-self: end;
+    color: var(--rf-muted);
+    font-size: 11.5px;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: color-mix(in srgb, #ef4444 14%, transparent);
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  &__submit {
+    min-height: 48px;
+    border: none;
+    border-radius: 14px;
+    background: var(--rf-accent);
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@keyframes rf-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rf__star svg {
+    transition: none;
+  }
+
+  .rf__spinner {
+    animation-duration: 2.4s;
+  }
+}

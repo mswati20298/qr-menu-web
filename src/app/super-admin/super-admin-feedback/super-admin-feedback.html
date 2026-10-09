@@ -1,0 +1,66 @@
+<div class="sa-fb">
+  <header class="sa-fb__head">
+    <div>
+      <h1>Testimonials</h1>
+      <p class="sa-fb__sub">
+        Ratings from restaurant owners and their guests. Turn on <b>Show on site</b> to put one on the qrenvo.com landing page
+        ({{ publishedCount() }} shown now). An owner who edits their rating goes back to hidden until you check it again.
+      </p>
+    </div>
+    <div class="sa-fb__tabs" role="group" aria-label="Filter">
+      <button type="button" [class.sa-fb__tab--on]="kind() === ''" (click)="setKind('')">All</button>
+      <button type="button" [class.sa-fb__tab--on]="kind() === 'owner'" (click)="setKind('owner')">Owners</button>
+      <button type="button" [class.sa-fb__tab--on]="kind() === 'customer'" (click)="setKind('customer')">Guests</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="skel-grid" role="status" style="--skel-min:300px">
+      <span class="skel-sr">Loading…</span>
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="skel-card skel-stack"><div class="skel-row"><span class="skel skel--circle"></span><span class="skel" style="width:50%"></span></div><span class="skel"></span><span class="skel" style="width:70%"></span></div>
+      }
+    </div>
+  } @else if (items().length === 0) {
+    <p class="sa-fb__empty">No ratings yet. Owners rate QRenvo from their "Reviews" page; guests rate after ordering.</p>
+  } @else {
+    <ul class="sa-fb__grid">
+      @for (r of items(); track r.id) {
+        <li class="sa-fb__card" [class.sa-fb__card--live]="r.isPublished">
+          <div class="sa-fb__top">
+            @if (image(r); as img) {
+              <img class="sa-fb__avatar" [src]="img" alt="" width="46" height="46" loading="lazy" />
+            } @else {
+              <span class="sa-fb__avatar sa-fb__avatar--letter" aria-hidden="true">{{ initial(r.name) }}</span>
+            }
+            <div class="sa-fb__who">
+              <b>{{ r.name }}</b>
+              <span>{{ r.kind === 'Owner' ? 'Owner' : 'Guest' }} · {{ r.restaurantName }}</span>
+            </div>
+            <span class="sa-fb__kind sa-fb__kind--{{ r.kind.toLowerCase() }}">{{ r.kind === 'Owner' ? 'Owner' : 'Guest' }}</span>
+          </div>
+          <span class="sa-fb__stars" [attr.aria-label]="r.rating + ' out of 5'">{{ starsText(r.rating) }}</span>
+          @if (r.comment) {
+            <p class="sa-fb__comment">“{{ r.comment }}”</p>
+          }
+          <div class="sa-fb__foot">
+            <small>{{ r.createdAt | date: 'd MMM y' }}</small>
+            <button type="button" class="sa-fb__delete" (click)="remove(r)">Delete</button>
+            <button
+              type="button"
+              role="switch"
+              class="sa-fb__switch"
+              [class.sa-fb__switch--on]="r.isPublished"
+              [attr.aria-checked]="r.isPublished"
+              [disabled]="busyId() === r.id"
+              (click)="togglePublished(r)"
+            >
+              <span class="sa-fb__knob" aria-hidden="true"></span>
+              Show on site
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

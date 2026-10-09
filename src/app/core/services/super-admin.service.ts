@@ -6,10 +6,14 @@ import {
   DemoStatus,
   KeyCheckResult,
   PagedResult,
+  PaymentGatewayLogEntry,
+  PaymentLog,
   PlatformKeys,
   PlatformSettings,
   SuperAdminRestaurant,
   SuperAdminStats,
+  TwoFactorSetup,
+  TwoFactorStatus,
   UpdatePlatformKeysRequest
 } from '../models/super-admin.model';
 import {
@@ -103,6 +107,38 @@ export class SuperAdminService {
   /** Empty fields are checked with the keys in use now. */
   testRazorpay(keyId: string | null, keySecret: string | null): Observable<KeyCheckResult> {
     return this.http.post<KeyCheckResult>(`${this.baseUrl}/settings/keys/test-razorpay`, { keyId, keySecret });
+  }
+
+  /** status: '' (all), 'paid' or 'unpaid' (checkout opened, not paid). */
+  payments(status: '' | 'paid' | 'unpaid', search: string): Observable<PaymentLog> {
+    const params: Record<string, string> = {};
+    if (status) params['status'] = status;
+    if (search.trim()) params['search'] = search.trim();
+    return this.http.get<PaymentLog>(`${this.baseUrl}/payments`, { params });
+  }
+
+  gatewayLog(orderId: string): Observable<PaymentGatewayLogEntry[]> {
+    return this.http.get<PaymentGatewayLogEntry[]>(`${this.baseUrl}/payments/gateway-log`, { params: { orderId } });
+  }
+
+  twoFactorStatus(): Observable<TwoFactorStatus> {
+    return this.http.get<TwoFactorStatus>(`${this.baseUrl}/2fa`);
+  }
+
+  twoFactorSetup(): Observable<TwoFactorSetup> {
+    return this.http.post<TwoFactorSetup>(`${this.baseUrl}/2fa/setup`, {});
+  }
+
+  twoFactorEnable(code: string): Observable<{ recoveryCodes: string[] }> {
+    return this.http.post<{ recoveryCodes: string[] }>(`${this.baseUrl}/2fa/enable`, { code });
+  }
+
+  twoFactorNewRecoveryCodes(code: string): Observable<{ recoveryCodes: string[] }> {
+    return this.http.post<{ recoveryCodes: string[] }>(`${this.baseUrl}/2fa/recovery-codes`, { code });
+  }
+
+  twoFactorDisable(password: string, code: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/2fa/disable`, { password, code });
   }
 
   demoStatus(): Observable<DemoStatus> {
