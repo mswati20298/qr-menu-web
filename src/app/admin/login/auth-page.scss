@@ -198,7 +198,8 @@
   // Chrome's autofill paints its own light-blue box and dark text; keep the theme's field colours instead.
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus {
+  input:-webkit-autofill:focus,
+  input:autofill {
     -webkit-text-fill-color: var(--color-text);
     caret-color: var(--color-text);
     -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg) inset;

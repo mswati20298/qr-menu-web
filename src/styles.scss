@@ -15,6 +15,16 @@ html, body {
   height: 100%;
 }
 
+// Tell the browser which theme is on, so its own parts (autofill colours, the saved-password list, date pickers,
+// scrollbars) match. Without this Chrome painted autofilled fields light while our text was light: white on white.
+html {
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
