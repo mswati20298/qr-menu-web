@@ -10,12 +10,20 @@ export interface SiteInfo {
   rootDomain: string | null;
   appUrl: string;
   restaurantSlug: string | null;
+  /** Country code + digits, e.g. 919876543210. Owners message it for help (e.g. a forgotten password). */
+  supportWhatsApp: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class SiteService {
   private readonly http = inject(HttpClient);
   readonly info = signal<SiteInfo | null>(null);
+
+  /** wa.me link to support with a ready message, or null when no support number is set. */
+  supportWhatsAppLink(message: string): string | null {
+    const number = this.info()?.supportWhatsApp?.replace(/\D/g, '');
+    return number ? `https://wa.me/${number}?text=${encodeURIComponent(message)}` : null;
+  }
 
   /**
    * Runs once before the first route. On saket.qrenvo.com it shows that restaurant's menu, and sends anyone

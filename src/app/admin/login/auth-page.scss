@@ -609,3 +609,32 @@
   font-size: 18px;
   text-align: center;
 }
+
+// "Forgot password?" under the password field.
+.auth-page__forgot {
+  display: block;
+  width: fit-content;
+  margin: 8px 0 0 auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+a.auth-page__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.form-field__hint {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-muted);
+  font-size: 12px;
+}

@@ -23,7 +23,18 @@
         <span>Not completed</span>
         <strong>{{ l.summary.notCompletedCount }}</strong>
       </div>
+      @if (l.summary.refundedTotal > 0) {
+        <div class="sa-pay__tile sa-pay__tile--danger">
+          <span>Refunded</span>
+          <strong>{{ l.summary.refundedTotal | inr }}</strong>
+        </div>
+      }
     </section>
+    @if (l.summary.openRefundRequests > 0 && status() !== 'refunds') {
+      <button type="button" class="sa-pay__alert" (click)="setStatus('refunds')">
+        {{ l.summary.openRefundRequests }} refund request{{ l.summary.openRefundRequests === 1 ? '' : 's' }} waiting for you →
+      </button>
+    }
   }
 
   <div class="sa-pay__bar">
@@ -31,7 +42,14 @@
       <button type="button" [class.sa-pay__tab--on]="status() === ''" (click)="setStatus('')">All</button>
       <button type="button" [class.sa-pay__tab--on]="status() === 'paid'" (click)="setStatus('paid')">Paid</button>
       <button type="button" [class.sa-pay__tab--on]="status() === 'unpaid'" (click)="setStatus('unpaid')">Not completed</button>
+      <button type="button" [class.sa-pay__tab--on]="status() === 'refunds'" (click)="setStatus('refunds')">
+        Refunds
+        @if (log()?.summary?.openRefundRequests) {
+          <span class="sa-pay__badge">{{ log()!.summary.openRefundRequests }}</span>
+        }
+      </button>
     </div>
+    @if (status() !== 'refunds') {
     <input
       #q
       class="sa-pay__search"
@@ -40,9 +58,12 @@
       aria-label="Search payments"
       (input)="onSearch(q.value)"
     />
+    }
   </div>
 
-  @if (loading() && !log()) {
+  @if (status() === 'refunds') {
+    <app-refund-list (changed)="load()" />
+  } @else if (loading() && !log()) {
     <div class="skel-stack" role="status">
       <span class="skel-sr">Loading…</span>
       @for (i of [1, 2, 3, 4, 5]; track i) { <span class="skel" style="height:44px"></span> }
@@ -76,6 +97,9 @@
                 </td>
                 <td>
                   <span class="sa-pay__pill" [class.sa-pay__pill--paid]="p.status === 'Paid'">{{ p.status }}</span>
+                  @if (p.refundStatus && p.refundStatus !== 'Rejected') {
+                    <span class="sa-pay__pill sa-pay__pill--refund">{{ p.refundedAmount > 0 ? '−' + (p.refundedAmount | inr) : refundLabels[p.refundStatus] }}</span>
+                  }
                 </td>
                 <td class="sa-pay__chev" aria-hidden="true">{{ expandedId() === p.id ? '▴' : '▾' }}</td>
               </tr>
@@ -102,7 +126,29 @@
                       @if (p.status !== 'Paid') {
                         <div class="sa-pay__hint">The owner opened the Razorpay checkout but the payment did not finish (closed, failed or cancelled). No money was taken.</div>
                       }
+                      @if (p.refundStatus) {
+                        <div><dt>Refund</dt><dd>{{ refundLabels[p.refundStatus] }}@if (p.refundedAmount > 0) { · {{ p.refundedAmount | inr }} }</dd></div>
+                      }
                     </dl>
+
+                    @if (p.status === 'Paid' && p.amount - p.refundedAmount > 0) {
+                      @if (refundingId() === p.id) {
+                        <app-refund-form
+                          [maxAmount]="refundable(p)"
+                          [fee]="p.refundFee"
+                          [online]="p.source === 'online'"
+                          [busy]="refundBusy()"
+                          [error]="refundError()"
+                          [submitLabel]="p.source === 'online' ? 'Refund via Razorpay' : 'Record refund'"
+                          (submitted)="refund(p, $event)"
+                          (cancelled)="closeRefund()"
+                        />
+                      } @else {
+                        <div class="sa-pay__row-actions">
+                          <button type="button" class="btn-admin-secondary" (click)="openRefund(p, $event)">Refund…</button>
+                        </div>
+                      }
+                    }
 
                     @if (p.gatewayOrderId) {
                       <section class="sa-pay__gw" (click)="$event.stopPropagation()">

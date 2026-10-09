@@ -239,11 +239,11 @@ export class MenuPage implements OnInit {
     this.scanModalOpen.set(false);
   }
 
-  onMenuScanned(result: { itemCount: number; categoryCount: number }): void {
+  onMenuScanned(result: { itemCount: number; categoryCount: number; skippedCount: number }): void {
     this.scanModalOpen.set(false);
     const categoryNote =
       result.categoryCount > 0 ? ` across ${result.categoryCount} new categor${result.categoryCount === 1 ? 'y' : 'ies'}` : '';
-    this.importBanner.set(`Imported ${result.itemCount} item${result.itemCount === 1 ? '' : 's'}${categoryNote}.`);
+    this.importBanner.set(`Imported ${result.itemCount} item${result.itemCount === 1 ? '' : 's'}${categoryNote}.${result.skippedCount > 0 ? ` Skipped ${result.skippedCount} already on the menu.` : ''}`);
     this.reload();
     setTimeout(() => this.importBanner.set(null), 6000);
   }

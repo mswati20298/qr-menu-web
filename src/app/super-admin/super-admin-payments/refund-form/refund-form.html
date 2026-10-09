@@ -1,0 +1,51 @@
+<form class="rf" (ngSubmit)="submit()" (click)="$event.stopPropagation()">
+  <div class="rf__fields">
+    <label>
+      <span>Amount (₹)</span>
+      <input
+        type="number"
+        name="amount"
+        min="1"
+        step="0.01"
+        [max]="limit()"
+        [placeholder]="'Full: ' + limit()"
+        [ngModel]="amount()"
+        (ngModelChange)="amount.set($event === '' || $event === null ? null : +$event)"
+      />
+    </label>
+    <label class="rf__note">
+      <span>{{ online() ? 'Note (optional)' : 'How you sent it back' }}</span>
+      <input
+        type="text"
+        name="note"
+        maxlength="300"
+        [placeholder]="online() ? 'Shown to the owner' : 'e.g. UPI ref 4123… sent on 9 Oct'"
+        [ngModel]="note()"
+        (ngModelChange)="note.set($event)"
+      />
+    </label>
+  </div>
+  @if (online() && fee() > 0) {
+    <label class="rf__check">
+      <input type="checkbox" name="includeFee" [ngModel]="includeFee()" (ngModelChange)="includeFee.set($event)" />
+      <span>Also give back Razorpay's {{ fee() | inr }} charges (only for a double charge or our mistake — you lose them)</span>
+    </label>
+  }
+  <p class="rf__hint">
+    @if (online()) {
+      {{ amount() === null || isFull() ? 'Full refund of ' : 'Partial refund of ' }}{{ (amount() ?? limit()) | inr }} through Razorpay.
+      @if (fee() > 0 && !includeFee()) { Razorpay's {{ fee() | inr }} charges are kept back. }
+      {{ isFull() ? 'The plan stops at once.' : 'The plan keeps running.' }}
+    } @else {
+      This payment was made outside Razorpay: send the money yourself, this only records it.
+      {{ isFull() ? 'The plan stops at once.' : '' }}
+    }
+  </p>
+  @if (localError() ?? error(); as message) {
+    <p class="rf__error" role="alert">{{ message }}</p>
+  }
+  <div class="rf__actions">
+    <button type="button" class="btn-admin-secondary" [disabled]="busy()" (click)="cancelled.emit()">Cancel</button>
+    <button type="submit" class="btn-admin-danger" [disabled]="busy()">{{ busy() ? 'Working…' : submitLabel() }}</button>
+  </div>
+</form>

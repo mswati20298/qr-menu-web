@@ -4,6 +4,7 @@ import { Category } from '../../../../core/models/category.model';
 import { CategoryService } from '../../../../core/services/category.service';
 import { ItemService } from '../../../../core/services/item.service';
 import { MenuScanService } from '../../../../core/services/menu-scan.service';
+import { errorMessage } from '../../../../core/utils/http-error';
 
 type Step = 'upload' | 'scanning' | 'review' | 'importing';
 
@@ -26,7 +27,8 @@ export class MenuScanModal {
   readonly categories = input.required<Category[]>();
 
   readonly close = output<void>();
-  readonly imported = output<{ itemCount: number; categoryCount: number }>();
+  /** skippedCount = items that were already on the menu (same name in the same category). */
+  readonly imported = output<{ itemCount: number; categoryCount: number; skippedCount: number }>();
 
   private readonly menuScanService = inject(MenuScanService);
   private readonly categoryService = inject(CategoryService);
@@ -89,7 +91,7 @@ export class MenuScanModal {
       },
       error: (err) => {
         this.step.set('upload');
-        this.errorMessage.set(err?.error?.message ?? 'Could not scan that menu. Please try again.');
+        this.errorMessage.set(errorMessage(err, 'Could not scan that menu. Please try again.'));
       }
     });
   }
@@ -118,23 +120,37 @@ export class MenuScanModal {
     this.importProgress.set({ done: 0, total: included.length });
 
     try {
+      // Same rule as the API: names match ignoring case and extra spaces.
+      const key = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase();
       const categoryIdByName = new Map<string, string>();
       for (const c of this.categories()) {
-        categoryIdByName.set(c.name.trim().toLowerCase(), c.id);
+        categoryIdByName.set(key(c.name), c.id);
       }
       let newCategoryCount = 0;
+      let createdCount = 0;
+      let skippedCount = 0;
+      /** "<categoryId>|<item name>" already sent in this import, so a scan that lists a dish twice adds it once. */
+      const seen = new Set<string>();
 
       for (const item of included) {
-        const key = item.category.trim().toLowerCase() || 'other';
-        let categoryId = categoryIdByName.get(key);
+        const categoryKey = key(item.category) || 'other';
+        let categoryId = categoryIdByName.get(categoryKey);
         if (!categoryId) {
           const created = await firstValueFrom(this.categoryService.create({ name: item.category.trim() || 'Other' }));
           categoryId = created.id;
-          categoryIdByName.set(key, categoryId);
+          categoryIdByName.set(categoryKey, categoryId);
           newCategoryCount++;
         }
 
-        await firstValueFrom(
+        const itemKey = `${categoryId}|${key(item.name)}`;
+        if (seen.has(itemKey)) {
+          skippedCount++;
+          this.importProgress.set({ done: (this.importProgress()?.done ?? 0) + 1, total: included.length });
+          continue;
+        }
+        seen.add(itemKey);
+
+        const created = await firstValueFrom(
           this.itemService.create({
             categoryId,
             name: item.name.trim(),
@@ -146,12 +162,26 @@ export class MenuScanModal {
             variants: [],
             addOns: []
           })
+        ).then(
+          () => true,
+          (err: { status?: number }) => {
+            // 409: this dish is already on the menu. Skip it and keep importing the rest.
+            if (err?.status === 409) {
+              return false;
+            }
+            throw err;
+          }
         );
+        if (created) {
+          createdCount++;
+        } else {
+          skippedCount++;
+        }
 
         this.importProgress.set({ done: (this.importProgress()?.done ?? 0) + 1, total: included.length });
       }
 
-      this.imported.emit({ itemCount: included.length, categoryCount: newCategoryCount });
+      this.imported.emit({ itemCount: createdCount, categoryCount: newCategoryCount, skippedCount });
     } catch {
       this.errorMessage.set('Something went wrong while importing. Items already imported were saved — you can retry the rest manually.');
       this.step.set('review');

@@ -144,6 +144,17 @@
   @include admin-button-secondary;
 }
 
+/* For money going out or things being cut off (refunds, rejections). */
+.admin-shell .btn-admin-danger {
+  @include admin-button-primary;
+  background: var(--admin-danger);
+
+  &:hover:not(:disabled) {
+    background: var(--admin-danger);
+    filter: brightness(0.92);
+  }
+}
+
 .admin-shell .form-field {
   display: flex;
   flex-direction: column;

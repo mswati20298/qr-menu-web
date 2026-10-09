@@ -3,6 +3,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angu
 import { Router } from '@angular/router';
 import { SuperAdminAuthService } from '../../core/services/super-admin-auth.service';
 import { ThemeToggle } from '../../shared/theme-toggle/theme-toggle';
+import { errorMessage } from '../../core/utils/http-error';
 
 @Component({
   selector: 'app-super-admin-login',
@@ -50,7 +51,7 @@ export class SuperAdminLogin {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.errorMessage.set(err?.error?.message ?? 'Login failed. Please check your credentials.');
+        this.errorMessage.set(errorMessage(err, 'Login failed. Please check your credentials.'));
       }
     });
   }
@@ -69,10 +70,10 @@ export class SuperAdminLogin {
         this.submitting.set(false);
         this.code = '';
         // An expired challenge means starting again from the password.
-        if (err?.status === 401 && /expired/i.test(err?.error?.message ?? '')) {
+        if (err?.status === 401 && /expired/i.test(errorMessage(err, ''))) {
           this.challenge.set(null);
         }
-        this.errorMessage.set(err?.error?.message ?? 'That code did not work. Please try again.');
+        this.errorMessage.set(errorMessage(err, 'That code did not work. Please try again.'));
       }
     });
   }

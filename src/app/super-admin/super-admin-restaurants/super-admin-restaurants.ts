@@ -6,6 +6,7 @@ import { PLAN_STATUS_LABELS, SubscriptionDetails } from '../../core/models/subsc
 import { FeedbackService } from '../../core/services/feedback.service';
 import { PlanFilter, SuperAdminService } from '../../core/services/super-admin.service';
 import { SubscriptionDialog } from '../subscription-dialog/subscription-dialog';
+import { errorMessage } from '../../core/utils/http-error';
 
 type StatusFilter = '' | 'active' | 'suspended';
 
@@ -130,7 +131,7 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.busyId.set(null);
-        this.error.set(err?.error?.message ?? 'Could not change the status. Please try again.');
+        this.error.set(errorMessage(err, 'Could not change the status. Please try again.'));
       }
     });
   }
@@ -169,7 +170,7 @@ This is shown only once.`,
       },
       error: (err) => {
         this.busyId.set(null);
-        this.error.set(err?.error?.message ?? 'Could not reset the password. Please try again.');
+        this.error.set(errorMessage(err, 'Could not reset the password. Please try again.'));
       }
     });
   }

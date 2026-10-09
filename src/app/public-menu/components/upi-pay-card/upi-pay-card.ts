@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { Order } from '../../../core/models/order.model';
 import { OrderService } from '../../../core/services/order.service';
 import { FeedbackService } from '../../../core/services/feedback.service';
+import { errorMessage } from '../../../core/utils/http-error';
 
 /**
  * Lets the customer pay an order straight into the restaurant's own UPI account: a QR with the amount
@@ -78,7 +79,7 @@ export class UpiPayCard {
       },
       error: (err) => {
         this.claiming.set(false);
-        this.feedback.error(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not send. Please try again.');
+        this.feedback.error(errorMessage(err, 'Could not send. Please try again.'));
       }
     });
   }

@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { INVOICE_PAYMENT_LABELS, Invoice, InvoiceFormat, InvoiceSummary } from '../../core/models/invoice.model';
 import { StaffPaymentMethod } from '../../core/models/order.model';
 import { InvoiceService } from '../../core/services/invoice.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 @Component({
   selector: 'app-invoices-page',
@@ -90,7 +91,7 @@ export class InvoicesPage implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.billing.set(false);
-        this.error.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not create the bill.');
+        this.error.set(errorMessage(err, 'Could not create the bill.'));
       }
     });
   }
@@ -126,7 +127,7 @@ export class InvoicesPage implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.busy.set(null);
-        this.actionError.set(err?.error?.message ?? 'Could not mark the invoice paid.');
+        this.actionError.set(errorMessage(err, 'Could not mark the invoice paid.'));
       }
     });
   }

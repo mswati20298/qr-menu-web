@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { OwnerRefunds, Refund } from '../models/refund.model';
 import { DashboardStats, Restaurant, ScanStats, UpdateRestaurantRequest } from '../models/restaurant.model';
 import { Checkout, ConfirmCheckoutRequest, OwnerPlan } from '../models/subscription.model';
 
@@ -47,5 +48,13 @@ export class RestaurantService {
 
   confirmCheckout(request: ConfirmCheckoutRequest): Observable<OwnerPlan> {
     return this.http.post<OwnerPlan>(`${this.baseUrl}/plan/confirm`, request);
+  }
+
+  getRefunds(): Observable<OwnerRefunds> {
+    return this.http.get<OwnerRefunds>(`${this.baseUrl}/plan/refunds`);
+  }
+
+  requestRefund(planPaymentId: string, reason: string): Observable<Refund> {
+    return this.http.post<Refund>(`${this.baseUrl}/plan/refunds`, { planPaymentId, reason });
   }
 }

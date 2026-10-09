@@ -52,6 +52,7 @@
         @if (form.controls.password.touched && form.controls.password.invalid) {
           <span class="form-field__error">Password is required.</span>
         }
+        <a class="auth-page__forgot" routerLink="/admin/forgot-password">Forgot password?</a>
       </div>
 
       @if (errorMessage()) {

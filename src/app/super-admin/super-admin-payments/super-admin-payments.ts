@@ -3,9 +3,13 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { PaymentGatewayLogEntry, PaymentLog, PaymentLogEntry } from '../../core/models/super-admin.model';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { SuperAdminService } from '../../core/services/super-admin.service';
+import { REFUND_STATUS_LABELS } from '../../core/models/refund.model';
+import { errorMessage } from '../../core/utils/http-error';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
+import { RefundForm, RefundFormValue } from './refund-form/refund-form';
+import { RefundList } from './refund-list/refund-list';
 
-type StatusFilter = '' | 'paid' | 'unpaid';
+type StatusFilter = '' | 'paid' | 'unpaid' | 'refunds';
 
 /**
  * Every plan payment: Razorpay checkouts (paid, or opened and left) and payments recorded by hand.
@@ -13,7 +17,7 @@ type StatusFilter = '' | 'paid' | 'unpaid';
  */
 @Component({
   selector: 'app-super-admin-payments',
-  imports: [DatePipe, InrPipe],
+  imports: [DatePipe, InrPipe, RefundForm, RefundList],
   templateUrl: './super-admin-payments.html',
   styleUrl: './super-admin-payments.scss'
 })
@@ -29,6 +33,11 @@ export class SuperAdminPayments implements OnInit, OnDestroy {
   readonly gatewayLog = signal<Record<string, PaymentGatewayLogEntry[] | 'loading' | 'error'>>({});
   /** Which bodies are unfolded: "<index>:req" or "<index>:res". */
   readonly openBodies = signal<Set<string>>(new Set());
+  /** Payment whose refund form is open. */
+  readonly refundingId = signal<string | null>(null);
+  readonly refundBusy = signal(false);
+  readonly refundError = signal<string | null>(null);
+  readonly refundLabels = REFUND_STATUS_LABELS;
 
   private search = '';
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -45,7 +54,61 @@ export class SuperAdminPayments implements OnInit, OnDestroy {
 
   setStatus(status: StatusFilter): void {
     this.status.set(status);
-    this.load();
+    if (status !== 'refunds') {
+      this.load();
+    }
+  }
+
+  /** What can still go back for this payment, after Razorpay's charges. */
+  refundable(p: PaymentLogEntry): number {
+    return Math.max(0, Math.round((p.amount - (p.refundFee ?? 0) - (p.refundedAmount ?? 0)) * 100) / 100);
+  }
+
+  openRefund(p: PaymentLogEntry, event: Event): void {
+    event.stopPropagation();
+    this.refundingId.set(p.id);
+    this.refundError.set(null);
+  }
+
+  closeRefund(): void {
+    if (!this.refundBusy()) {
+      this.refundingId.set(null);
+    }
+  }
+
+  async refund(p: PaymentLogEntry, value: RefundFormValue): Promise<void> {
+    const amount = value.amount ?? this.refundable(p) + (value.includeFee ? p.refundFee : 0);
+    const full = value.amount === null;
+    const ok = await this.toast.confirm({
+      title: `Refund ₹${amount} to ${p.restaurantName}?`,
+      message: (p.source === 'online' ? 'Razorpay sends the money back to the account they paid from. ' : 'This only records a refund you made yourself. ')
+        + (full ? 'Their plan stops at once.' : 'Their plan keeps running.'),
+      confirmLabel: 'Refund',
+      danger: true
+    });
+    if (!ok) {
+      return;
+    }
+    this.refundBusy.set(true);
+    this.refundError.set(null);
+    this.service.refundPayment({
+      planPaymentId: p.source === 'online' ? p.id : null,
+      paymentEventId: p.source === 'manual' ? p.id : null,
+      amount: value.amount,
+      note: value.note,
+      includeFee: value.includeFee
+    }).subscribe({
+      next: (done) => {
+        this.refundBusy.set(false);
+        this.refundingId.set(null);
+        this.toast.success(done.status === 'Refunded' ? 'Refunded.' : 'Refund started. Razorpay will confirm it shortly.');
+        this.load();
+      },
+      error: (err) => {
+        this.refundBusy.set(false);
+        this.refundError.set(errorMessage(err, 'Could not refund. Please try again.'));
+      }
+    });
   }
 
   onSearch(value: string): void {
@@ -90,6 +153,8 @@ export class SuperAdminPayments implements OnInit, OnDestroy {
         return 'Webhook from Razorpay';
       case 'result':
         return 'Result';
+      case 'refund.create':
+        return 'Refund sent to Razorpay';
       default:
         return kind;
     }
@@ -143,9 +208,10 @@ export class SuperAdminPayments implements OnInit, OnDestroy {
     }
   }
 
-  private load(): void {
+  load(): void {
     this.loading.set(true);
-    this.service.payments(this.status(), this.search).subscribe({
+    const status = this.status();
+    this.service.payments(status === 'refunds' ? '' : status, this.search).subscribe({
       next: (log) => {
         this.log.set(log);
         this.loading.set(false);

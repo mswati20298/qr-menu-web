@@ -119,6 +119,82 @@
       }
     }
 
+    @if (refunds(); as r) {
+      @if (r.refundable.length || r.refunds.length || refundSuccess()) {
+        <h2 class="plan-page__section">Refunds</h2>
+        <div class="plan-page__card plan-page__refunds">
+          @if (refundSuccess()) {
+            <p class="plan-page__notice plan-page__notice--success" role="status">{{ refundSuccess() }}</p>
+          }
+          <p class="plan-page__hint">
+            You can ask for a refund within {{ refundDays }} days of paying. Razorpay's payment charges (about 2% + GST) are not
+            refundable, so you get the plan amount less those charges. A full refund stops the plan at once.
+          </p>
+
+          @for (pay of r.refundable; track pay.planPaymentId) {
+            <div class="plan-page__refund-row">
+              <div>
+                <strong>{{ pay.planName }} · ₹{{ pay.amount | number: '1.0-2' }}</strong>
+                <span class="plan-page__sub">Paid {{ pay.paidAt | date: 'd MMM y' }} · refund possible till {{ pay.refundableUntil | date: 'd MMM y' }}</span>
+                <span class="plan-page__sub">
+                  You get <b>₹{{ pay.refundAmount | number: '1.0-2' }}</b> back
+                  @if (pay.fee > 0) { (₹{{ pay.fee | number: '1.0-2' }} payment charges are not refundable) }
+                </span>
+              </div>
+              @if (refundFor()?.planPaymentId !== pay.planPaymentId) {
+                <button type="button" class="btn-admin-secondary" (click)="openRefund(pay)">Request refund</button>
+              }
+            </div>
+            @if (refundFor()?.planPaymentId === pay.planPaymentId) {
+              <form class="plan-page__refund-form" (ngSubmit)="sendRefund()">
+                <p class="plan-page__notice plan-page__notice--warning">
+                  You will get ₹{{ pay.refundAmount | number: '1.0-2' }} of ₹{{ pay.amount | number: '1.0-2' }} back, once approved.
+                  @if (pay.fee > 0) { Razorpay keeps its ₹{{ pay.fee | number: '1.0-2' }} payment charges. }
+                  Your plan stops at once.
+                </p>
+                <label for="refund-reason" class="plan-page__label">Why do you want a refund?</label>
+                <textarea
+                  id="refund-reason"
+                  name="reason"
+                  rows="3"
+                  maxlength="500"
+                  [ngModel]="refundReason()"
+                  (ngModelChange)="refundReason.set($event)"
+                  placeholder="e.g. We are not using QR ordering any more"
+                ></textarea>
+                @if (refundError()) {
+                  <p class="plan-page__error" role="alert">{{ refundError() }}</p>
+                }
+                <div class="plan-page__refund-actions">
+                  <button type="button" class="btn-admin-secondary" [disabled]="refundSending()" (click)="closeRefund()">Cancel</button>
+                  <button type="submit" class="btn-admin-primary" [disabled]="refundSending()">{{ refundSending() ? 'Sending…' : 'Send request' }}</button>
+                </div>
+              </form>
+            }
+          }
+
+          @for (f of r.refunds; track f.id) {
+            <div class="plan-page__refund-row">
+              <div>
+                <strong>₹{{ f.amount | number: '1.0-2' }}</strong>
+                <span class="plan-page__muted"> of ₹{{ f.paymentAmount | number: '1.0-2' }} · {{ f.planName }}</span>
+                <span class="plan-page__sub">
+                  Asked {{ f.requestedAt | date: 'd MMM y' }}
+                  @if (f.refundedAt) { · refunded {{ f.refundedAt | date: 'd MMM y' }} }
+                  @if (f.fee > 0) { · ₹{{ f.fee | number: '1.0-2' }} payment charges not refundable }
+                  @if (f.adminNote) { · “{{ f.adminNote }}” }
+                </span>
+              </div>
+              <span class="plan-page__tag plan-page__tag--{{ refundTone[f.status] }}">{{ refundLabels[f.status] }}</span>
+            </div>
+          }
+          @if (r.refunds.length && r.refunds[0].status === 'Processing') {
+            <p class="plan-page__hint">Razorpay usually sends the money back to your bank in 5–7 working days.</p>
+          }
+        </div>
+      }
+    }
+
     <h2 class="plan-page__section">History</h2>
     <div class="plan-page__card plan-page__table-wrap">
       <table class="plan-page__table">

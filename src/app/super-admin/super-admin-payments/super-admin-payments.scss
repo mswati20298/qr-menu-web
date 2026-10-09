@@ -49,6 +49,49 @@
     &--warn {
       border-left-color: var(--admin-warning);
     }
+
+    &--danger {
+      border-left-color: var(--admin-danger);
+    }
+  }
+
+  &__alert {
+    display: block;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 12px 16px;
+    border: 1px solid var(--admin-warning);
+    border-radius: 12px;
+    background: var(--admin-warning-soft);
+    color: var(--admin-warning-text);
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  &__badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 4px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--admin-danger);
+    color: #fff;
+    font-size: 11px;
+  }
+
+  &__row-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
   }
 
   &__bar {
@@ -170,6 +213,12 @@
     &--paid {
       background: var(--admin-success-soft);
       color: var(--admin-success-text);
+    }
+
+    &--refund {
+      margin-left: 6px;
+      background: var(--admin-danger-soft);
+      color: var(--admin-danger-text);
     }
   }
 

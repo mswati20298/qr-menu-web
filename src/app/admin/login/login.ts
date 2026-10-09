@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { readAuthAccent, readAuthBackground } from '../../core/auth-background';
 import { takeLoginNotice } from '../../core/login-notice';
 import { ThemeToggle } from '../../shared/theme-toggle/theme-toggle';
+import { errorMessage } from '../../core/utils/http-error';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +45,7 @@ export class Login {
       next: () => this.router.navigate(['/admin/dashboard']),
       error: (err) => {
         this.submitting.set(false);
-        this.errorMessage.set(err?.error?.message ?? 'Login failed. Please check your credentials.');
+        this.errorMessage.set(errorMessage(err, 'Login failed. Please check your credentials.'));
       }
     });
   }

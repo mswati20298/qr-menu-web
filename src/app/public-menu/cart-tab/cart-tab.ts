@@ -10,6 +10,7 @@ import { OrderService } from '../../core/services/order.service';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { PublicSessionService } from '../../core/services/public-session.service';
 import { BillSummary } from '../components/bill-summary/bill-summary';
+import { errorMessage } from '../../core/utils/http-error';
 
 interface RemovedLine {
   line: CartLine;
@@ -159,7 +160,7 @@ export class CartTab {
           if (err?.error?.code === 'table_session_expired') {
             this.session.endSession();
           }
-          this.feedback.error(err?.error?.message ?? 'Could not place your order. Please try again.');
+          this.feedback.error(errorMessage(err, 'Could not place your order. Please try again.'));
         }
       });
   }

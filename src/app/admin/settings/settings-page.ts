@@ -7,6 +7,7 @@ import { BackgroundManager } from './background-manager/background-manager';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { DEFAULT_THEME_COLOR, THEME_COLORS } from '../../core/models/theme-color.model';
 import { ThemeColorService } from '../../core/services/theme-color.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 /** UPI needs a name to show customers once a UPI ID is entered. */
 type SettingsTab = 'details' | 'billing' | 'look' | 'kitchen' | 'address' | 'password';
@@ -246,7 +247,7 @@ export class SettingsPage implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.saving.set(false);
-          this.saveError.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not save. Please try again.');
+          this.saveError.set(errorMessage(err, 'Could not save. Please try again.'));
         }
       });
   }
@@ -266,7 +267,7 @@ export class SettingsPage implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.subdomainSaving.set(false);
-        this.feedback.error(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not save the address.');
+        this.feedback.error(errorMessage(err, 'Could not save the address.'));
       }
     });
   }
@@ -293,7 +294,7 @@ export class SettingsPage implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.passwordSaving.set(false);
-        this.feedback.error(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not change the password.');
+        this.feedback.error(errorMessage(err, 'Could not change the password.'));
       }
     });
   }
@@ -338,7 +339,7 @@ export class SettingsPage implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.kitchenSaving.set(false);
-        this.kitchenError.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not save the PIN.');
+        this.kitchenError.set(errorMessage(err, 'Could not save the PIN.'));
       }
     });
   }

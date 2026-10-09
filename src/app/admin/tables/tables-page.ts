@@ -5,6 +5,7 @@ import { RestaurantTable } from '../../core/models/table.model';
 import { QrService } from '../../core/services/qr.service';
 import { TableService } from '../../core/services/table.service';
 import { FeedbackService } from '../../core/services/feedback.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 @Component({
   selector: 'app-tables-page',
@@ -98,7 +99,7 @@ export class TablesPage implements OnInit {
         this.tables.set(this.tables().filter((t) => t.id !== table.id));
         this.feedback.success(`Table ${table.number} deleted.`);
       },
-      error: (err) => this.feedback.error(err?.error?.message ?? `Could not delete Table ${table.number}.`)
+      error: (err) => this.feedback.error(errorMessage(err, `Could not delete Table ${table.number}.`))
     });
   }
 
@@ -120,7 +121,7 @@ export class TablesPage implements OnInit {
         this.previewTableId.set(null);
         this.showQrPreview(updated);
       },
-      error: (err) => this.feedback.error(err?.error?.message ?? 'Could not reset the QR code.')
+      error: (err) => this.feedback.error(errorMessage(err, 'Could not reset the QR code.'))
     });
   }
 

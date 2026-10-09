@@ -24,6 +24,17 @@ import {
   SavePricingPlanRequest,
   SubscriptionDetails
 } from '../models/subscription.model';
+import { Refund } from '../models/refund.model';
+
+/** Refund a payment: online ones go back through Razorpay, manual ones are only recorded. */
+export interface AdminRefundRequest {
+  planPaymentId: string | null;
+  paymentEventId: string | null;
+  amount: number | null;
+  note: string | null;
+  /** Give Razorpay's charges back too (charged twice, our mistake). */
+  includeFee: boolean;
+}
 
 export type PlanFilter = '' | 'trial' | 'free' | 'paid' | 'expiring' | 'grace' | 'stopped';
 
@@ -115,6 +126,24 @@ export class SuperAdminService {
     if (status) params['status'] = status;
     if (search.trim()) params['search'] = search.trim();
     return this.http.get<PaymentLog>(`${this.baseUrl}/payments`, { params });
+  }
+
+  /** status: '' for all, or one RefundStatus (e.g. 'Requested'). */
+  refunds(status = ''): Observable<Refund[]> {
+    return this.http.get<Refund[]>(`${this.baseUrl}/refunds`, { params: status ? { status } : {} });
+  }
+
+  /** amount null = everything that is left, less Razorpay's charges (unless includeFee). */
+  approveRefund(id: string, amount: number | null, note: string | null, includeFee: boolean): Observable<Refund> {
+    return this.http.post<Refund>(`${this.baseUrl}/refunds/${id}/approve`, { amount, note, includeFee });
+  }
+
+  rejectRefund(id: string, note: string): Observable<Refund> {
+    return this.http.post<Refund>(`${this.baseUrl}/refunds/${id}/reject`, { note });
+  }
+
+  refundPayment(request: AdminRefundRequest): Observable<Refund> {
+    return this.http.post<Refund>(`${this.baseUrl}/refunds`, request);
   }
 
   gatewayLog(orderId: string): Observable<PaymentGatewayLogEntry[]> {

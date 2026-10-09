@@ -15,6 +15,7 @@ import {
 } from '../../core/models/subscription.model';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { SuperAdminService } from '../../core/services/super-admin.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 type Tab = 'payment' | 'free' | 'extend' | 'cancel';
 
@@ -196,7 +197,7 @@ export class SubscriptionDialog implements OnInit {
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not save. Please try again.');
+        this.error.set(errorMessage(err, 'Could not save. Please try again.'));
       }
     });
   }

@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { readAuthAccent, readAuthBackground } from '../../core/auth-background';
 import { ThemeToggle } from '../../shared/theme-toggle/theme-toggle';
+import { errorMessage } from '../../core/utils/http-error';
 
 @Component({
   selector: 'app-register',
@@ -73,7 +74,7 @@ export class Register {
         next: () => this.router.navigate(['/admin/dashboard']),
         error: (err) => {
           this.submitting.set(false);
-          this.errorMessage.set(err?.error?.message ?? 'Registration failed. Please try again.');
+          this.errorMessage.set(errorMessage(err, 'Registration failed. Please try again.'));
         }
       });
   }

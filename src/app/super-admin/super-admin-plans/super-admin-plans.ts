@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PricingPlanAdmin, SavePricingPlanRequest, durationLabel } from '../../core/models/subscription.model';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { SuperAdminService } from '../../core/services/super-admin.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 /** The plan catalog. Only the super admin manages it; owners just see the active plans to buy. */
 @Component({
@@ -97,7 +98,7 @@ export class SuperAdminPlans implements OnInit {
       },
       error: (err) => {
         this.saving.set(false);
-        this.formError.set(err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not save the plan.');
+        this.formError.set(errorMessage(err, 'Could not save the plan.'));
       }
     });
   }
@@ -121,7 +122,7 @@ export class SuperAdminPlans implements OnInit {
         },
         error: (err) => {
           this.busyId.set(null);
-          this.error.set(err?.error?.message ?? 'Could not change the plan.');
+          this.error.set(errorMessage(err, 'Could not change the plan.'));
         }
       });
   }
@@ -146,7 +147,7 @@ export class SuperAdminPlans implements OnInit {
       },
       error: (err) => {
         this.busyId.set(null);
-        this.error.set(err?.error?.message ?? 'Could not delete the plan.');
+        this.error.set(errorMessage(err, 'Could not delete the plan.'));
       }
     });
   }

@@ -36,6 +36,13 @@ export class SuperAdminAuthService {
       .pipe(tap((response) => this.store(response)));
   }
 
+  /** Ends every other super admin login; this browser keeps working with the new token. */
+  changePassword(currentPassword: string, newPassword: string): Observable<SuperAdminAuthResponse> {
+    return this.http
+      .put<SuperAdminAuthResponse>(`${environment.apiBaseUrl}/superadmin/account/password`, { currentPassword, newPassword })
+      .pipe(tap((response) => this.store(response)));
+  }
+
   private store(response: SuperAdminAuthResponse): void {
     if (response.requiresTwoFactor || !response.token) {
       return;

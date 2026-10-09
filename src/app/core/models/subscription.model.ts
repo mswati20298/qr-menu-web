@@ -1,6 +1,6 @@
 export type SubscriptionPlan = 'Trial' | 'Free' | 'Paid';
 export type SubscriptionStatus = 'Active' | 'Grace' | 'Expired' | 'Cancelled';
-export type SubscriptionAction = 'TrialStarted' | 'FreeGranted' | 'PaymentRecorded' | 'Extended' | 'Cancelled';
+export type SubscriptionAction = 'TrialStarted' | 'FreeGranted' | 'PaymentRecorded' | 'Extended' | 'Cancelled' | 'Refunded';
 export type PaymentMethod = 'Cash' | 'Upi' | 'BankTransfer' | 'Card' | 'Other' | 'Online';
 
 /** Methods the super admin can record by hand. "Online" is only set by the payment gateway. */
@@ -135,7 +135,8 @@ export const ACTION_LABELS: Record<SubscriptionAction, string> = {
   FreeGranted: 'Free plan given',
   PaymentRecorded: 'Payment received',
   Extended: 'Plan extended',
-  Cancelled: 'Plan cancelled'
+  Cancelled: 'Plan cancelled',
+  Refunded: 'Refund'
 };
 
 export function paymentMethodLabel(method: PaymentMethod | null): string {

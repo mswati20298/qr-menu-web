@@ -4,6 +4,7 @@ import { KitchenOrder, KitchenStatus } from '../../core/models/kitchen.model';
 import { AuthService } from '../../core/services/auth.service';
 import { KitchenAuthService } from '../../core/services/kitchen-auth.service';
 import { KitchenService } from '../../core/services/kitchen.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 const POLL_MS = 5000;
 const TICK_MS = 15000;
@@ -147,7 +148,7 @@ export class KitchenBoard implements OnInit, OnDestroy {
       error: (err) => {
         this.setBusy(order.id, false);
         this.replace(order);
-        this.error.set(err?.error?.message ?? 'Could not update the order. Check the connection.');
+        this.error.set(errorMessage(err, 'Could not update the order. Check the connection.'));
       }
     });
   }
@@ -162,7 +163,7 @@ export class KitchenBoard implements OnInit, OnDestroy {
     this.kitchen.revert(pending.order.id).subscribe({
       next: (updated) => this.replace(updated),
       error: (err) => {
-        this.error.set(err?.error?.message ?? 'Could not undo.');
+        this.error.set(errorMessage(err, 'Could not undo.'));
         this.load();
       }
     });

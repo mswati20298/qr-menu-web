@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { TwoFactorSetup, TwoFactorStatus } from '../../../core/models/super-admin.model';
 import { FeedbackService } from '../../../core/services/feedback.service';
 import { SuperAdminService } from '../../../core/services/super-admin.service';
+import { errorMessage } from '../../../core/utils/http-error';
 
 type Step = 'idle' | 'scan' | 'codes' | 'disable' | 'regen';
 
@@ -114,7 +115,7 @@ export class TwoFactorCard implements OnInit {
       },
       error: (err) => {
         this.busy.set(false);
-        this.error.set(err?.error?.message ?? 'That did not work. Please try again.');
+        this.error.set(errorMessage(err, 'That did not work. Please try again.'));
       }
     });
   }

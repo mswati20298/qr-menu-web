@@ -16,6 +16,7 @@ import { OrderService } from '../../core/services/order.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { TableService } from '../../core/services/table.service';
 import { VegBadge } from '../../shared/veg-badge/veg-badge';
+import { errorMessage } from '../../core/utils/http-error';
 
 interface BillLine {
   /** Same dish + size + add-ons = one line. */
@@ -295,7 +296,7 @@ export class NewBillPage implements OnInit {
 
   private failed(err: { error?: { errors?: string[]; message?: string } }, fallback: string): void {
     this.submitting.set(null);
-    this.feedback.error(err?.error?.errors?.[0] ?? err?.error?.message ?? fallback);
+    this.feedback.error(errorMessage(err, fallback));
   }
 
   private addLine(

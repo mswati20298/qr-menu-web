@@ -1,5 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import {
   ACTION_LABELS,
@@ -10,11 +11,19 @@ import {
   paymentMethodLabel
 } from '../../core/models/subscription.model';
 import { openRazorpayCheckout } from '../../core/services/razorpay-checkout';
+import {
+  OwnerRefunds,
+  REFUND_STATUS_LABELS,
+  REFUND_STATUS_TONE,
+  REFUND_WINDOW_DAYS,
+  RefundablePayment
+} from '../../core/models/refund.model';
 import { RestaurantService } from '../../core/services/restaurant.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 @Component({
   selector: 'app-plan-page',
-  imports: [DatePipe, DecimalPipe],
+  imports: [DatePipe, DecimalPipe, FormsModule],
   templateUrl: './plan-page.html',
   styleUrl: './plan-page.scss'
 })
@@ -33,10 +42,69 @@ export class PlanPage implements OnInit {
   readonly methodLabel = paymentMethodLabel;
   readonly durationLabel = durationLabel;
 
+  readonly refunds = signal<OwnerRefunds | null>(null);
+  /** The payment whose refund form is open. */
+  readonly refundFor = signal<RefundablePayment | null>(null);
+  readonly refundReason = signal('');
+  readonly refundSending = signal(false);
+  readonly refundError = signal<string | null>(null);
+  readonly refundSuccess = signal<string | null>(null);
+  readonly refundLabels = REFUND_STATUS_LABELS;
+  readonly refundTone = REFUND_STATUS_TONE;
+  readonly refundDays = REFUND_WINDOW_DAYS;
+
   ngOnInit(): void {
     this.restaurantService.getPlan().subscribe({
       next: (plan) => this.plan.set(plan),
       error: () => this.error.set('Could not load your plan. Please try again.')
+    });
+    this.loadRefunds();
+  }
+
+  private loadRefunds(): void {
+    this.restaurantService.getRefunds().subscribe({
+      next: (refunds) => this.refunds.set(refunds),
+      // The plan page still works without it; the refund section just stays hidden.
+      error: () => this.refunds.set(null)
+    });
+  }
+
+  openRefund(payment: RefundablePayment): void {
+    this.refundFor.set(payment);
+    this.refundReason.set('');
+    this.refundError.set(null);
+    this.refundSuccess.set(null);
+  }
+
+  closeRefund(): void {
+    if (!this.refundSending()) {
+      this.refundFor.set(null);
+    }
+  }
+
+  sendRefund(): void {
+    const payment = this.refundFor();
+    const reason = this.refundReason().trim();
+    if (!payment || this.refundSending()) {
+      return;
+    }
+    if (reason.length < 5) {
+      this.refundError.set('Please tell us in a few words why you want a refund.');
+      return;
+    }
+    this.refundSending.set(true);
+    this.refundError.set(null);
+    this.restaurantService.requestRefund(payment.planPaymentId, reason).subscribe({
+      next: () => {
+        this.refundSending.set(false);
+        this.refundFor.set(null);
+        this.refundSuccess.set('Refund request sent. Once approved, the money goes back to the account you paid from.');
+        this.loadRefunds();
+      },
+      error: (err) => {
+        this.refundSending.set(false);
+        this.refundError.set(errorMessage(err, 'Could not send the request. Please try again.'));
+      }
     });
   }
 
@@ -65,8 +133,7 @@ export class PlanPage implements OnInit {
         this.payError.set(result.message);
       }
     } catch (err: unknown) {
-      const httpMessage = (err as { error?: { message?: string } })?.error?.message;
-      this.payError.set(httpMessage ?? (err as Error)?.message ?? 'Could not complete the payment. Please try again.');
+      this.payError.set(errorMessage(err, (err as Error)?.message || 'Could not complete the payment. Please try again.'));
     } finally {
       this.payingId.set(null);
     }

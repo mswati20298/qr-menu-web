@@ -1,0 +1,86 @@
+<div class="rl">
+  <div class="rl__bar">
+    <div class="rl__tabs" role="group" aria-label="Which refunds">
+      <button type="button" [class.rl__tab--on]="filter() === 'Requested'" (click)="setFilter('Requested')">Waiting</button>
+      <button type="button" [class.rl__tab--on]="filter() === ''" (click)="setFilter('')">All refunds</button>
+    </div>
+  </div>
+
+  @if (refunds(); as list) {
+    @for (r of list; track r.id) {
+      <article class="rl__card">
+        <div class="rl__top">
+          <div>
+            <b>{{ r.restaurantName }}</b>
+            <span class="rl__muted"> · {{ r.planName ?? 'Plan' }} · paid {{ r.paymentAmount | inr }} ({{ r.source === 'online' ? 'Razorpay' : 'manual' }})</span>
+          </div>
+          <span class="rl__tag rl__tag--{{ tone[r.status] }}">{{ labels[r.status] }}</span>
+        </div>
+        <div class="rl__meta">
+          <span>
+            <b>{{ r.amount | inr }}</b> {{ r.status === 'Requested' ? 'asked' : '' }}
+            @if (r.fee > 0) { · {{ r.fee | inr }} Razorpay charges kept }
+          </span>
+          <span>{{ r.requestedBy === 'owner' ? 'Asked by the owner' : 'Started by ' + (r.decidedBy ?? 'admin') }} · {{ r.requestedAt | date: 'd MMM y, h:mm a' }}</span>
+          @if (r.gatewayRefundId) {
+            <span>Razorpay <code>{{ r.gatewayRefundId }}</code></span>
+          }
+          @if (r.decidedAt && r.requestedBy === 'owner') {
+            <span>Decided by {{ r.decidedBy }} · {{ r.decidedAt | date: 'd MMM y' }}</span>
+          }
+        </div>
+        @if (r.reason) {
+          <p class="rl__reason">“{{ r.reason }}”</p>
+        }
+        @if (r.adminNote) {
+          <p class="rl__muted">Note: {{ r.adminNote }}</p>
+        }
+
+        @if (r.status === 'Requested') {
+          @if (openForm() === r.id + ':approve') {
+            <app-refund-form
+              [maxAmount]="r.amount"
+              [fee]="r.fee"
+              [online]="r.source === 'online'"
+              [busy]="busy()"
+              [error]="formError()"
+              submitLabel="Approve refund"
+              (submitted)="approve(r, $event)"
+              (cancelled)="close()"
+            />
+          } @else if (openForm() === r.id + ':reject') {
+            <form class="rl__reject" (ngSubmit)="reject(r)">
+              <input
+                type="text"
+                name="note"
+                maxlength="300"
+                placeholder="Why? The owner sees this."
+                [ngModel]="rejectNote()"
+                (ngModelChange)="rejectNote.set($event)"
+              />
+              @if (formError()) {
+                <p class="rl__error" role="alert">{{ formError() }}</p>
+              }
+              <div class="rl__actions">
+                <button type="button" class="btn-admin-secondary" [disabled]="busy()" (click)="close()">Cancel</button>
+                <button type="submit" class="btn-admin-danger" [disabled]="busy()">{{ busy() ? 'Working…' : 'Reject' }}</button>
+              </div>
+            </form>
+          } @else {
+            <div class="rl__actions">
+              <button type="button" class="btn-admin-secondary" (click)="open(r, 'reject')">Reject</button>
+              <button type="button" class="btn-admin-primary" (click)="open(r, 'approve')">Approve…</button>
+            </div>
+          }
+        }
+      </article>
+    } @empty {
+      <p class="rl__empty">{{ filter() === 'Requested' ? 'No refund requests waiting.' : 'No refunds yet.' }}</p>
+    }
+  } @else {
+    <div class="skel-stack" role="status">
+      <span class="skel-sr">Loading…</span>
+      @for (i of [1, 2, 3]; track i) { <span class="skel" style="height:90px"></span> }
+    </div>
+  }
+</div>

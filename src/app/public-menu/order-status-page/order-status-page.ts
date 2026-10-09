@@ -11,6 +11,7 @@ import { RatingSheet } from '../components/rating-sheet/rating-sheet';
 import { BillSummary } from '../components/bill-summary/bill-summary';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { UpiPayCard } from '../components/upi-pay-card/upi-pay-card';
+import { errorMessage } from '../../core/utils/http-error';
 
 const STATUS_STEPS: OrderStatus[] = ['Placed', 'Preparing', 'Served', 'Completed'];
 const POLL_INTERVAL_MS = 8000;
@@ -142,7 +143,7 @@ export class OrderStatusPage implements OnInit, OnDestroy {
         // Validation errors come as a list or as { field: [messages] }.
         const errors = err?.error?.errors;
         const first = Array.isArray(errors) ? errors[0] : errors ? (Object.values(errors)[0] as string[] | undefined)?.[0] : null;
-        this.feedback.error(first ?? err?.error?.message ?? 'Could not send your rating. Please try again.');
+        this.feedback.error(first ?? errorMessage(err, 'Could not send your rating. Please try again.'));
       }
     });
   }
@@ -215,7 +216,7 @@ export class OrderStatusPage implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.cancelling.set(false);
-        this.feedback.error(err?.error?.message ?? 'Could not cancel this order. Please try again.');
+        this.feedback.error(errorMessage(err, 'Could not cancel this order. Please try again.'));
       }
     });
   }

@@ -1,0 +1,127 @@
+@use 'styles/admin-theme' as *;
+
+.rl {
+  display: grid;
+  gap: 12px;
+
+  &__tabs {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+
+    button {
+      min-height: 34px;
+      padding: 0 14px;
+      border: none;
+      border-radius: 9px;
+      background: none;
+      color: var(--admin-muted);
+      font: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  }
+
+  &__tab--on {
+    background: var(--admin-accent) !important;
+    color: #fff !important;
+  }
+
+  &__card {
+    @include admin-card;
+    display: grid;
+    gap: 8px;
+    padding: 14px 16px;
+    animation: rl-in 0.2s ease-out;
+  }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 13px;
+    color: var(--admin-muted);
+
+    b {
+      color: var(--admin-text);
+      font-size: 15px;
+    }
+  }
+
+  &__muted {
+    margin: 0;
+    color: var(--admin-muted);
+    font-size: 13px;
+  }
+
+  &__reason {
+    margin: 0;
+    padding: 8px 12px;
+    border-left: 3px solid var(--admin-border);
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  &__tag {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+
+    &--warning { background: var(--admin-warning-soft); color: var(--admin-warning-text); }
+    &--danger { background: var(--admin-danger-soft); color: var(--admin-danger-text); }
+    &--info { background: var(--admin-info-soft); color: var(--admin-info-text); }
+    &--success { background: var(--admin-success-soft); color: var(--admin-success-text); }
+  }
+
+  &__reject {
+    display: grid;
+    gap: 8px;
+
+    input {
+      min-height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--admin-radius-control);
+      background: var(--admin-surface);
+      color: var(--admin-text);
+      font: inherit;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    color: var(--admin-danger-text);
+    font-size: 13px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  &__empty {
+    color: var(--admin-muted);
+  }
+}
+
+@keyframes rl-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rl__card { animation: none; }
+}

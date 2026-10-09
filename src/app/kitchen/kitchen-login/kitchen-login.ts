@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeLoginNotice } from '../../core/login-notice';
 import { KitchenAuthService } from '../../core/services/kitchen-auth.service';
+import { errorMessage } from '../../core/utils/http-error';
 
 /** Sign-in for a shared kitchen tablet: restaurant link name + the kitchen PIN the owner set. */
 @Component({
@@ -47,7 +48,7 @@ export class KitchenLogin implements OnInit {
       error: (err) => {
         this.loading.set(false);
         this.form.controls.pin.reset('');
-        this.error.set(err?.error?.message ?? 'Could not sign in. Please try again.');
+        this.error.set(errorMessage(err, 'Could not sign in. Please try again.'));
       }
     });
   }

@@ -4,6 +4,7 @@ import { PublicSessionService } from '../../../core/services/public-session.serv
 import { ServiceRequestService } from '../../../core/services/service-request.service';
 import { FeedbackService } from '../../../core/services/feedback.service';
 import { playDing } from '../../../core/tap-sound';
+import { errorMessage } from '../../../core/utils/http-error';
 
 /** How long a button shows "Sent" before it can be tapped again. Short on purpose: a repeat while the
  * first request is still open is merged by the server, so staff never get duplicates. */
@@ -54,7 +55,7 @@ export class RequestActions {
         if (err?.error?.code === 'table_session_expired') {
           this.session.endSession();
         }
-        this.feedback.error(err?.error?.message ?? 'Could not send your request. Please try again or call a staff member.');
+        this.feedback.error(errorMessage(err, 'Could not send your request. Please try again or call a staff member.'));
       }
     });
   }

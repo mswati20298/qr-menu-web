@@ -1,3 +1,5 @@
+import { RefundStatus } from './refund.model';
+
 import { SubscriptionPlan, SubscriptionStatus } from './subscription.model';
 
 export interface SuperAdminAuthResponse {
@@ -181,10 +183,23 @@ export interface PaymentLogEntry {
   performedBy: string | null;
   createdAt: string;
   paidAt: string | null;
+  /** Refunded so far, or on its way (rupees). */
+  refundedAmount: number;
+  /** Status of the latest refund for this payment, if any. */
+  refundStatus: RefundStatus | null;
+  /** Razorpay's charges a refund keeps back (saved from Razorpay, or an estimate). 0 for manual payments. */
+  refundFee: number;
 }
 
 export interface PaymentLog {
-  summary: { receivedTotal: number; paidCount: number; notCompletedCount: number };
+  /** receivedTotal is before refunds; refundedTotal is what went back (or is on its way). */
+  summary: {
+    receivedTotal: number;
+    paidCount: number;
+    notCompletedCount: number;
+    refundedTotal: number;
+    openRefundRequests: number;
+  };
   items: PaymentLogEntry[];
 }
 

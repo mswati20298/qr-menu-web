@@ -11,6 +11,7 @@ import { OrderService } from '../../core/services/order.service';
 import { ReportRange, downloadCsv, filterOrdersByRange, ordersToCsv } from '../../core/services/report-export.util';
 import { StatusPill } from '../components/status-pill/status-pill';
 import { OrderKanbanCard } from './components/order-kanban-card/order-kanban-card';
+import { errorMessage } from '../../core/utils/http-error';
 
 type ViewMode = 'board' | 'list';
 
@@ -239,7 +240,7 @@ export class OrdersPage implements OnInit, OnDestroy {
         this.notifications.refreshActiveCount();
         this.feedback.success(`Order for ${this.tableLabel(order)} cancelled.`);
       },
-      error: (err) => this.feedback.error(err?.error?.message ?? 'Could not cancel the order.')
+      error: (err) => this.feedback.error(errorMessage(err, 'Could not cancel the order.'))
     });
   }
 
@@ -360,7 +361,7 @@ export class OrdersPage implements OnInit, OnDestroy {
       error: (err) => {
         this.busyId.set(null);
         // The board view has no inline error area, so always show a toast too.
-        const message = err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not update the payment.';
+        const message = errorMessage(err, 'Could not update the payment.');
         this.actionError.set(message);
         this.feedback.error(message);
       }
@@ -379,7 +380,7 @@ export class OrdersPage implements OnInit, OnDestroy {
       error: (err) => {
         this.busyId.set(null);
         // The board has no inline error area, so always show a toast too.
-        const message = err?.error?.errors?.[0] ?? err?.error?.message ?? 'Could not create the bill.';
+        const message = errorMessage(err, 'Could not create the bill.');
         this.actionError.set(message);
         this.feedback.error(message);
       }

@@ -4,6 +4,7 @@ import { BACKGROUND_SLOT, BackgroundItem, BackgroundMode } from '../../../core/m
 import { BackgroundService } from '../../../core/services/background.service';
 import { UploadService } from '../../../core/services/upload.service';
 import { FeedbackService } from '../../../core/services/feedback.service';
+import { errorMessage } from '../../../core/utils/http-error';
 
 interface SlotOption {
   bit: number;
@@ -100,7 +101,7 @@ export class BackgroundManager implements OnInit {
       },
       error: (err) => {
         this.busy.set(false);
-        this.error.set(err?.error?.message ?? 'Something went wrong. Please try again.');
+        this.error.set(errorMessage(err, 'Something went wrong. Please try again.'));
       }
     });
   }
