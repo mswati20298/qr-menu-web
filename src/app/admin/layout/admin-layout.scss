@@ -185,6 +185,9 @@
     min-width: 0;
     padding: 28px;
     overflow-x: hidden;
+    // clip (where supported) hides sideways overflow without making this a scroll box, so the urgent plan
+    // banner can stay stuck to the top (sticky does not work inside an overflow: hidden box).
+    overflow-x: clip;
 
     @media (max-width: 720px) {
       padding: 16px;
@@ -220,6 +223,70 @@
     &--danger {
       background: var(--admin-danger-soft);
       color: var(--admin-danger-text);
+    }
+
+    // 3 days or less (or stopped): stays at the top while scrolling, with a clear button.
+    &--urgent {
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      flex-wrap: nowrap;
+      padding: 12px 14px;
+      border: 1px solid var(--admin-warning);
+      // The soft colours are see-through in dark mode: put them over the solid page colour so content
+      // scrolling underneath does not show through.
+      background: linear-gradient(var(--admin-warning-soft), var(--admin-warning-soft)), var(--admin-bg);
+      box-shadow: var(--admin-shadow-md);
+      animation: plan-banner-in 0.35s ease-out;
+
+      // Narrow screens: text gets the full line, the button goes below it (aligned with the text).
+      @media (max-width: 640px) {
+        flex-wrap: wrap;
+
+        .admin-layout__plan-banner-text {
+          flex: 1 1 calc(100% - 48px);
+        }
+
+        .admin-layout__plan-banner-cta {
+          margin-left: 44px;
+        }
+      }
+    }
+
+    &--urgent.admin-layout__plan-banner--danger {
+      border-color: var(--admin-danger);
+      background: linear-gradient(var(--admin-danger-soft), var(--admin-danger-soft)), var(--admin-bg);
+    }
+  }
+
+  &__plan-banner-icon {
+    flex-shrink: 0;
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    animation: plan-banner-pulse 2s ease-in-out infinite;
+  }
+
+  &__plan-banner-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__plan-banner-cta {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--admin-warning);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+
+    .admin-layout__plan-banner--danger & {
+      background: var(--admin-danger);
     }
   }
 
@@ -417,5 +484,22 @@
 
   &__theme-switch--on &__theme-knob {
     transform: translateX(14px);
+  }
+}
+
+@keyframes plan-banner-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes plan-banner-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 35%, transparent); }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-layout__plan-banner--urgent,
+  .admin-layout__plan-banner-icon {
+    animation: none;
   }
 }

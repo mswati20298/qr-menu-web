@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { OrderNotificationService } from '../../core/services/order-notification.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { UploadService } from '../../core/services/upload.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { NotificationBell } from '../components/notification-bell/notification-bell';
 import { ToastContainer } from '../components/toast-container/toast-container';
 
@@ -26,6 +27,9 @@ function computeIsOpenNow(openTime: string, closeTime: string): boolean {
   return close > open ? nowMinutes >= open && nowMinutes <= close : nowMinutes >= open || nowMinutes <= close;
 }
 
+/** From this many days before ordering stops, the plan banner turns urgent. */
+const URGENT_DAYS = 3;
+
 @Component({
   selector: 'app-admin-layout',
   imports: [RouterLink, RouterLinkActive, RouterOutlet, NotificationBell, ToastContainer],
@@ -40,6 +44,7 @@ export class AdminLayout implements OnInit, OnDestroy {
   private readonly uploadService = inject(UploadService);
   private readonly backgrounds = inject(BackgroundService);
   readonly themeColor = inject(ThemeColorService);
+  private readonly toast = inject(FeedbackService);
 
   readonly logoUrl = signal<string | null>(null);
   private readonly now = signal(new Date());
@@ -64,13 +69,30 @@ export class AdminLayout implements OnInit, OnDestroy {
   });
   readonly plan = this.restaurantService.currentPlan;
 
-  /** Warning shown above every admin page when the plan is ending, in grace, or has stopped ordering. */
-  readonly planNotice = computed<{ text: string; danger: boolean } | null>(() => {
+  /**
+   * Warning shown above every admin page when the plan is ending, in grace, or has stopped ordering.
+   * urgent (3 days or less before ordering stops, or stopped): stronger look, stays on top while scrolling,
+   * and a reminder pops up once a day.
+   */
+  readonly planNotice = computed<{ text: string; danger: boolean; urgent: boolean; action: string } | null>(() => {
+    const notice = this.basePlanNotice();
+    const plan = this.plan();
+    if (!notice || !plan) {
+      return null;
+    }
+    const stopsSoon = plan.daysLeft !== null && plan.daysLeft <= URGENT_DAYS;
+    const urgent = notice.danger || stopsSoon;
+    const action = plan.status === 'Expired' || plan.status === 'Cancelled' || plan.plan === 'Trial' ? 'Choose a plan' : 'Renew now';
+    return { ...notice, danger: notice.danger, urgent, action };
+  });
+
+  private readonly basePlanNotice = computed<{ text: string; danger: boolean } | null>(() => {
     const plan = this.plan();
     if (!plan) {
       return null;
     }
-    const days = (n: number | null) => `${n} day${n === 1 ? '' : 's'}`;
+    // "today" / "tomorrow" read better than "0 days" / "1 day" when time is short.
+    const days = (n: number | null) => (n === 0 ? 'today' : n === 1 ? '1 day' : `${n} days`);
     const isTrial = plan.plan === 'Trial';
     switch (plan.status) {
       case 'Expired':
@@ -83,15 +105,51 @@ export class AdminLayout implements OnInit, OnDestroy {
       case 'Cancelled':
         return { text: 'Your plan was cancelled — customers cannot place orders.', danger: true };
       case 'Grace':
-        return { text: `Your plan has ended. Ordering stops in ${days(plan.daysLeft)} unless it is renewed.`, danger: false };
+        return {
+          text: plan.daysLeft === 0
+            ? 'Your plan has ended. Ordering stops today unless it is renewed.'
+            : `Your plan has ended. Ordering stops in ${days(plan.daysLeft)} unless it is renewed.`,
+          danger: false
+        };
       default:
         if (isTrial) {
-          return { text: `Free trial: ${days(plan.daysLeft)} left. Choose a plan to keep taking orders.`, danger: false };
+          return {
+            text: plan.daysLeft === 0
+              ? 'Your free trial ends today. Choose a plan to keep taking orders.'
+              : `Free trial: ${days(plan.daysLeft)} left. Choose a plan to keep taking orders.`,
+            danger: false
+          };
         }
-        return plan.daysLeft !== null && plan.daysLeft <= 7
-          ? { text: `Your ${plan.planName} plan ends in ${days(plan.daysLeft)}.`, danger: false }
-          : null;
+        if (plan.daysLeft === null || plan.daysLeft > 7) {
+          return null;
+        }
+        const on = plan.expiresAt ? ` (${new Date(plan.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})` : '';
+        return {
+          text: plan.daysLeft === 0
+            ? `Your ${plan.planName} plan ends today${on}. Renew so customers can keep ordering.`
+            : `Your ${plan.planName} plan ends in ${days(plan.daysLeft)}${on}. Renew so customers can keep ordering.`,
+          danger: false
+        };
     }
+  });
+
+  /** Once a day, a pop-up reminder when the plan is about to stop ordering (or has). */
+  private readonly remindOncePerDay = effect(() => {
+    const notice = this.planNotice();
+    if (!notice?.urgent) {
+      return;
+    }
+    const key = `qrmenu_plan_reminder_${this.authService.currentSession()?.restaurantId ?? ''}`;
+    const today = new Date().toDateString();
+    try {
+      if (localStorage.getItem(key) === today) {
+        return;
+      }
+      localStorage.setItem(key, today);
+    } catch {
+      // No storage (private browsing): the banner is still there.
+    }
+    this.toast.info(notice.text);
   });
 
   readonly isOpenNow = signal<boolean | null>(null);
