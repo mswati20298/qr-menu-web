@@ -3,18 +3,47 @@ import { Component, HostListener, OnDestroy, OnInit, computed, inject, signal } 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { INVOICE_PAYMENT_LABELS, Invoice, InvoiceFormat, InvoiceSummary } from '../../core/models/invoice.model';
 import { StaffPaymentMethod } from '../../core/models/order.model';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { InvoiceService } from '../../core/services/invoice.service';
+import { ReportRange, downloadCsv, invoicesToCsv, rangeBounds, reportFileName } from '../../core/services/report-export.util';
+import { ReportExport } from '../components/report-export/report-export';
 import { errorMessage } from '../../core/utils/http-error';
 
 @Component({
   selector: 'app-invoices-page',
-  imports: [DatePipe, DecimalPipe, RouterLink],
+  imports: [DatePipe, DecimalPipe, RouterLink, ReportExport],
   templateUrl: './invoices-page.html',
   styleUrl: './invoices-page.scss'
 })
 export class InvoicesPage implements OnInit, OnDestroy {
   private readonly invoiceService = inject(InvoiceService);
   private readonly route = inject(ActivatedRoute);
+  private readonly feedback = inject(FeedbackService);
+
+  readonly exporting = signal(false);
+
+  /** GST / sales report for the accountant: every bill of the period with GST and how it was paid. */
+  exportReport(range: ReportRange): void {
+    if (this.exporting()) {
+      return;
+    }
+    this.exporting.set(true);
+    const { from, to } = rangeBounds(range);
+    this.invoiceService.exportRows(from, to).subscribe({
+      next: (rows) => {
+        this.exporting.set(false);
+        if (rows.length === 0) {
+          this.feedback.info('No bills in that period.');
+          return;
+        }
+        downloadCsv(invoicesToCsv(rows), reportFileName('gst-sales-report', range));
+      },
+      error: (err) => {
+        this.exporting.set(false);
+        this.feedback.error(errorMessage(err, 'Could not prepare the report.'));
+      }
+    });
+  }
 
   readonly pageSize = 20;
   readonly items = signal<InvoiceSummary[]>([]);

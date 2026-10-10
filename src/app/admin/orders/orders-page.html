@@ -1,19 +1,10 @@
 <div class="orders-page">
     <div class="orders-page__header">
-      <h1>Orders</h1>
-      <div class="orders-page__export">
-        <select class="orders-page__export-select" [value]="reportRange()" (change)="reportRange.set($any($event.target).value)">
-          <option value="today">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-        </select>
-        <button type="button" class="btn-admin-secondary orders-page__export-btn" (click)="exportReport()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 3v13m0 0-4-4m4 4 4-4M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          Export Report
-        </button>
+      <div>
+        <h1>Orders</h1>
+        <p class="orders-page__scope">Last 7 days and every open order. Older orders: use Export.</p>
       </div>
+      <app-report-export label="Export orders" [busy]="exporting()" (exportRange)="exportReport($event)" />
     </div>
 
     <div class="orders-page__toolbar">

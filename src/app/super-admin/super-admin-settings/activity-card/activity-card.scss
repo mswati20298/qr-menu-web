@@ -1,0 +1,55 @@
+.act {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--admin-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &__dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin-top: 6px;
+    border-radius: 50%;
+
+    &--done { background: var(--admin-success); }
+    &--refused { background: var(--admin-warning); }
+    &--failed { background: var(--admin-danger); }
+  }
+
+  &__main {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    font-size: 14px;
+
+    small {
+      color: var(--admin-muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__tag {
+    justify-self: start;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+
+    &--refused { background: var(--admin-warning-soft); color: var(--admin-warning-text); }
+    &--failed { background: var(--admin-danger-soft); color: var(--admin-danger-text); }
+  }
+}

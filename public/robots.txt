@@ -1,0 +1,7 @@
+# QRenvo app. Restaurant menus may appear in search; admin, kitchen and super admin panels must not.
+User-agent: *
+Disallow: /admin
+Disallow: /superadmin
+Disallow: /kitchen
+Disallow: /api/
+Allow: /m/

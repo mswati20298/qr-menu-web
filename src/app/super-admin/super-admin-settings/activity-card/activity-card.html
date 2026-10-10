@@ -1,0 +1,37 @@
+<section class="tf">
+  <h2>Recent activity</h2>
+  <p class="tf__hint">Changes made in this panel: who, what and when. Passwords and keys are never recorded.</p>
+
+  @if (failed()) {
+    <p class="tf__hint">Could not load the activity.</p>
+  } @else if (entries(); as list) {
+    @if (list.length === 0) {
+      <p class="tf__hint">Nothing yet.</p>
+    } @else {
+      <ul class="act">
+        @for (e of showAll() ? list : list.slice(0, 12); track $index) {
+          <li class="act__row">
+            <span class="act__dot act__dot--{{ outcome(e.statusCode) }}" [attr.title]="'HTTP ' + e.statusCode"></span>
+            <div class="act__main">
+              <b>{{ label(e.action) }}</b>
+              @if (outcome(e.statusCode) !== 'done') {
+                <span class="act__tag act__tag--{{ outcome(e.statusCode) }}">{{ outcome(e.statusCode) === 'refused' ? 'Refused' : 'Failed' }}</span>
+              }
+              <small>{{ e.adminEmail }} · {{ e.createdAt | date: 'd MMM, h:mm a' }}@if (e.ipAddress) { · {{ e.ipAddress }} }</small>
+            </div>
+          </li>
+        }
+      </ul>
+      @if (list.length > 12) {
+        <button type="button" class="btn-admin-secondary" (click)="showAll.set(!showAll())">
+          {{ showAll() ? 'Show less' : 'Show all ' + list.length }}
+        </button>
+      }
+    }
+  } @else {
+    <div class="skel-stack" role="status">
+      <span class="skel-sr">Loading…</span>
+      @for (i of [1, 2, 3]; track i) { <span class="skel" style="height:36px"></span> }
+    </div>
+  }
+</section>

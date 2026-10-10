@@ -56,3 +56,21 @@ export const INVOICE_PAYMENT_LABELS: Record<InvoicePaymentStatus, string> = {
   PartlyPaid: 'Partly paid',
   Unpaid: 'Unpaid'
 };
+
+/** One bill as a row of the GST / sales report. */
+export interface InvoiceExportRow {
+  number: string;
+  createdAt: string;
+  tableNumber: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  ordersCount: number;
+  subtotal: number;
+  serviceChargeAmount: number;
+  gstPercentage: number;
+  gstAmount: number;
+  total: number;
+  paymentStatus: string;
+  /** e.g. "Upi, Cash" */
+  paymentMethods: string | null;
+}

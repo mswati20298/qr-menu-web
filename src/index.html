@@ -4,9 +4,7 @@
   <meta charset="utf-8">
   <title>QR Menu — Digital Menus for Indian Restaurants</title>
   <base href="/">
-  <script>
-    try { var t = localStorage.getItem('qrmenu_theme'); if (t !== 'dark' && t !== 'light') { t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } document.documentElement.setAttribute('data-theme', t); } catch (e) {}
-  </script>
+  <script src="theme-init.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- QRenvo icon: SVG for modern browsers, ICO (16/32/48) as fallback, PNGs for phone home screens. -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">

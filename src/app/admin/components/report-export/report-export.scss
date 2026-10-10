@@ -1,0 +1,19 @@
+.report-export {
+  display: flex;
+  gap: 8px;
+
+  &__select {
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: var(--admin-radius-control);
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font-size: 13.5px;
+  }
+
+  &__btn {
+    min-height: 40px;
+    font-size: 13.5px;
+  }
+}

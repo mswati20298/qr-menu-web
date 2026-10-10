@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  AdminAuditLogEntry,
   DemoStatus,
   KeyCheckResult,
   PagedResult,
@@ -148,6 +149,11 @@ export class SuperAdminService {
 
   gatewayLog(orderId: string): Observable<PaymentGatewayLogEntry[]> {
     return this.http.get<PaymentGatewayLogEntry[]>(`${this.baseUrl}/payments/gateway-log`, { params: { orderId } });
+  }
+
+  /** What super admins changed recently, newest first. */
+  auditLog(take = 100): Observable<AdminAuditLogEntry[]> {
+    return this.http.get<AdminAuditLogEntry[]>(`${this.baseUrl}/audit`, { params: { take } });
   }
 
   twoFactorStatus(): Observable<TwoFactorStatus> {

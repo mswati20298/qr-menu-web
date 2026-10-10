@@ -2,6 +2,7 @@
   <div class="menu-page__header">
     <h1>Menu</h1>
     <div class="menu-page__header-actions">
+      <button type="button" class="btn-admin-secondary" [disabled]="items().length === 0" (click)="exportMenu()">⬇ Export menu</button>
       <button type="button" class="btn-admin-secondary" (click)="openScanModal()">📷 Scan Menu</button>
       <button type="button" class="btn-admin-primary" (click)="openAddItemModal()">+ Add item</button>
     </div>

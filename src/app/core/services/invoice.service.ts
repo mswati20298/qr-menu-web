@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Invoice, InvoiceFormat, InvoicePage } from '../models/invoice.model';
+import { Invoice, InvoiceExportRow, InvoiceFormat, InvoicePage } from '../models/invoice.model';
 import { ManualInvoiceRequest, StaffPaymentMethod } from '../models/order.model';
 
 @Injectable({ providedIn: 'root' })
@@ -10,6 +10,11 @@ export class InvoiceService {
   private readonly baseUrl = `${environment.apiBaseUrl}/invoices`;
 
   constructor(private readonly http: HttpClient) {}
+
+  /** GST / sales report rows for [from, to). */
+  exportRows(from: Date, to: Date): Observable<InvoiceExportRow[]> {
+    return this.http.get<InvoiceExportRow[]>(`${this.baseUrl}/export`, { params: { from: from.toISOString(), to: to.toISOString() } });
+  }
 
   list(search: string, page: number, pageSize = 20): Observable<InvoicePage> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);

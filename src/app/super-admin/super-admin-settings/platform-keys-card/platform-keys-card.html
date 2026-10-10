@@ -71,7 +71,7 @@
         <span class="keys__webhook-label">Webhook URL for Razorpay</span>
         <code>{{ k.webhookUrl }}</code>
         <button type="button" class="keys__link" (click)="copyWebhookUrl(k.webhookUrl)">Copy</button>
-        <span class="form-field__hint">Razorpay → Webhooks → Add: events <b>payment.captured</b> and <b>order.paid</b>.</span>
+        <span class="form-field__hint">Razorpay → Webhooks → Add: events <b>payment.captured</b>, <b>order.paid</b>, <b>refund.processed</b> and <b>refund.failed</b>.</span>
       </div>
 
       @if (testResult(); as r) {

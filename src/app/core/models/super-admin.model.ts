@@ -10,6 +10,18 @@ export interface SuperAdminAuthResponse {
   challengeToken?: string | null;
 }
 
+/** One change a super admin made (no request body is kept). */
+export interface AdminAuditLogEntry {
+  createdAt: string;
+  adminEmail: string;
+  /** e.g. "ApproveRefund", "ResetOwnerPassword" */
+  action: string;
+  path: string;
+  targetId: string | null;
+  statusCode: number;
+  ipAddress: string | null;
+}
+
 export interface TwoFactorStatus {
   enabled: boolean;
   recoveryCodesLeft: number;

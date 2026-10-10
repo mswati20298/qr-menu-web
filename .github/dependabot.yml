@@ -1,0 +1,13 @@
+# Pull requests for outdated npm packages (security fixes come first). Angular packages move together.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 5
+    groups:
+      angular:
+        patterns: ["@angular/*", "@angular-devkit/*", "zone.js", "typescript"]
+  - package-ecosystem: docker
+    directory: "/"
+    schedule: { interval: monthly }

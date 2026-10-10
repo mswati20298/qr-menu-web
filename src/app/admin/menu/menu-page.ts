@@ -3,6 +3,7 @@ import { Category } from '../../core/models/category.model';
 import { MenuItem, UpdateItemRequest } from '../../core/models/item.model';
 import { CategoryService } from '../../core/services/category.service';
 import { ItemService } from '../../core/services/item.service';
+import { downloadCsv, menuToCsv } from '../../core/services/report-export.util';
 import { UploadService } from '../../core/services/upload.service';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { VegBadge } from '../../shared/veg-badge/veg-badge';
@@ -55,6 +56,15 @@ export class MenuPage implements OnInit {
     private readonly itemService: ItemService,
     private readonly uploadService: UploadService
   ) {}
+
+  /** The whole menu as a spreadsheet, in the order guests see it. */
+  exportMenu(): void {
+    const order = new Map(this.categories().map((c) => [c.id, c.sortOrder]));
+    const items = [...this.items()].sort(
+      (a, b) => (order.get(a.categoryId) ?? 0) - (order.get(b.categoryId) ?? 0) || a.sortOrder - b.sortOrder
+    );
+    downloadCsv(menuToCsv(items), `menu-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
 
   ngOnInit(): void {
     this.reload();

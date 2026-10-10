@@ -17,24 +17,10 @@
     }
   }
 
-  &__export {
-    display: flex;
-    gap: 8px;
-  }
-
-  &__export-select {
-    min-height: 40px;
-    padding: 0 10px;
-    border-radius: var(--admin-radius-control);
-    border: 1px solid var(--admin-border);
-    background: var(--admin-surface);
-    color: var(--admin-text);
-    font-size: 13.5px;
-  }
-
-  &__export-btn {
-    min-height: 40px;
-    font-size: 13.5px;
+  &__scope {
+    margin: 4px 0 0;
+    color: var(--admin-muted);
+    font-size: 13px;
   }
 
   &__toolbar {

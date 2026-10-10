@@ -38,6 +38,11 @@ export class OrderService {
     return this.http.get<Order[]>(`${environment.apiBaseUrl}/orders${query}`);
   }
 
+  /** Every order in [from, to) for a report (the list above only has the last 7 days and open orders). */
+  getForPeriod(from: Date, to: Date): Observable<Order[]> {
+    return this.http.get<Order[]>(`${environment.apiBaseUrl}/orders`, { params: { from: from.toISOString(), to: to.toISOString() } });
+  }
+
   getForOwner(id: string): Observable<Order> {
     return this.http.get<Order>(`${environment.apiBaseUrl}/orders/${id}`);
   }

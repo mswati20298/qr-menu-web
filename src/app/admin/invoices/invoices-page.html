@@ -5,6 +5,7 @@
       <p class="invoices-page__muted">Bills for single orders or whole tables, numbered for your restaurant.</p>
     </div>
     <div class="invoices-page__head-actions">
+    <app-report-export label="GST report" [busy]="exporting()" (exportRange)="exportReport($event)" />
     <a routerLink="/admin/invoices/new" class="btn-admin-primary">+ New bill</a>
     <form class="invoices-page__bill-table" (submit)="$event.preventDefault(); billTable()">
       <label for="bill-table" class="invoices-page__sr">Table number</label>

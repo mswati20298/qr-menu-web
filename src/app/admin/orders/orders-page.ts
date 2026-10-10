@@ -8,7 +8,8 @@ import { InvoiceService } from '../../core/services/invoice.service';
 import { FeedbackService } from '../../core/services/feedback.service';
 import { OrderNotificationService } from '../../core/services/order-notification.service';
 import { OrderService } from '../../core/services/order.service';
-import { ReportRange, downloadCsv, filterOrdersByRange, ordersToCsv } from '../../core/services/report-export.util';
+import { ReportRange, downloadCsv, ordersToCsv, rangeBounds, reportFileName } from '../../core/services/report-export.util';
+import { ReportExport } from '../components/report-export/report-export';
 import { StatusPill } from '../components/status-pill/status-pill';
 import { OrderKanbanCard } from './components/order-kanban-card/order-kanban-card';
 import { errorMessage } from '../../core/utils/http-error';
@@ -56,7 +57,7 @@ interface PendingUndo {
 
 @Component({
   selector: 'app-orders-page',
-  imports: [DecimalPipe, RouterLink, StatusPill, OrderKanbanCard],
+  imports: [DecimalPipe, RouterLink, StatusPill, OrderKanbanCard, ReportExport],
   templateUrl: './orders-page.html',
   styleUrl: './orders-page.scss'
 })
@@ -76,7 +77,7 @@ export class OrdersPage implements OnInit, OnDestroy {
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly expandedId = signal<string | null>(null);
-  readonly reportRange = signal<ReportRange>('today');
+  readonly exporting = signal(false);
   readonly nowTick = signal(Date.now());
   readonly pendingUndo = signal<PendingUndo | null>(null);
   readonly busyId = signal<string | null>(null);
@@ -421,11 +422,27 @@ export class OrdersPage implements OnInit, OnDestroy {
     return addOns.map((a) => a.name).join(', ');
   }
 
-  exportReport(): void {
-    const range = this.reportRange();
-    const filtered = filterOrdersByRange(this.orders(), range).filter((o) => o.status !== 'Cancelled');
-    const csv = ordersToCsv(filtered);
-    const dateStamp = new Date().toISOString().slice(0, 10);
-    downloadCsv(csv, `orders-report-${range}-${dateStamp}.csv`);
+  /** Asks the server for the whole period (the page itself only holds the last 7 days and open orders). */
+  exportReport(range: ReportRange): void {
+    if (this.exporting()) {
+      return;
+    }
+    this.exporting.set(true);
+    const { from, to } = rangeBounds(range);
+    this.orderService.getForPeriod(from, to).subscribe({
+      next: (orders) => {
+        this.exporting.set(false);
+        const kept = orders.filter((o) => o.status !== 'Cancelled');
+        if (kept.length === 0) {
+          this.feedback.info('No orders in that period.');
+          return;
+        }
+        downloadCsv(ordersToCsv(kept), reportFileName('orders', range));
+      },
+      error: (err) => {
+        this.exporting.set(false);
+        this.feedback.error(errorMessage(err, 'Could not prepare the report.'));
+      }
+    });
   }
 }
