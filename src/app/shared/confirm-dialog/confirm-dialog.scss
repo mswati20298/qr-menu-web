@@ -59,8 +59,13 @@
     color: white;
   }
 
+  // Not --color-danger: in dark mode that is a light red for text, and white text on it is unreadable.
   &--danger {
-    background: var(--color-danger);
+    background: #b91c1c;
+
+    :host-context(html[data-theme='dark']) & {
+      background: #dc2626;
+    }
   }
 }
 

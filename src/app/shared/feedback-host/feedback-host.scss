@@ -6,6 +6,8 @@
   --fb-border: rgba(20, 60, 45, 0.14);
   --fb-accent: #1b6b50;
   --fb-danger: #b91c1c;
+  // Background of the red button: white text must stay readable on it in both themes.
+  --fb-danger-solid: #b91c1c;
   --fb-success: #15803d;
   --fb-info: #2563eb;
   --fb-shadow: 0 16px 40px rgba(10, 30, 20, 0.22);
@@ -18,6 +20,7 @@
   --fb-border: rgba(255, 255, 255, 0.12);
   --fb-accent: #ea580c;
   --fb-danger: #f87171;
+  --fb-danger-solid: #dc2626;
   --fb-success: #4ade80;
   --fb-info: #60a5fa;
   --fb-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
@@ -96,7 +99,7 @@
   cursor: pointer;
 
   &--danger {
-    background: var(--fb-danger);
+    background: var(--fb-danger-solid);
   }
 
   &--ghost {
