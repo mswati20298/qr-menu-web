@@ -111,25 +111,41 @@
       />
     }
 
-    <div class="order-status-page__actions">
-      <button type="button" class="order-status-page__add-more-btn" (click)="backToMenu()">
-        + Add more items
+    <!-- Same look as the menu's bottom bar (Menu / My orders / Help), with this page's own actions. -->
+    <nav class="order-status-page__bar" aria-label="Order actions">
+      <button type="button" class="order-status-page__bar-btn order-status-page__bar-btn--main" (click)="backToMenu()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+          <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span>Add items</span>
       </button>
 
       @if (order()!.status === 'Placed') {
-        <button type="button" class="order-status-page__cancel-btn" (click)="requestCancelOrder()" [disabled]="cancelling()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
-            <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <button
+          type="button"
+          class="order-status-page__bar-btn order-status-page__bar-btn--danger"
+          (click)="requestCancelOrder()"
+          [disabled]="cancelling()"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+            <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
           </svg>
-          {{ cancelling() ? 'Cancelling…' : 'Cancel order' }}
+          <span>{{ cancelling() ? 'Cancelling…' : 'Cancel' }}</span>
         </button>
       }
 
-      <button type="button" class="order-status-page__back-btn" (click)="backToMenu()">
-        Back to Menu
+      <button type="button" class="order-status-page__bar-btn" (click)="backToMenu()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          <rect x="14" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          <rect x="3" y="15" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+          <rect x="14" y="15" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+        <span>Menu</span>
       </button>
-    </div>
+    </nav>
   </div>
 
   @if (showCancelConfirm()) {

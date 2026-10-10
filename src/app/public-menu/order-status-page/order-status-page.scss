@@ -1,7 +1,7 @@
 @use 'styles/mixins' as *;
 
 .order-status-page {
-  padding: 16px 0 40px;
+  padding: 16px 0 calc(100px + env(safe-area-inset-bottom));
 
   &__loading {
     display: flex;
@@ -151,68 +151,69 @@
     margin-bottom: 14px;
   }
 
-  &__actions {
+  // Bottom bar in the style of the menu's tab bar (customer-shell __nav), with this page's actions.
+  &__bar {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 30;
+    display: flex;
+    width: calc(100% - 24px);
+    max-width: 456px;
+    border-radius: 24px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+
+  &__bar-btn {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 20px 16px 0;
-  }
-
-  &__add-more-btn {
-    min-height: var(--touch-target);
-    border: 1.5px solid var(--color-accent);
-    border-radius: var(--radius-md);
-    background: var(--field-bg);
-    color: var(--color-accent);
-    font-weight: 700;
-    font-size: 14.5px;
-    cursor: pointer;
-  }
-
-  // Same quiet style as "Back to Menu"; only the red text and icon mark it as the careful choice.
-  &__cancel-btn {
-    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: var(--touch-target);
-    border: 1px solid var(--field-border);
-    border-radius: var(--radius-md);
-    background: var(--field-bg);
-    color: var(--color-danger);
-    font-weight: 700;
-    font-size: 14.5px;
+    gap: 3px;
+    min-height: 62px;
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--color-muted);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 24px;
 
-    &:hover:not(:disabled) {
-      border-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
-    }
-
-    &:active:not(:disabled) {
-      background: color-mix(in srgb, var(--color-danger) 10%, var(--field-bg, transparent));
+    &:focus {
+      outline: none;
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-danger);
-      outline-offset: 2px;
+      outline: 2px solid var(--color-accent);
+      outline-offset: -2px;
+    }
+
+    // "Add items" is the main action: highlighted like the active tab of the menu bar.
+    &--main {
+      color: var(--nav-active);
+      background: var(--nav-active-bg);
+      margin: 6px 4px;
+      min-height: 50px;
+      border-radius: 18px;
+    }
+
+    &--danger {
+      color: var(--color-danger);
     }
 
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
-  }
-
-  &__back-btn {
-    min-height: var(--touch-target);
-    border: 1px solid var(--field-border);
-    border-radius: var(--radius-md);
-    background: var(--field-bg);
-    color: var(--color-text);
-    font-weight: 700;
-    font-size: 14.5px;
-    cursor: pointer;
   }
 
   &__error {
