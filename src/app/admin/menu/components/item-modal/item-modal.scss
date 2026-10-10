@@ -12,7 +12,7 @@
 .item-modal__panel {
   width: 100%;
   max-width: 520px;
-  max-height: 75vh;
+  max-height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
   // Solid: the surface colour is see-through in dark mode, and the page behind showed through the dialog.
@@ -23,7 +23,14 @@
   padding: 24px;
 }
 
+// Header and buttons stay in view while the fields scroll between them.
 .item-modal__header {
+  position: sticky;
+  top: -24px;
+  z-index: 2;
+  margin: -24px -24px 0;
+  padding: 20px 24px 12px;
+  background: linear-gradient(var(--admin-surface), var(--admin-surface)), var(--admin-bg);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -182,6 +189,15 @@
 }
 
 .item-modal__footer {
+  position: sticky;
+  bottom: -24px;
+  z-index: 2;
+  margin-left: -24px;
+  margin-right: -24px;
+  margin-bottom: -24px;
+  padding: 14px 24px 20px;
+  border-top: 1px solid var(--admin-border);
+  background: linear-gradient(var(--admin-surface), var(--admin-surface)), var(--admin-bg);
   display: flex;
   justify-content: flex-end;
   gap: 10px;

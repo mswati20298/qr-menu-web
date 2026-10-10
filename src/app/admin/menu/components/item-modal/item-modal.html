@@ -1,5 +1,5 @@
 <div class="item-modal__overlay" (click)="close.emit()">
-  <div class="item-modal__panel admin-shell" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="editingItem() ? 'Edit item' : 'Add item'">
+  <div class="item-modal__panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="editingItem() ? 'Edit item' : 'Add item'">
     <div class="item-modal__header">
       <h2>{{ editingItem() ? 'Edit item' : 'Add item' }}</h2>
       <button type="button" class="item-modal__close-btn" (click)="close.emit()" aria-label="Close">

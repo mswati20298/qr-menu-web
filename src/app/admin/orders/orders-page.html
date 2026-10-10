@@ -68,6 +68,7 @@
         }
       </div>
     } @else {
+      <div class="orders-page__board-wrap">
       <div class="orders-page__board">
         @for (column of boardColumns; track column.status) {
           <div class="orders-page__column">
@@ -98,6 +99,7 @@
             </div>
           </div>
         }
+      </div>
       </div>
     }
   } @else {

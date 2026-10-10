@@ -91,28 +91,35 @@
 
   // --- Board ---
 
+  // Columns fit the space instead of scrolling sideways: 4 side by side when the board is wide,
+  // 2 on a tablet-sized board, 1 (stacked) on a phone. Sized by the board itself (container query),
+  // so the sidebar's width is taken into account.
+  // Sized by this wrapper's width (container query), not the screen's: the sidebar is taken into account.
+  // Only the wrapper is a container, so fixed things on the page (the undo toast) stay fixed to the screen.
+  &__board-wrap {
+    container-type: inline-size;
+  }
+
   &__board {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
-    overflow-x: auto;
     padding-bottom: 8px;
 
-    @media (max-width: 720px) {
-      scroll-snap-type: x mandatory;
+    @container (min-width: 560px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @container (min-width: 880px) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
   &__column {
-    flex: 1 1 270px;
-    min-width: 270px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
-
-    @media (max-width: 720px) {
-      min-width: 85vw;
-      scroll-snap-align: start;
-    }
   }
 
   &__column-header {
