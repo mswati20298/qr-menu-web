@@ -1,4 +1,4 @@
-@use 'styles/admin-theme' as *;
+@use 'styles/admin-mixins' as *;
 
 .menu-page {
   &__header {
@@ -281,10 +281,9 @@
     z-index: 90;
   }
 
+  // Fixed on screen (position set from the button), so the table's scroll box cannot clip it.
   &__menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 0;
+    position: fixed;
     min-width: 120px;
     background: var(--admin-surface);
     border: 1px solid var(--admin-border);

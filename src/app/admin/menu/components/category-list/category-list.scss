@@ -1,4 +1,4 @@
-@use 'styles/admin-theme' as *;
+@use 'styles/admin-mixins' as *;
 
 .category-list {
   @include admin-card;
@@ -205,11 +205,26 @@
 
   &__new-input {
     flex: 1;
+    min-width: 0;
     min-height: 40px;
-    padding: 0 10px;
-    border-radius: 8px;
+    padding: 0 12px;
+    border-radius: var(--admin-radius-control);
     border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font: inherit;
     font-size: 13.5px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &::placeholder {
+      color: var(--admin-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 3px var(--admin-accent-ring);
+    }
   }
 
   &__add-btn {

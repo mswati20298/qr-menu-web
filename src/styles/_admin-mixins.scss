@@ -1,0 +1,62 @@
+// Mixins only (no CSS output), so components can @use this without copying the theme's rules and colours
+// into their own stylesheet (that copy overrode the dark theme inside components, e.g. the Scan menu dialog).
+
+@mixin admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-card);
+  box-shadow: var(--admin-shadow-sm);
+  -webkit-backdrop-filter: var(--admin-blur, none);
+  backdrop-filter: var(--admin-blur, none);
+}
+
+@mixin admin-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--admin-radius-control);
+  border: none;
+  background: var(--admin-accent);
+  color: white;
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--admin-accent-dark);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin admin-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--admin-radius-control);
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--admin-bg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

@@ -38,6 +38,8 @@ export class MenuScanModal {
   readonly files = signal<File[]>([]);
   readonly errorMessage = signal<string | null>(null);
   readonly reviewItems = signal<ReviewItem[]>([]);
+  /** Rows whose price is missing (highlighted after a try to import). */
+  readonly missingPriceIds = signal<Set<string>>(new Set());
   readonly importProgress = signal<{ done: number; total: number } | null>(null);
 
   private nextId = 0;
@@ -114,6 +116,17 @@ export class MenuScanModal {
       this.errorMessage.set('Select at least one item to import.');
       return;
     }
+    // A dish needs a price: say which ones, before anything is saved.
+    const noPrice = included.filter((i) => !(i.price && i.price > 0));
+    if (noPrice.length > 0) {
+      const names = noPrice.slice(0, 3).map((i) => i.name.trim()).join(', ');
+      this.errorMessage.set(
+        `Enter a price for ${names}${noPrice.length > 3 ? ` and ${noPrice.length - 3} more` : ''} (or untick ${noPrice.length === 1 ? 'it' : 'them'}).`
+      );
+      this.missingPriceIds.set(new Set(noPrice.map((i) => i.id)));
+      return;
+    }
+    this.missingPriceIds.set(new Set());
 
     this.step.set('importing');
     this.errorMessage.set(null);
@@ -123,7 +136,9 @@ export class MenuScanModal {
       // Same rule as the API: names match ignoring case and extra spaces.
       const key = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase();
       const categoryIdByName = new Map<string, string>();
-      for (const c of this.categories()) {
+      // The server's list, not the one the page had: a retry after a half-done import must reuse what it created.
+      const categories = await firstValueFrom(this.categoryService.getAll()).catch(() => this.categories());
+      for (const c of categories) {
         categoryIdByName.set(key(c.name), c.id);
       }
       let newCategoryCount = 0;
@@ -182,8 +197,10 @@ export class MenuScanModal {
       }
 
       this.imported.emit({ itemCount: createdCount, categoryCount: newCategoryCount, skippedCount });
-    } catch {
-      this.errorMessage.set('Something went wrong while importing. Items already imported were saved — you can retry the rest manually.');
+    } catch (err) {
+      this.errorMessage.set(
+        `${errorMessage(err, 'Something went wrong while importing.')} Dishes imported before this were saved; fix this one and import again (saved dishes are skipped).`
+      );
       this.step.set('review');
     }
   }

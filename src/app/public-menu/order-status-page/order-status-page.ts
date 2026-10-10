@@ -103,12 +103,35 @@ export class OrderStatusPage implements OnInit, OnDestroy {
   private fetchOrder(): void {
     this.orderService.getPublicOrder(this.slug, this.orderId).subscribe({
       next: (order) => {
+        const before = this.order()?.status;
+        if (before && before !== order.status) {
+          this.announceStatus(order.status);
+        }
         this.order.set(order);
         this.loading.set(false);
         this.maybeAskForReview(order);
       },
       error: () => this.loading.set(false)
     });
+  }
+
+  /** A pop-up for the guest when the kitchen moves the order on (they may not be looking at the steps). */
+  private announceStatus(status: OrderStatus): void {
+    const messages: Partial<Record<OrderStatus, string>> = {
+      Placed: '✅ Your order is placed. The kitchen has it.',
+      Preparing: '👨‍🍳 The kitchen has started preparing your order.',
+      Served: '🍽️ Your food is served. Enjoy your meal!',
+      Completed: '🙏 Order completed. Thank you for dining with us!'
+    };
+    if (status === 'Cancelled') {
+      this.feedback.error('This order was cancelled by the restaurant. Please ask the staff if you need help.');
+      return;
+    }
+    const message = messages[status];
+    if (message) {
+      this.feedback.success(message);
+      navigator.vibrate?.(60);
+    }
   }
 
   stepIndex(status: OrderStatus): number {

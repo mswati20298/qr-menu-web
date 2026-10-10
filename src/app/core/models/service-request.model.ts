@@ -26,7 +26,7 @@ export const SERVICE_REQUESTS: ServiceRequestMeta[] = [
     type: 'CallWaiter',
     emoji: '🔔',
     buttonLabel: 'Call waiter',
-    sentMessage: 'Waiter has been called. Someone will be with you shortly.',
+    sentMessage: '🔔 A waiter is on the way to your table. Please give us a moment.',
     adminLabel: 'Calling the waiter',
     adminText: (t) => `Table ${t} is calling the waiter`
   },
@@ -34,7 +34,7 @@ export const SERVICE_REQUESTS: ServiceRequestMeta[] = [
     type: 'Water',
     emoji: '💧',
     buttonLabel: 'Water',
-    sentMessage: 'Water is on its way.',
+    sentMessage: '💧 Fresh water is coming to your table.',
     adminLabel: 'Needs water',
     adminText: (t) => `Table ${t} needs water`
   },
@@ -42,7 +42,7 @@ export const SERVICE_REQUESTS: ServiceRequestMeta[] = [
     type: 'Bill',
     emoji: '🧾',
     buttonLabel: 'Bill',
-    sentMessage: 'We will bring your bill shortly.',
+    sentMessage: '🧾 Your bill is being prepared. We will bring it to your table shortly.',
     adminLabel: 'Wants the bill',
     adminText: (t) => `Table ${t} is asking for the bill`
   }

@@ -1,7 +1,7 @@
 .item-modal__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(10, 8, 6, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,9 +12,12 @@
 .item-modal__panel {
   width: 100%;
   max-width: 520px;
-  max-height: 90vh;
+  max-height: 75vh;
   overflow-y: auto;
-  background: var(--admin-surface);
+  overflow-x: hidden;
+  // Solid: the surface colour is see-through in dark mode, and the page behind showed through the dialog.
+  background: linear-gradient(var(--admin-surface), var(--admin-surface)), var(--admin-bg);
+  border: 1px solid var(--admin-border);
   border-radius: 16px;
   box-shadow: var(--admin-shadow-md);
   padding: 24px;
@@ -51,8 +54,21 @@
 
 .item-modal__row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  // minmax(0, …): let the fields shrink with the dialog instead of pushing it wider (no sideways scroll).
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+.item-modal__panel input,
+.item-modal__panel select,
+.item-modal__panel textarea {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .item-modal__checkbox-label {
@@ -110,23 +126,26 @@
 .item-modal__variant-row,
 .item-modal__addon-row {
   display: grid;
-  grid-template-columns: 1.4fr 0.8fr auto auto;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) auto auto;
   gap: 8px;
   align-items: center;
   margin-bottom: 8px;
 
   input[type='text'],
   input[type='number'] {
+    width: 100%;
     min-height: 38px;
     padding: 0 10px;
     border-radius: 8px;
     border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
     font-size: 13px;
   }
 }
 
 .item-modal__addon-row {
-  grid-template-columns: 1.4fr 0.8fr auto;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) auto;
 }
 
 .item-modal__radio-label {

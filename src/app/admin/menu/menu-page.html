@@ -2,8 +2,19 @@
   <div class="menu-page__header">
     <h1>Menu</h1>
     <div class="menu-page__header-actions">
-      <button type="button" class="btn-admin-secondary" [disabled]="items().length === 0" (click)="exportMenu()">⬇ Export menu</button>
-      <button type="button" class="btn-admin-secondary" (click)="openScanModal()">📷 Scan Menu</button>
+      <button type="button" class="btn-admin-secondary" [disabled]="items().length === 0" (click)="exportMenu()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3v13m0 0-4-4m4 4 4-4M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Export menu
+      </button>
+      <button type="button" class="btn-admin-secondary" (click)="openScanModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.4-2h5l1.4 2h1.6A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <circle cx="12" cy="12.5" r="3.2" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+        Scan menu
+      </button>
       <button type="button" class="btn-admin-primary" (click)="openAddItemModal()">+ Add item</button>
     </div>
   </div>
@@ -135,19 +146,12 @@
                 </td>
                 <td class="menu-page__actions-cell">
                   <div class="menu-page__menu-wrap">
-                    <button type="button" class="menu-page__icon-btn" (click)="toggleItemMenu(item.id)" aria-label="Item options" title="More options">
+                    <button type="button" class="menu-page__icon-btn" (click)="toggleItemMenu(item.id, $event)" aria-label="Item options" title="More options">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle cx="12" cy="5" r="1.6" fill="currentColor" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /><circle cx="12" cy="19" r="1.6" fill="currentColor" />
                       </svg>
                     </button>
 
-                    @if (openItemMenuId() === item.id) {
-                      <div class="menu-page__menu-backdrop" (click)="closeItemMenu()"></div>
-                      <div class="menu-page__menu">
-                        <button type="button" (click)="openEditItemModal(item)">Edit</button>
-                        <button type="button" class="menu-page__menu-danger" (click)="requestDeleteItem(item)">Delete</button>
-                      </div>
-                    }
                   </div>
                 </td>
               </tr>
@@ -175,5 +179,14 @@
       (confirm)="confirmPendingDelete()"
       (cancel)="dismissPendingDelete()"
     />
+  }
+
+  <!-- Outside the table: its frosted (backdrop-filter) box would trap and clip a fixed-position menu. -->
+  @if (openItemMenu(); as item) {
+    <div class="menu-page__menu-backdrop" (click)="closeItemMenu()"></div>
+    <div class="menu-page__menu" role="menu" [style.top.px]="itemMenuPos().top" [style.right.px]="itemMenuPos().right">
+      <button type="button" role="menuitem" (click)="openEditItemModal(item)">Edit</button>
+      <button type="button" role="menuitem" class="menu-page__menu-danger" (click)="requestDeleteItem(item)">Delete</button>
+    </div>
   }
 </div>

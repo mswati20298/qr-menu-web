@@ -175,8 +175,25 @@ export class MenuPage implements OnInit {
     }
   }
 
-  toggleItemMenu(itemId: string): void {
-    this.openItemMenuId.set(this.openItemMenuId() === itemId ? null : itemId);
+  /** The dish whose ⋮ menu is open. */
+  readonly openItemMenu = computed(() => this.items().find((i) => i.id === this.openItemMenuId()) ?? null);
+
+  /** Where the open ⋮ menu sits on screen: below the button, or above it when there is no room below. */
+  readonly itemMenuPos = signal<{ top: number; right: number }>({ top: 0, right: 0 });
+
+  toggleItemMenu(itemId: string, event?: Event): void {
+    if (this.openItemMenuId() === itemId) {
+      this.openItemMenuId.set(null);
+      return;
+    }
+    const button = event?.currentTarget as HTMLElement | undefined;
+    if (button) {
+      const rect = button.getBoundingClientRect();
+      const menuHeight = 96;
+      const below = rect.bottom + 4 + menuHeight <= window.innerHeight;
+      this.itemMenuPos.set({ top: below ? rect.bottom + 4 : rect.top - 4 - menuHeight, right: Math.max(8, window.innerWidth - rect.right) });
+    }
+    this.openItemMenuId.set(itemId);
   }
 
   closeItemMenu(): void {

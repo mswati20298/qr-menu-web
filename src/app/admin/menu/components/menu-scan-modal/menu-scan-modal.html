@@ -89,6 +89,8 @@
                     type="number"
                     min="0"
                     class="scan-modal__price-input"
+                    [class.scan-modal__price-input--missing]="missingPriceIds().has(item.id)"
+                    placeholder="₹"
                     [value]="item.price"
                     (input)="updateItem(item.id, { price: $any($event.target).value ? +$any($event.target).value : null })"
                   />

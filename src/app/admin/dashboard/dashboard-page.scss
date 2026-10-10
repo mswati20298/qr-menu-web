@@ -1,4 +1,4 @@
-@use 'styles/admin-theme' as *;
+@use 'styles/admin-mixins' as *;
 
 // Owner dashboard: answers first (today at a glance), numbers second, things to do third.
 // Colours come from the admin theme tokens, so the brand colour of the restaurant carries through.

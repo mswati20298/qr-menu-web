@@ -1,9 +1,43 @@
 <div class="report-export">
-  <select class="report-export__select" aria-label="Report period" [value]="range()" (change)="range.set($any($event.target).value)">
-    @for (r of ranges; track r.value) {
-      <option [value]="r.value">{{ r.label }}</option>
+  <div class="report-export__picker" (keydown)="onKey($event)">
+    <button
+      type="button"
+      class="report-export__select"
+      aria-haspopup="listbox"
+      [attr.aria-expanded]="open()"
+      aria-label="Report period"
+      (click)="open.set(!open())"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3.5" y="5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.8" />
+        <path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+      <span>{{ rangeLabel() }}</span>
+      <svg class="report-export__chevron" [class.report-export__chevron--open]="open()" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+    @if (open()) {
+      <ul class="report-export__menu" role="listbox" aria-label="Report period">
+        @for (r of ranges; track r.value) {
+          <li
+            role="option"
+            class="report-export__option"
+            [class.report-export__option--on]="r.value === range()"
+            [attr.aria-selected]="r.value === range()"
+            (click)="choose(r.value)"
+          >
+            {{ r.label }}
+            @if (r.value === range()) {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            }
+          </li>
+        }
+      </ul>
     }
-  </select>
+  </div>
   <button type="button" class="btn-admin-secondary report-export__btn" [disabled]="busy()" (click)="exportRange.emit(range())">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M12 3v13m0 0-4-4m4 4 4-4M5 21h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />

@@ -1,9 +1,9 @@
-@use 'styles/admin-theme' as *;
+@use 'styles/admin-mixins' as *;
 
 .scan-modal__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(10, 8, 6, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,9 +14,12 @@
 .scan-modal__panel {
   width: 100%;
   max-width: 720px;
-  max-height: 90vh;
+  max-height: 75vh;
   overflow-y: auto;
-  background: var(--admin-surface);
+  overflow-x: hidden;
+  // Solid: the surface colour is see-through in dark mode, and the page behind showed through the dialog.
+  background: linear-gradient(var(--admin-surface), var(--admin-surface)), var(--admin-bg);
+  border: 1px solid var(--admin-border);
   border-radius: 16px;
   box-shadow: var(--admin-shadow-md);
   padding: 24px;
@@ -168,8 +171,30 @@
 
 .scan-modal__table {
   width: 100%;
+  // Fixed columns so long names never push the table wider than the dialog (no sideways scroll).
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
+
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 34px;
+  }
+
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 96px;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    width: 46px;
+  }
+
+  th:nth-child(6),
+  td:nth-child(6) {
+    width: 34px;
+  }
 
   th {
     position: sticky;
@@ -197,11 +222,24 @@
   input[type='text'],
   input[type='number'] {
     width: 100%;
+    min-width: 0;
     min-height: 34px;
     padding: 0 8px;
     border-radius: 6px;
     border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
     font-size: 13px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--admin-accent);
+      box-shadow: 0 0 0 3px var(--admin-accent-ring);
+    }
+  }
+
+  input[type='checkbox'] {
+    accent-color: var(--admin-accent);
   }
 
   input[type='checkbox'] {
@@ -211,7 +249,16 @@
 }
 
 .scan-modal__price-input {
-  width: 80px !important;
+  width: 100% !important;
+
+  &--missing {
+    border-color: var(--admin-danger) !important;
+    background: var(--admin-danger-soft) !important;
+  }
+}
+
+.scan-modal__table-wrap {
+  overflow-x: hidden;
 }
 
 .scan-modal__row--excluded {
