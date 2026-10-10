@@ -18,6 +18,7 @@ import {
   REFUND_WINDOW_DAYS,
   RefundablePayment
 } from '../../core/models/refund.model';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { errorMessage } from '../../core/utils/http-error';
 
@@ -29,6 +30,7 @@ import { errorMessage } from '../../core/utils/http-error';
 })
 export class PlanPage implements OnInit {
   private readonly restaurantService = inject(RestaurantService);
+  private readonly toast = inject(FeedbackService);
 
   readonly plan = signal<OwnerPlan | null>(null);
   readonly error = signal<string | null>(null);
@@ -112,6 +114,17 @@ export class PlanPage implements OnInit {
     return plan.price / plan.durationMonths;
   }
 
+  private showPaid(updated: OwnerPlan, planName: string): void {
+    this.plan.set(updated);
+    this.payError.set(null);
+    const until = updated.current.expiresAt
+      ? new Date(updated.current.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : null;
+    this.paySuccess.set(`Payment received — you are on the ${planName} plan${until ? ` until ${until}` : ''}. Customers can order again.`);
+    this.toast.success('Payment received. Your plan is active.');
+    this.loadRefunds();
+  }
+
   async buy(choice: PricingPlan): Promise<void> {
     if (this.payingId()) {
       return;
@@ -127,10 +140,19 @@ export class PlanPage implements OnInit {
 
       if (result.kind === 'paid') {
         const updated = await firstValueFrom(this.restaurantService.confirmCheckout(result.confirmation));
-        this.plan.set(updated);
-        this.paySuccess.set(`Payment received — you are on the ${choice.name} plan until ${new Date(updated.current.expiresAt!).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}.`);
-      } else if (result.kind === 'failed') {
-        this.payError.set(result.message);
+        this.showPaid(updated, choice.name);
+      } else {
+        // Closed or failed: Razorpay may still have taken a payment (the webhook applies it). Look again.
+        const before = this.plan()?.current.expiresAt ?? null;
+        const latest = await firstValueFrom(this.restaurantService.getPlan());
+        if (latest.current.expiresAt !== before && latest.current.canTakeOrders) {
+          this.showPaid(latest, choice.name);
+        } else {
+          this.plan.set(latest);
+          if (result.kind === 'failed') {
+            this.payError.set(result.message);
+          }
+        }
       }
     } catch (err: unknown) {
       this.payError.set(errorMessage(err, (err as Error)?.message || 'Could not complete the payment. Please try again.'));

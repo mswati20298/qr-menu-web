@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { OwnerRefunds, Refund } from '../models/refund.model';
 import { DashboardStats, Restaurant, ScanStats, UpdateRestaurantRequest } from '../models/restaurant.model';
-import { Checkout, ConfirmCheckoutRequest, OwnerPlan } from '../models/subscription.model';
+import { Checkout, ConfirmCheckoutRequest, OwnerPlan, SubscriptionSummary } from '../models/subscription.model';
 
 @Injectable({ providedIn: 'root' })
 export class RestaurantService {
@@ -38,8 +38,11 @@ export class RestaurantService {
     return this.http.put<Restaurant>(`${this.baseUrl}/subdomain`, { subdomain });
   }
 
+  /** The current plan, shared by the plan banner (every admin page) and My plan; updated by every plan read. */
+  readonly currentPlan = signal<SubscriptionSummary | null>(null);
+
   getPlan(): Observable<OwnerPlan> {
-    return this.http.get<OwnerPlan>(`${this.baseUrl}/plan`);
+    return this.http.get<OwnerPlan>(`${this.baseUrl}/plan`).pipe(tap((plan) => this.currentPlan.set(plan.current)));
   }
 
   startCheckout(pricingPlanId: string): Observable<Checkout> {
@@ -47,7 +50,7 @@ export class RestaurantService {
   }
 
   confirmCheckout(request: ConfirmCheckoutRequest): Observable<OwnerPlan> {
-    return this.http.post<OwnerPlan>(`${this.baseUrl}/plan/confirm`, request);
+    return this.http.post<OwnerPlan>(`${this.baseUrl}/plan/confirm`, request).pipe(tap((plan) => this.currentPlan.set(plan.current)));
   }
 
   getRefunds(): Observable<OwnerRefunds> {

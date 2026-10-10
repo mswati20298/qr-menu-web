@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ThemeService } from '../../core/services/theme.service';
-import { SubscriptionSummary } from '../../core/models/subscription.model';
 import { rememberAuthBackground } from '../../core/auth-background';
 import { pickBackgroundUrl } from '../../core/background-picker';
 import { BackgroundService } from '../../core/services/background.service';
@@ -63,7 +62,7 @@ export class AdminLayout implements OnInit, OnDestroy {
       rememberAuthBackground(this.backgroundUrl());
     }
   });
-  readonly plan = signal<SubscriptionSummary | null>(null);
+  readonly plan = this.restaurantService.currentPlan;
 
   /** Warning shown above every admin page when the plan is ending, in grace, or has stopped ordering. */
   readonly planNotice = computed<{ text: string; danger: boolean } | null>(() => {
@@ -132,10 +131,7 @@ export class AdminLayout implements OnInit, OnDestroy {
 
     this.backgrounds.load().subscribe({ error: () => undefined });
 
-    this.restaurantService.getPlan().subscribe({
-      next: (plan) => this.plan.set(plan.current),
-      error: () => undefined
-    });
+    this.restaurantService.getPlan().subscribe({ error: () => undefined });
 
     this.openStatusHandle = setInterval(() => {
       this.now.set(new Date());

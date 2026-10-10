@@ -46,14 +46,17 @@ export type CheckoutResult =
   | { kind: 'failed'; message: string };
 
 /**
- * Opens Razorpay's payment window for an order the API created. Resolves when the owner pays,
- * closes the window, or the payment fails. The plan is only applied after the API checks the signature.
+ * Opens Razorpay's payment window for an order the API created. Resolves when the owner pays or closes the window.
+ * A failed try (e.g. a card Razorpay refuses) does not end it: Razorpay keeps the window open so the owner can pay
+ * another way. It is reported as "failed" only if the window is then closed without paying.
+ * The plan is only applied after the API checks the signature.
  */
 export async function openRazorpayCheckout(checkout: Checkout, themeColor: string): Promise<CheckoutResult> {
   await loadScript();
 
   return new Promise<CheckoutResult>((resolve) => {
     let settled = false;
+    let lastFailure: string | null = null;
     const finish = (result: CheckoutResult) => {
       if (!settled) {
         settled = true;
@@ -83,12 +86,12 @@ export async function openRazorpayCheckout(checkout: Checkout, themeColor: strin
             razorpaySignature: response.razorpay_signature
           }
         }),
-      modal: { ondismiss: () => finish({ kind: 'dismissed' }) }
+      modal: { ondismiss: () => finish(lastFailure ? { kind: 'failed', message: lastFailure } : { kind: 'dismissed' }) }
     });
 
-    razorpay.on('payment.failed', (response) =>
-      finish({ kind: 'failed', message: response.error?.description ?? 'The payment failed. No money was taken.' })
-    );
+    razorpay.on('payment.failed', (response) => {
+      lastFailure = response.error?.description ?? 'The payment failed. No money was taken.';
+    });
     razorpay.open();
   });
 }
