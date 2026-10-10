@@ -5,14 +5,16 @@ import { ServiceRequestService } from '../../../core/services/service-request.se
 import { FeedbackService } from '../../../core/services/feedback.service';
 import { playDing } from '../../../core/tap-sound';
 import { errorMessage } from '../../../core/utils/http-error';
+import { AppIcon } from '../../../shared/app-icon/app-icon';
 
 /** How long a button shows "Sent" before it can be tapped again. Short on purpose: a repeat while the
  * first request is still open is merged by the server, so staff never get duplicates. */
 const COOLDOWN_MS = 3000;
 
-/** 🔔 Call waiter · 💧 Water · 🧾 Bill — shown to customers who scanned a table QR code. */
+/** Call waiter · Water · Bill — shown to customers who scanned a table QR code. */
 @Component({
   selector: 'app-request-actions',
+  imports: [AppIcon],
   templateUrl: './request-actions.html',
   styleUrl: './request-actions.scss'
 })

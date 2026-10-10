@@ -1,12 +1,14 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { serviceRequestMeta } from '../../core/models/service-request.model';
 import { OrderNotificationService } from '../../core/services/order-notification.service';
+import { AppIcon } from '../../shared/app-icon/app-icon';
 
 /** A request waiting longer than this is highlighted. */
 const LATE_AFTER_MINUTES = 5;
 
 @Component({
   selector: 'app-requests-page',
+  imports: [AppIcon],
   templateUrl: './requests-page.html',
   styleUrl: './requests-page.scss'
 })

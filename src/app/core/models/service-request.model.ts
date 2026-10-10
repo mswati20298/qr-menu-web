@@ -1,3 +1,5 @@
+import { AppIconName } from '../../shared/app-icon/app-icon';
+
 export type ServiceRequestType = 'CallWaiter' | 'Water' | 'Bill';
 
 export interface ServiceRequest {
@@ -10,7 +12,8 @@ export interface ServiceRequest {
 
 export interface ServiceRequestMeta {
   type: ServiceRequestType;
-  emoji: string;
+  /** Shown with <app-icon> (themed SVG, not an emoji). */
+  icon: AppIconName;
   /** Button label on the customer menu. */
   buttonLabel: string;
   /** Shown to the customer once the request is sent. */
@@ -24,25 +27,25 @@ export interface ServiceRequestMeta {
 export const SERVICE_REQUESTS: ServiceRequestMeta[] = [
   {
     type: 'CallWaiter',
-    emoji: '🔔',
+    icon: 'bell',
     buttonLabel: 'Call waiter',
-    sentMessage: '🔔 A waiter is on the way to your table. Please give us a moment.',
+    sentMessage: 'A waiter is on the way to your table. Please give us a moment.',
     adminLabel: 'Calling the waiter',
     adminText: (t) => `Table ${t} is calling the waiter`
   },
   {
     type: 'Water',
-    emoji: '💧',
+    icon: 'water',
     buttonLabel: 'Water',
-    sentMessage: '💧 Fresh water is coming to your table.',
+    sentMessage: 'Fresh water is coming to your table.',
     adminLabel: 'Needs water',
     adminText: (t) => `Table ${t} needs water`
   },
   {
     type: 'Bill',
-    emoji: '🧾',
+    icon: 'receipt',
     buttonLabel: 'Bill',
-    sentMessage: '🧾 Your bill is being prepared. We will bring it to your table shortly.',
+    sentMessage: 'Your bill is being prepared. We will bring it to your table shortly.',
     adminLabel: 'Wants the bill',
     adminText: (t) => `Table ${t} is asking for the bill`
   }

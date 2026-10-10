@@ -5,12 +5,12 @@
   </div>
 
   @if (items().length === 0) {
-    <p class="requests-page__empty">No pending requests right now. 🎉</p>
+    <p class="requests-page__empty">No pending requests right now. All tables are looked after.</p>
   } @else {
     <div class="requests-page__grid">
       @for (item of items(); track item.id) {
         <div class="requests-page__card" [class.requests-page__card--late]="isLate(item.createdAt)">
-          <span class="requests-page__emoji" aria-hidden="true">{{ item.meta.emoji }}</span>
+          <span class="requests-page__emoji" aria-hidden="true"><app-icon [name]="item.meta.icon" [size]="24" /></span>
           <div class="requests-page__info">
             <span class="requests-page__table">Table {{ item.tableNumber }}</span>
             <span class="requests-page__what">{{ item.meta.adminLabel }}</span>

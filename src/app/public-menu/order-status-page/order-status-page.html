@@ -52,7 +52,7 @@
         }
       </ul>
       @if (order()!.note) {
-        <p class="order-status-page__note">📝 {{ order()!.note }}</p>
+        <p class="order-status-page__note"><app-icon name="note" [size]="16" /> {{ order()!.note }}</p>
       }
       <app-bill-summary
         [bill]="orderBill()!"

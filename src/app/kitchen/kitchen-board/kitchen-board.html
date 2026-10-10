@@ -16,10 +16,10 @@
       }
       <span class="kds__clock">{{ clock() }}</span>
       <button type="button" class="kds__tool" (click)="toggleSound()" [attr.aria-pressed]="soundOn()" [title]="soundOn() ? 'Sound on' : 'Sound off'">
-        {{ soundOn() ? '🔔' : '🔕' }}
+        <app-icon [name]="soundOn() ? 'bell' : 'bell-off'" [size]="20" />
       </button>
       <button type="button" class="kds__tool" (click)="toggleFullscreen()" [title]="isFullscreen() ? 'Exit full screen' : 'Full screen'">
-        {{ isFullscreen() ? '⤡' : '⤢' }}
+        <app-icon [name]="isFullscreen() ? 'fullscreen-exit' : 'fullscreen'" [size]="20" />
       </button>
       <button type="button" class="kds__tool kds__tool--text" (click)="signOut()">
         {{ isKitchenSession() ? 'Sign out' : 'Back to admin' }}
@@ -92,7 +92,7 @@
                 </ul>
 
                 @if (order.note) {
-                  <p class="kds__note">📝 {{ order.note }}</p>
+                  <p class="kds__note"><app-icon name="note" [size]="16" /> {{ order.note }}</p>
                 }
 
                 @if (column.action) {

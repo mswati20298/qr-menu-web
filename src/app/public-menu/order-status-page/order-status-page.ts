@@ -13,13 +13,14 @@ import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { UpiPayCard } from '../components/upi-pay-card/upi-pay-card';
 import { errorMessage } from '../../core/utils/http-error';
 import { BillBreakup, ratesOf } from '../../core/services/billing.util';
+import { AppIcon } from '../../shared/app-icon/app-icon';
 
 const STATUS_STEPS: OrderStatus[] = ['Placed', 'Preparing', 'Served', 'Completed'];
 const POLL_INTERVAL_MS = 8000;
 
 @Component({
   selector: 'app-order-status-page',
-  imports: [BillSummary, ConfirmDialog, UpiPayCard, RatingSheet],
+  imports: [BillSummary, ConfirmDialog, UpiPayCard, RatingSheet, AppIcon],
   templateUrl: './order-status-page.html',
   styleUrl: './order-status-page.scss'
 })
@@ -118,10 +119,10 @@ export class OrderStatusPage implements OnInit, OnDestroy {
   /** A pop-up for the guest when the kitchen moves the order on (they may not be looking at the steps). */
   private announceStatus(status: OrderStatus): void {
     const messages: Partial<Record<OrderStatus, string>> = {
-      Placed: '✅ Your order is placed. The kitchen has it.',
-      Preparing: '👨‍🍳 The kitchen has started preparing your order.',
-      Served: '🍽️ Your food is served. Enjoy your meal!',
-      Completed: '🙏 Order completed. Thank you for dining with us!'
+      Placed: 'Your order is placed. The kitchen has it.',
+      Preparing: 'The kitchen has started preparing your order.',
+      Served: 'Your food is served. Enjoy your meal!',
+      Completed: 'Order completed. Thank you for dining with us!'
     };
     if (status === 'Cancelled') {
       this.feedback.error('This order was cancelled by the restaurant. Please ask the staff if you need help.');

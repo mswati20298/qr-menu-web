@@ -49,9 +49,9 @@
     }
   }
 
-  &__emoji {
-    font-size: 20px;
-    line-height: 1;
+  // Themed line icon (accent colour), not an emoji.
+  &__icon {
+    color: var(--color-accent);
   }
 
   &__label {

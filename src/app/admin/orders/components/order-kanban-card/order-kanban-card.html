@@ -59,11 +59,11 @@
   @if (order().status !== 'Cancelled') {
     @if (order().invoiceId) {
       <button type="button" class="kanban-card__bill-btn kanban-card__bill-btn--done" (click)="openInvoice.emit()">
-        <span aria-hidden="true">🧾</span> {{ order().invoiceNumber }}
+        <app-icon name="receipt" [size]="16" /> {{ order().invoiceNumber }}
       </button>
     } @else {
       <button type="button" class="kanban-card__bill-btn" [disabled]="billing()" (click)="bill.emit()">
-        <span aria-hidden="true">🧾</span>
+        <app-icon name="receipt" [size]="16" />
         {{ billing() ? 'Creating bill…' : billLabel() }}
       </button>
     }

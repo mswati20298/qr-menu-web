@@ -2,10 +2,11 @@ import { DecimalPipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { Order } from '../../../../core/models/order.model';
 import { StatusPill } from '../../../components/status-pill/status-pill';
+import { AppIcon } from '../../../../shared/app-icon/app-icon';
 
 @Component({
   selector: 'app-order-kanban-card',
-  imports: [DecimalPipe, StatusPill],
+  imports: [DecimalPipe, StatusPill, AppIcon],
   templateUrl: './order-kanban-card.html',
   styleUrl: './order-kanban-card.scss'
 })

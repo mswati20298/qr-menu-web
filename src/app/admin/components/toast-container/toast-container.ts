@@ -2,10 +2,11 @@ import { DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderNotificationService, OrderToast } from '../../../core/services/order-notification.service';
+import { AppIcon } from '../../../shared/app-icon/app-icon';
 
 @Component({
   selector: 'app-toast-container',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, AppIcon],
   templateUrl: './toast-container.html',
   styleUrl: './toast-container.scss'
 })

@@ -1,14 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 import { Order } from '../models/order.model';
 import { ServiceRequest, serviceRequestMeta } from '../models/service-request.model';
+import { AppIconName } from '../../shared/app-icon/app-icon';
 import { OrderService } from './order.service';
 import { ServiceRequestService } from './service-request.service';
 
 export interface OrderToast {
   id: string;
   kind: 'order' | 'request';
-  /** Emoji for service requests; orders use the receipt icon. */
-  icon: string | null;
+  /** Icon for service requests; orders use the receipt icon. */
+  icon: AppIconName | null;
   message: string;
   /** Order total (orders only). */
   amount: number | null;
@@ -160,14 +161,14 @@ export class OrderNotificationService {
     this.playChime();
     requests.forEach((request) => {
       const meta = serviceRequestMeta(request.type);
-      this.pushRequestToast(meta.emoji, meta.adminText(request.tableNumber));
+      this.pushRequestToast(meta.icon, meta.adminText(request.tableNumber));
     });
     setTimeout(() => {
       requests.forEach((request) => this.speak(serviceRequestMeta(request.type).adminText(request.tableNumber)));
     }, 450);
   }
 
-  private pushRequestToast(icon: string, message: string): void {
+  private pushRequestToast(icon: AppIconName, message: string): void {
     const toast: OrderToast = { id: `toast-${++this.toastCounter}`, kind: 'request', icon, message, amount: null };
     this.toasts.set([...this.toasts(), toast]);
     setTimeout(() => this.dismissToast(toast.id), 10000);

@@ -8,7 +8,7 @@
         [disabled]="sending() === option.type || isSent(option.type)"
         (click)="send(option.type)"
       >
-        <span class="request-actions__emoji" aria-hidden="true">{{ isSent(option.type) ? '✅' : option.emoji }}</span>
+        <app-icon class="request-actions__icon" [name]="isSent(option.type) ? 'check' : option.icon" [size]="24" />
         <span class="request-actions__label">
           {{ sending() === option.type ? 'Sending…' : isSent(option.type) ? 'Sent' : option.buttonLabel }}
         </span>

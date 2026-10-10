@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { KitchenAuthService } from '../../core/services/kitchen-auth.service';
 import { KitchenService } from '../../core/services/kitchen.service';
 import { errorMessage } from '../../core/utils/http-error';
+import { AppIcon } from '../../shared/app-icon/app-icon';
 
 const POLL_MS = 5000;
 const TICK_MS = 15000;
@@ -36,6 +37,7 @@ interface WakeLockLike {
  */
 @Component({
   selector: 'app-kitchen-board',
+  imports: [AppIcon],
   templateUrl: './kitchen-board.html',
   styleUrl: './kitchen-board.scss'
 })
