@@ -19,12 +19,21 @@
       </div>
 
       <div class="form-field">
-        <label for="itemCategory">Category</label>
-        <select id="itemCategory" formControlName="categoryId">
-          @for (category of categories(); track category.id) {
-            <option [value]="category.id">{{ category.name }}</option>
+        @if (needsNewCategory) {
+          <label for="itemNewCategory">Category</label>
+          <input id="itemNewCategory" type="text" formControlName="newCategory" maxlength="100" placeholder="e.g. Starters, Main Course, Drinks" />
+          <span class="form-field__hint">You have no categories yet. This one is created together with the dish.</span>
+          @if (form.controls.newCategory.touched && !form.controls.newCategory.value?.trim()) {
+            <span class="form-field__error">A category name is needed.</span>
           }
-        </select>
+        } @else {
+          <label for="itemCategory">Category</label>
+          <select id="itemCategory" formControlName="categoryId">
+            @for (category of categories(); track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        }
       </div>
 
       <div class="form-field">
@@ -124,9 +133,12 @@
         }
       </div>
 
+      @if (formError() ?? serverError(); as message) {
+        <p class="form-field__error item-modal__error" role="alert">{{ message }}</p>
+      }
       <div class="item-modal__footer">
-        <button type="button" class="btn-admin-secondary" (click)="close.emit()">Cancel</button>
-        <button type="submit" class="btn-admin-primary" [disabled]="uploading()">Save item</button>
+        <button type="button" class="btn-admin-secondary" [disabled]="saving()" (click)="close.emit()">Cancel</button>
+        <button type="submit" class="btn-admin-primary" [disabled]="uploading() || saving()">{{ saving() ? 'Saving…' : 'Save item' }}</button>
       </div>
     </form>
   </div>

@@ -55,9 +55,9 @@
         <p class="order-status-page__note">📝 {{ order()!.note }}</p>
       }
       <app-bill-summary
-        [bill]="{ subtotal: order()!.subtotal, serviceChargeAmount: order()!.serviceChargeAmount, gstAmount: order()!.gstAmount, total: order()!.total }"
-        [gstPercentage]="session.menu()?.restaurant?.gstPercentage ?? 0"
-        [serviceChargePercentage]="session.menu()?.restaurant?.serviceChargePercentage ?? 0"
+        [bill]="orderBill()!"
+        [gstPercentage]="orderRates().gstPercentage"
+        [serviceChargePercentage]="orderRates().serviceChargePercentage"
       />
     </div>
 

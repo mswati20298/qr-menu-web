@@ -161,7 +161,7 @@
   <input #photoInput type="file" accept="image/jpeg,image/png,image/webp" class="menu-page__hidden-input" (change)="onPhotoFileSelected($event)" />
 
   @if (modalOpen()) {
-    <app-item-modal [categories]="categories()" [editingItem]="editingItem()" (save)="onSaveItem($event)" (close)="closeModal()" />
+    <app-item-modal [categories]="categories()" [editingItem]="editingItem()" [saving]="itemSaving()" [serverError]="itemError()" (save)="onSaveItem($event)" (close)="closeModal()" />
   }
 
   @if (pendingDelete(); as pending) {

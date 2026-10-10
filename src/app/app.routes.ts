@@ -63,15 +63,16 @@ export const routes: Routes = [
       { path: 'menu', data: { preload: true }, loadComponent: () => import('./public-menu/menu-tab/menu-tab').then((m) => m.MenuTab) },
       { path: 'cart', data: { preload: true }, loadComponent: () => import('./public-menu/cart-tab/cart-tab').then((m) => m.CartTab) },
       { path: 'orders', data: { preload: true }, loadComponent: () => import('./public-menu/orders-tab/orders-tab').then((m) => m.OrdersTab) },
-      // Full-screen pages: same background and theme as the menu, but no bottom tab bar.
+      // Full-screen page: same background and theme as the menu, but no bottom tab bar.
       {
         path: 'item/:itemId',
         data: { hideNav: true, preload: true },
         loadComponent: () => import('./public-menu/item-detail-page/item-detail-page').then((m) => m.ItemDetailPage)
       },
+      // Order status keeps the tab bar, so a guest can go back to the menu, their orders or Help from it.
       {
         path: 'order/:orderId',
-        data: { hideNav: true, preload: true },
+        data: { preload: true },
         loadComponent: () => import('./public-menu/order-status-page/order-status-page').then((m) => m.OrderStatusPage)
       }
     ]

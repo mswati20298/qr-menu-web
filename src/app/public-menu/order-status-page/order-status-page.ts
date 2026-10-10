@@ -12,6 +12,7 @@ import { BillSummary } from '../components/bill-summary/bill-summary';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { UpiPayCard } from '../components/upi-pay-card/upi-pay-card';
 import { errorMessage } from '../../core/utils/http-error';
+import { BillBreakup, ratesOf } from '../../core/services/billing.util';
 
 const STATUS_STEPS: OrderStatus[] = ['Placed', 'Preparing', 'Served', 'Completed'];
 const POLL_INTERVAL_MS = 8000;
@@ -33,6 +34,15 @@ export class OrderStatusPage implements OnInit, OnDestroy {
 
   readonly statusSteps = STATUS_STEPS;
   readonly order = signal<Order | null>(null);
+  /** The order's own amounts and the rates they were charged at (not today's restaurant settings). */
+  readonly orderBill = computed<BillBreakup | null>(() => {
+    const o = this.order();
+    return o ? { subtotal: o.subtotal, serviceChargeAmount: o.serviceChargeAmount, gstAmount: o.gstAmount, total: o.total } : null;
+  });
+  readonly orderRates = computed(() => {
+    const bill = this.orderBill();
+    return bill ? ratesOf(bill) : { gstPercentage: 0, serviceChargePercentage: 0 };
+  });
   readonly loading = signal(true);
   readonly cancelling = signal(false);
   readonly showCancelConfirm = signal(false);

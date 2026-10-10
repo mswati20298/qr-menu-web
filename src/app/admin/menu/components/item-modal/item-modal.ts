@@ -5,7 +5,9 @@ import { AddOnInput, MenuItem, VariantInput } from '../../../../core/models/item
 import { UploadService } from '../../../../core/services/upload.service';
 
 export interface ItemModalResult {
+  /** Empty when newCategoryName is set (no category exists yet: the page creates it first). */
   categoryId: string;
+  newCategoryName?: string;
   name: string;
   description: string | null;
   price: number;
@@ -25,6 +27,9 @@ export interface ItemModalResult {
 export class ItemModal implements OnInit {
   readonly categories = input.required<Category[]>();
   readonly editingItem = input<MenuItem | null>(null);
+  /** The page is saving (button shows it) and the API's answer when it refused. */
+  readonly saving = input(false);
+  readonly serverError = input<string | null>(null);
 
   readonly save = output<ItemModalResult>();
   readonly close = output<void>();
@@ -38,7 +43,9 @@ export class ItemModal implements OnInit {
   readonly addOnRows = signal<AddOnInput[]>([]);
 
   readonly form = this.fb.group({
-    categoryId: this.fb.control('', [Validators.required]),
+    categoryId: this.fb.control(''),
+    /** Only used while the restaurant has no category yet. */
+    newCategory: this.fb.control('', [Validators.maxLength(100)]),
     name: this.fb.control('', [Validators.required, Validators.maxLength(200)]),
     description: this.fb.control(''),
     price: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
@@ -46,6 +53,14 @@ export class ItemModal implements OnInit {
     tag: this.fb.control(''),
     imageUrl: this.fb.control<string | null>(null)
   });
+
+  /** True when there is no category to pick: the modal asks for a new category name instead. */
+  get needsNewCategory(): boolean {
+    return this.categories().length === 0;
+  }
+
+  /** Shown under the Save button when Save was pressed with missing or wrong fields. */
+  readonly formError = signal<string | null>(null);
 
   ngOnInit(): void {
     const item = this.editingItem();
@@ -120,17 +135,28 @@ export class ItemModal implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid) {
+    const value = this.form.getRawValue();
+    const newCategory = value.newCategory?.trim() ?? '';
+    const categoryMissing = this.needsNewCategory ? !newCategory : !value.categoryId;
+    if (this.form.invalid || categoryMissing) {
       this.form.markAllAsTouched();
+      this.formError.set(
+        categoryMissing
+          ? this.needsNewCategory
+            ? 'Type a category name for this dish, e.g. "Starters".'
+            : 'Choose a category for this dish.'
+          : 'Please fill in the highlighted fields.'
+      );
       return;
     }
+    this.formError.set(null);
 
     const validVariants = this.variantRows().filter((v) => v.name.trim().length > 0 && v.price > 0);
     const validAddOns = this.addOnRows().filter((a) => a.name.trim().length > 0);
 
-    const value = this.form.getRawValue();
     this.save.emit({
-      categoryId: value.categoryId!,
+      categoryId: this.needsNewCategory ? '' : value.categoryId!,
+      newCategoryName: this.needsNewCategory ? newCategory : undefined,
       name: value.name!.trim(),
       description: value.description?.trim() || null,
       price: value.price!,

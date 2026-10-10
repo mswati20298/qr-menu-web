@@ -131,6 +131,7 @@
             @if (inv.gstNumber) {
               <div><dt>CGST ({{ inv.gstPercentage / 2 }}%)</dt><dd>₹{{ cgst(inv) | number: '1.2-2' }}</dd></div>
               <div><dt>SGST ({{ inv.gstPercentage / 2 }}%)</dt><dd>₹{{ inv.gstAmount - cgst(inv) | number: '1.2-2' }}</dd></div>
+              <p class="invoices-page__gst-note">GST {{ inv.gstPercentage }}% = CGST {{ inv.gstPercentage / 2 }}% + SGST {{ inv.gstPercentage / 2 }}%</p>
             } @else {
               <div><dt>GST ({{ inv.gstPercentage }}%)</dt><dd>₹{{ inv.gstAmount | number: '1.2-2' }}</dd></div>
             }

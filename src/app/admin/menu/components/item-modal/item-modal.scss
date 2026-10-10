@@ -168,3 +168,13 @@
   gap: 10px;
   margin-top: 16px;
 }
+
+.item-modal__error {
+  display: block;
+  margin: 4px 0 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--admin-danger-soft);
+  color: var(--admin-danger-text);
+  font-size: 13px;
+}

@@ -276,3 +276,10 @@
     border-top: 1px solid var(--admin-border);
   }
 }
+
+.invoices-page__gst-note {
+  margin: -2px 0 4px;
+  text-align: right;
+  color: var(--admin-muted);
+  font-size: 12px;
+}

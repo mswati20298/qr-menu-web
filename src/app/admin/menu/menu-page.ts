@@ -1,10 +1,13 @@
-import { Component, OnInit, computed, signal, viewChild, ElementRef } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { Component, OnInit, computed, inject, signal, viewChild, ElementRef } from '@angular/core';
 import { Category } from '../../core/models/category.model';
 import { MenuItem, UpdateItemRequest } from '../../core/models/item.model';
 import { CategoryService } from '../../core/services/category.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { ItemService } from '../../core/services/item.service';
 import { downloadCsv, menuToCsv } from '../../core/services/report-export.util';
 import { UploadService } from '../../core/services/upload.service';
+import { errorMessage } from '../../core/utils/http-error';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { VegBadge } from '../../shared/veg-badge/veg-badge';
 import { CategoryList } from './components/category-list/category-list';
@@ -51,6 +54,13 @@ export class MenuPage implements OnInit {
 
   readonly missingPhotoCount = computed(() => this.items().filter((i) => !i.imageUrl).length);
 
+  private readonly toast = inject(FeedbackService);
+
+  /** Error handler that shows the API's reason (e.g. "There is already a category called ...") in a toast. */
+  private fail(fallback: string) {
+    return (err: unknown) => this.toast.error(errorMessage(err, fallback));
+  }
+
   constructor(
     private readonly categoryService: CategoryService,
     private readonly itemService: ItemService,
@@ -87,14 +97,16 @@ export class MenuPage implements OnInit {
   }
 
   onAddCategory(name: string): void {
-    this.categoryService.create({ name }).subscribe((category) => {
-      this.categories.set([...this.categories(), category]);
+    this.categoryService.create({ name }).subscribe({
+      next: (category) => this.categories.set([...this.categories(), category]),
+      error: this.fail('Could not add the category.')
     });
   }
 
   onRenameCategory(payload: { id: string; name: string }): void {
-    this.categoryService.update(payload.id, { name: payload.name }).subscribe((updated) => {
-      this.categories.set(this.categories().map((c) => (c.id === updated.id ? updated : c)));
+    this.categoryService.update(payload.id, { name: payload.name }).subscribe({
+      next: (updated) => this.categories.set(this.categories().map((c) => (c.id === updated.id ? updated : c))),
+      error: this.fail('Could not rename the category.')
     });
   }
 
@@ -110,16 +122,18 @@ export class MenuPage implements OnInit {
     const byId = new Map(this.categories().map((c) => [c.id, c]));
     const reordered = ids.map((id) => byId.get(id)).filter((c): c is Category => !!c);
     this.categories.set(reordered);
-    this.categoryService.reorder(ids).subscribe();
+    this.categoryService.reorder(ids).subscribe({ error: this.fail('Could not save the new order.') });
   }
 
   openAddItemModal(): void {
     this.editingItem.set(null);
+    this.itemError.set(null);
     this.modalOpen.set(true);
   }
 
   openEditItemModal(item: MenuItem): void {
     this.editingItem.set(item);
+    this.itemError.set(null);
     this.modalOpen.set(true);
     this.openItemMenuId.set(null);
   }
@@ -128,21 +142,36 @@ export class MenuPage implements OnInit {
     this.modalOpen.set(false);
   }
 
-  onSaveItem(result: ItemModalResult): void {
-    const editing = this.editingItem();
+  readonly itemSaving = signal(false);
+  readonly itemError = signal<string | null>(null);
 
-    if (editing) {
-      this.itemService.update(editing.id, result).subscribe((updated) => {
+  async onSaveItem(result: ItemModalResult): Promise<void> {
+    if (this.itemSaving()) {
+      return;
+    }
+    this.itemSaving.set(true);
+    this.itemError.set(null);
+    const { newCategoryName, ...item } = result;
+    try {
+      if (newCategoryName) {
+        const category = await firstValueFrom(this.categoryService.create({ name: newCategoryName }));
+        this.categories.set([...this.categories(), category]);
+        item.categoryId = category.id;
+      }
+      const editing = this.editingItem();
+      if (editing) {
+        const updated = await firstValueFrom(this.itemService.update(editing.id, item));
         this.items.set(this.items().map((i) => (i.id === updated.id ? updated : i)));
-        this.refreshCategoryCounts();
-        this.modalOpen.set(false);
-      });
-    } else {
-      this.itemService.create(result).subscribe((created) => {
+      } else {
+        const created = await firstValueFrom(this.itemService.create(item));
         this.items.set([...this.items(), created]);
-        this.refreshCategoryCounts();
-        this.modalOpen.set(false);
-      });
+      }
+      this.refreshCategoryCounts();
+      this.modalOpen.set(false);
+    } catch (err) {
+      this.itemError.set(errorMessage(err, 'Could not save the dish. Please try again.'));
+    } finally {
+      this.itemSaving.set(false);
     }
   }
 
@@ -167,17 +196,23 @@ export class MenuPage implements OnInit {
     }
 
     if (pending.kind === 'category') {
-      this.categoryService.delete(pending.id).subscribe(() => {
-        this.categories.set(this.categories().filter((c) => c.id !== pending.id));
-        this.items.set(this.items().filter((i) => i.categoryId !== pending.id));
-        if (this.selectedCategoryId() === pending.id) {
-          this.selectedCategoryId.set(null);
-        }
+      this.categoryService.delete(pending.id).subscribe({
+        next: () => {
+          this.categories.set(this.categories().filter((c) => c.id !== pending.id));
+          this.items.set(this.items().filter((i) => i.categoryId !== pending.id));
+          if (this.selectedCategoryId() === pending.id) {
+            this.selectedCategoryId.set(null);
+          }
+        },
+        error: this.fail('Could not delete the category.')
       });
     } else {
-      this.itemService.delete(pending.id).subscribe(() => {
-        this.items.set(this.items().filter((i) => i.id !== pending.id));
-        this.refreshCategoryCounts();
+      this.itemService.delete(pending.id).subscribe({
+        next: () => {
+          this.items.set(this.items().filter((i) => i.id !== pending.id));
+          this.refreshCategoryCounts();
+        },
+        error: this.fail('Could not delete the dish.')
       });
     }
   }
@@ -187,8 +222,9 @@ export class MenuPage implements OnInit {
   }
 
   onToggleAvailability(item: MenuItem): void {
-    this.itemService.setAvailability(item.id, !item.isAvailable).subscribe((updated) => {
-      this.items.set(this.items().map((i) => (i.id === updated.id ? updated : i)));
+    this.itemService.setAvailability(item.id, !item.isAvailable).subscribe({
+      next: (updated) => this.items.set(this.items().map((i) => (i.id === updated.id ? updated : i))),
+      error: this.fail('Could not change availability.')
     });
   }
 
