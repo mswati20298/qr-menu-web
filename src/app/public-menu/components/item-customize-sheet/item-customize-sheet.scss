@@ -51,6 +51,7 @@
 
 .item-customize-sheet__scroll {
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 16px 16px 12px;
 }
 

@@ -80,7 +80,6 @@ export class CustomerShell implements OnInit, OnDestroy {
     // k = the table's secret code, printed in its QR; it starts a time-limited table session.
     this.session.init(slug, table, query.get('k'));
     this.clockHandle = setInterval(() => this.now.set(new Date()), 60000);
-    document.documentElement.classList.add('customer-page');
 
     this.updateNavVisibility();
     this.navSubscription = this.router.events
@@ -97,7 +96,6 @@ export class CustomerShell implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    document.documentElement.classList.remove('customer-page');
     if (this.clockHandle) {
       clearInterval(this.clockHandle);
     }
