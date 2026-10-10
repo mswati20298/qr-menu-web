@@ -17,6 +17,7 @@
       <option value="">All statuses</option>
       <option value="active">Active</option>
       <option value="suspended">Suspended</option>
+      <option value="deleted">Deleted</option>
     </select>
     <select #p class="sa-restaurants__filter" aria-label="Filter by plan" [value]="plan" (change)="onPlan(p.value)">
       <option value="">All plans</option>
@@ -71,11 +72,24 @@
               </span>
             </td>
             <td>
-              <span class="sa-restaurants__pill" [class.sa-restaurants__pill--off]="!r.isActive">
-                {{ r.isActive ? 'Active' : 'Suspended' }}
-              </span>
+              @if (r.deletedAt) {
+                <span class="sa-restaurants__pill sa-restaurants__pill--deleted">Deleted</span>
+                <span class="sa-restaurants__sub">{{ r.deletedAt | date: 'd MMM y' }}</span>
+              } @else {
+                <span class="sa-restaurants__pill" [class.sa-restaurants__pill--off]="!r.isActive">
+                  {{ r.isActive ? 'Active' : 'Suspended' }}
+                </span>
+              }
             </td>
             <td class="sa-restaurants__actions">
+              @if (r.deletedAt) {
+                <button type="button" class="btn-admin-primary" [disabled]="busyId() === r.id" (click)="restore(r)">
+                  {{ busyId() === r.id ? 'Restoring…' : 'Restore' }}
+                </button>
+                <button type="button" class="btn-admin-danger" [disabled]="busyId() === r.id" (click)="openDeleteForever(r)">
+                  Delete forever
+                </button>
+              } @else {
               <button type="button" class="btn-admin-secondary" (click)="openPlan(r)">Plan</button>
               <button type="button" class="btn-admin-secondary" [disabled]="busyId() === r.id" (click)="resetPassword(r)">
                 Reset password
@@ -88,6 +102,10 @@
               >
                 {{ busyId() === r.id ? 'Saving…' : r.isActive ? 'Suspend' : 'Activate' }}
               </button>
+              <button type="button" class="btn-admin-secondary sa-restaurants__delete" [disabled]="busyId() === r.id" (click)="softDelete(r)">
+                Delete
+              </button>
+              }
             </td>
           </tr>
         } @empty {
@@ -107,6 +125,16 @@
     </div>
   }
 </div>
+
+@if (deleteTarget(); as target) {
+  <app-delete-forever-dialog
+    [restaurantName]="target.name"
+    [busy]="deleteBusy()"
+    [error]="deleteError()"
+    (confirmed)="deleteForever($event)"
+    (cancelled)="closeDeleteForever()"
+  />
+}
 
 @if (planTarget(); as target) {
   <app-subscription-dialog

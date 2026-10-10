@@ -48,6 +48,8 @@ export interface SuperAdminRestaurant {
   planName: string;
   planStatus: SubscriptionStatus;
   planExpiresAt: string | null;
+  /** Set when the super admin deleted it (soft delete); Restore clears it. */
+  deletedAt: string | null;
 }
 
 export interface PagedResult<T> {

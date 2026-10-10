@@ -93,7 +93,7 @@
     cursor: pointer;
 
     &:hover:not(:disabled) {
-      background: var(--admin-danger);
+      background: var(--admin-danger-solid);
       color: white;
     }
 

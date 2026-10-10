@@ -26,7 +26,7 @@
 
     &--done { background: var(--admin-success); }
     &--refused { background: var(--admin-warning); }
-    &--failed { background: var(--admin-danger); }
+    &--failed { background: var(--admin-danger-solid); }
   }
 
   &__main {

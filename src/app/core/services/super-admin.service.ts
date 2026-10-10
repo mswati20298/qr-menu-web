@@ -41,7 +41,7 @@ export type PlanFilter = '' | 'trial' | 'free' | 'paid' | 'expiring' | 'grace' |
 
 export interface RestaurantQuery {
   search?: string;
-  status?: 'active' | 'suspended' | '';
+  status?: 'active' | 'suspended' | 'deleted' | '';
   plan?: PlanFilter;
   page: number;
   pageSize: number;
@@ -76,6 +76,20 @@ export class SuperAdminService {
   }
 
   /** New temporary owner password, returned only once. All the owner's logins are signed out. */
+  /** Hides it (owner signed out, menu offline); nothing is removed. */
+  softDeleteRestaurant(id: string): Observable<SuperAdminRestaurant> {
+    return this.http.post<SuperAdminRestaurant>(`${this.baseUrl}/restaurants/${id}/soft-delete`, {});
+  }
+
+  restoreRestaurant(id: string): Observable<SuperAdminRestaurant> {
+    return this.http.post<SuperAdminRestaurant>(`${this.baseUrl}/restaurants/${id}/restore`, {});
+  }
+
+  /** For good, with all its data. Only after a soft delete; confirmName = the restaurant's name. */
+  hardDeleteRestaurant(id: string, confirmName: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/restaurants/${id}/hard-delete`, { confirmName });
+  }
+
   resetOwnerPassword(id: string): Observable<{ ownerEmail: string; temporaryPassword: string }> {
     return this.http.post<{ ownerEmail: string; temporaryPassword: string }>(`${this.baseUrl}/restaurants/${id}/reset-password`, {});
   }

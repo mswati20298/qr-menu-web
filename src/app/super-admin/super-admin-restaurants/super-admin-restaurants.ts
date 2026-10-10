@@ -6,13 +6,14 @@ import { PLAN_STATUS_LABELS, SubscriptionDetails } from '../../core/models/subsc
 import { FeedbackService } from '../../core/services/feedback.service';
 import { PlanFilter, SuperAdminService } from '../../core/services/super-admin.service';
 import { SubscriptionDialog } from '../subscription-dialog/subscription-dialog';
+import { DeleteForeverDialog } from './delete-forever-dialog/delete-forever-dialog';
 import { errorMessage } from '../../core/utils/http-error';
 
-type StatusFilter = '' | 'active' | 'suspended';
+type StatusFilter = '' | 'active' | 'suspended' | 'deleted';
 
 @Component({
   selector: 'app-super-admin-restaurants',
-  imports: [DatePipe, SubscriptionDialog],
+  imports: [DatePipe, SubscriptionDialog, DeleteForeverDialog],
   templateUrl: './super-admin-restaurants.html',
   styleUrl: './super-admin-restaurants.scss'
 })
@@ -30,6 +31,10 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
   readonly busyId = signal<string | null>(null);
   readonly planTarget = signal<SuperAdminRestaurant | null>(null);
   readonly planStatusLabels = PLAN_STATUS_LABELS;
+  /** Restaurant whose "Delete forever" dialog is open. */
+  readonly deleteTarget = signal<SuperAdminRestaurant | null>(null);
+  readonly deleteBusy = signal(false);
+  readonly deleteError = signal<string | null>(null);
 
   readonly pageCount = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
 
@@ -66,7 +71,7 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
   }
 
   onStatus(value: string): void {
-    this.status = value === 'active' || value === 'suspended' ? value : '';
+    this.status = value === 'active' || value === 'suspended' || value === 'deleted' ? value : '';
     this.page.set(1);
     this.load();
   }
@@ -132,6 +137,82 @@ export class SuperAdminRestaurants implements OnInit, OnDestroy {
       error: (err) => {
         this.busyId.set(null);
         this.error.set(errorMessage(err, 'Could not change the status. Please try again.'));
+      }
+    });
+  }
+
+  /** Soft delete: hidden from the list, owner signed out, menu offline. Restore brings everything back. */
+  async softDelete(restaurant: SuperAdminRestaurant): Promise<void> {
+    const confirmed = await this.feedback.confirm({
+      title: `Delete "${restaurant.name}"?`,
+      message:
+        'It disappears from the list, its owner is signed out and customers can no longer open its menu. ' +
+        'Nothing is removed yet: you can restore it from the "Deleted" filter, or delete it forever there.',
+      confirmLabel: 'Delete',
+      danger: true
+    });
+    if (!confirmed) {
+      return;
+    }
+    this.busyId.set(restaurant.id);
+    this.error.set(null);
+    this.service.softDeleteRestaurant(restaurant.id).subscribe({
+      next: () => {
+        this.busyId.set(null);
+        this.feedback.success(`${restaurant.name} deleted. Find it under the "Deleted" filter to restore it.`);
+        this.load();
+      },
+      error: (err) => {
+        this.busyId.set(null);
+        this.error.set(errorMessage(err, 'Could not delete the restaurant.'));
+      }
+    });
+  }
+
+  restore(restaurant: SuperAdminRestaurant): void {
+    this.busyId.set(restaurant.id);
+    this.error.set(null);
+    this.service.restoreRestaurant(restaurant.id).subscribe({
+      next: () => {
+        this.busyId.set(null);
+        this.feedback.success(`${restaurant.name} restored. Its owner can log in again.`);
+        this.load();
+      },
+      error: (err) => {
+        this.busyId.set(null);
+        this.error.set(errorMessage(err, 'Could not restore the restaurant.'));
+      }
+    });
+  }
+
+  openDeleteForever(restaurant: SuperAdminRestaurant): void {
+    this.deleteError.set(null);
+    this.deleteTarget.set(restaurant);
+  }
+
+  closeDeleteForever(): void {
+    if (!this.deleteBusy()) {
+      this.deleteTarget.set(null);
+    }
+  }
+
+  deleteForever(confirmName: string): void {
+    const target = this.deleteTarget();
+    if (!target) {
+      return;
+    }
+    this.deleteBusy.set(true);
+    this.deleteError.set(null);
+    this.service.hardDeleteRestaurant(target.id, confirmName).subscribe({
+      next: () => {
+        this.deleteBusy.set(false);
+        this.deleteTarget.set(null);
+        this.feedback.success(`${target.name} and all its data were deleted.`);
+        this.load();
+      },
+      error: (err) => {
+        this.deleteBusy.set(false);
+        this.deleteError.set(errorMessage(err, 'Could not delete the restaurant.'));
       }
     });
   }

@@ -39,6 +39,8 @@
   --admin-completed-soft: #f5f5f4;
   --admin-completed-text: #44403c;
   --admin-danger: #b91c1c;
+  // Background of red buttons and badges with white text (--admin-danger is a light red for text in dark mode).
+  --admin-danger-solid: #b91c1c;
   --admin-danger-soft: #fee2e2;
   --admin-danger-text: #7f1d1d;
 
@@ -147,10 +149,10 @@
 /* For money going out or things being cut off (refunds, rejections). */
 .admin-shell .btn-admin-danger {
   @include admin-button-primary;
-  background: var(--admin-danger);
+  background: var(--admin-danger-solid);
 
   &:hover:not(:disabled) {
-    background: var(--admin-danger);
+    background: var(--admin-danger-solid);
     filter: brightness(0.92);
   }
 }

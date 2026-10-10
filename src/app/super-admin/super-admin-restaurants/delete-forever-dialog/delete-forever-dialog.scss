@@ -1,0 +1,69 @@
+@use 'styles/admin-theme' as *;
+
+.dfd__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.dfd {
+  @include admin-card;
+  position: fixed;
+  z-index: 1501;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: 10px;
+  width: min(460px, calc(100vw - 32px));
+  padding: 22px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-danger);
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--admin-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  input {
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-control);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: var(--admin-danger);
+    }
+  }
+}
+
+.dfd__error {
+  color: var(--admin-danger-text) !important;
+  background: var(--admin-danger-soft);
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.dfd__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}

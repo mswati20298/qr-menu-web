@@ -1,0 +1,26 @@
+<div class="dfd__scrim" (click)="cancelled.emit()"></div>
+<div class="dfd" role="dialog" aria-modal="true" aria-labelledby="dfd-title">
+  <h2 id="dfd-title">Delete "{{ restaurantName() }}" forever?</h2>
+  <p>
+    This removes the restaurant and <b>all its data</b>: menu, orders, bills, tables, owner login, payments, refunds and
+    reviews. <b>It cannot be undone.</b> Payments stay in Razorpay's own records.
+  </p>
+  <label for="dfd-name">Type <b>{{ restaurantName() }}</b> to confirm</label>
+  <input
+    id="dfd-name"
+    type="text"
+    autocomplete="off"
+    [value]="typed()"
+    (input)="typed.set($any($event.target).value)"
+    (keydown.enter)="submit()"
+  />
+  @if (error()) {
+    <p class="dfd__error" role="alert">{{ error() }}</p>
+  }
+  <div class="dfd__actions">
+    <button type="button" class="btn-admin-secondary" [disabled]="busy()" (click)="cancelled.emit()">Cancel</button>
+    <button type="button" class="btn-admin-danger" [disabled]="!matches() || busy()" (click)="submit()">
+      {{ busy() ? 'Deleting…' : 'Delete forever' }}
+    </button>
+  </div>
+</div>

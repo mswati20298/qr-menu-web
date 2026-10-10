@@ -116,6 +116,11 @@
       background: var(--admin-danger-soft);
       color: var(--admin-danger-text);
     }
+
+    &--deleted {
+      background: var(--admin-border);
+      color: var(--admin-muted);
+    }
   }
 
   &__actions {
@@ -142,7 +147,7 @@
 
     &--expired,
     &--cancelled {
-      background: var(--admin-danger);
+      background: var(--admin-danger-solid);
     }
   }
 
@@ -161,4 +166,8 @@
     font-size: 14px;
     color: var(--admin-muted);
   }
+}
+
+.sa-restaurants__delete {
+  color: var(--admin-danger-text) !important;
 }

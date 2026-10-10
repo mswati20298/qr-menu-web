@@ -280,56 +280,78 @@ export class OrdersPage implements OnInit, OnDestroy {
   }
 
   /**
-   * Board card's bill button. A table order bills the whole table (after saying how many orders and how much
-   * goes on the bill); a takeaway bills just that order.
+   * Board card's bill button: one bill per guest (same table and same phone). If that guest already has a bill
+   * that is not paid yet, the new orders are added to it (the server does the same). Takeaway bills just that order.
    */
   async billFromBoard(order: Order): Promise<void> {
-    const onBill = this.tableBillOrders(order);
-    const wholeTable = onBill.length > 0;
-    const orders = wholeTable ? onBill : [order];
+    const orders = this.guestUnbilledOrders(order);
+    const open = this.guestOpenBill(order);
     const total = orders.reduce((sum, o) => sum + o.total, 0);
+    const who = order.customerName ? `${order.customerName} (${this.tableLabel(order)})` : this.tableLabel(order);
 
     // Invoice numbers are permanent, so always confirm what goes on the bill.
-    const confirmed = await this.feedback.confirm({
-      title: wholeTable ? `Bill Table ${order.tableNumber}?` : `Bill ${this.tableLabel(order)} order?`,
-      message:
-        orders.length > 1
-          ? `${orders.length} orders go on one bill, total ₹${total.toFixed(2)}. Same dishes are combined into one line.`
-          : `1 order, total ₹${total.toFixed(2)}.`,
-      confirmLabel: 'Create bill'
-    });
+    const confirmed = await this.feedback.confirm(
+      open
+        ? {
+            title: `Add to bill ${open.number}?`,
+            message: `${orders.length} new order${orders.length === 1 ? '' : 's'} of ${who} (₹${total.toFixed(2)}) go on the same bill. New bill total ₹${(open.total + total).toFixed(2)}.`,
+            confirmLabel: 'Add to bill'
+          }
+        : {
+            title: `Bill ${who}?`,
+            message:
+              orders.length > 1
+                ? `${orders.length} orders go on one bill, total ₹${total.toFixed(2)}. Same dishes are combined into one line.`
+                : `1 order, total ₹${total.toFixed(2)}.`,
+            confirmLabel: 'Create bill'
+          }
+    );
     if (!confirmed) {
       return;
     }
-
-    if (wholeTable) {
-      this.billTable(order);
-    } else {
-      this.createBill(order);
-    }
+    this.createBill(order);
   }
 
   /** Label for the board card's bill button. */
   billLabel(order: Order): string {
-    return this.tableBillOrders(order).length > 0 ? `Bill Table ${order.tableNumber}` : 'Create bill';
+    const open = this.guestOpenBill(order);
+    if (open) {
+      return `Add to ${open.number}`;
+    }
+    const count = this.guestUnbilledOrders(order).length;
+    return count > 1 ? `Bill ${count} orders` : 'Create bill';
   }
 
-  /**
-   * The orders a whole-table bill would take, exactly as the server picks them: same table, not cancelled,
-   * not billed, placed in the last 24 hours. Empty for takeaway orders and for this order if it is older.
-   */
-  private tableBillOrders(order: Order): Order[] {
+  /** Same guest = same table and same phone (or both without one), within the last 24 hours. Takeaway: just itself. */
+  private sameGuest(a: Order, b: Order): boolean {
     const since = Date.now() - 24 * 60 * 60 * 1000;
-    if (!order.tableNumber || new Date(order.createdAt).getTime() < since) {
-      return [];
-    }
-    return this.orders().filter(
-      (o) =>
-        o.tableNumber === order.tableNumber &&
-        o.status !== 'Cancelled' &&
-        !o.invoiceId &&
-        new Date(o.createdAt).getTime() >= since
+    return (
+      !!a.tableNumber &&
+      a.tableNumber === b.tableNumber &&
+      (a.customerPhone || null) === (b.customerPhone || null) &&
+      b.status !== 'Cancelled' &&
+      new Date(b.createdAt).getTime() >= since
     );
+  }
+
+  /** The guest's orders that are not on a bill yet (always includes this one). */
+  private guestUnbilledOrders(order: Order): Order[] {
+    if (!order.tableNumber) {
+      return [order];
+    }
+    const others = this.orders().filter((o) => o.id !== order.id && !o.invoiceId && this.sameGuest(order, o));
+    return [order, ...others];
+  }
+
+  /** The guest's bill that is not fully paid yet, if any: new orders join it. */
+  private guestOpenBill(order: Order): { number: string; total: number } | null {
+    const onBill = this.orders().filter((o) => o.invoiceId && this.sameGuest(order, o));
+    const open = onBill.find((o) => o.paymentStatus !== 'Paid');
+    if (!open) {
+      return null;
+    }
+    const billOrders = onBill.filter((o) => o.invoiceId === open.invoiceId);
+    return { number: open.invoiceNumber ?? 'the open bill', total: billOrders.reduce((sum, o) => sum + o.total, 0) };
   }
 
   openInvoice(order: Order): void {
@@ -375,7 +397,7 @@ export class OrdersPage implements OnInit, OnDestroy {
     call.subscribe({
       next: (invoice) => {
         this.busyId.set(null);
-        this.feedback.success(`Bill ${invoice.number} created${invoice.orderIds.length > 1 ? ` for ${invoice.orderIds.length} orders` : ''}.`);
+        this.feedback.success(`Bill ${invoice.number}: ${invoice.orderIds.length} order${invoice.orderIds.length === 1 ? '' : 's'}, ₹${invoice.total.toFixed(2)}.`);
         this.router.navigate(['/admin/invoices'], { queryParams: { open: invoice.id } });
       },
       error: (err) => {
