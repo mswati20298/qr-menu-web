@@ -360,8 +360,10 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: var(--admin-text);
-    color: white;
+    // Fixed dark pill (not the text colour): text colour is light in dark mode, which made a white toast.
+    background: #1c1917;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 12px 18px;
     border-radius: var(--admin-radius-control);
     box-shadow: var(--admin-shadow-md);
@@ -372,7 +374,7 @@
     button {
       border: none;
       background: none;
-      color: var(--admin-accent-soft);
+      color: color-mix(in srgb, var(--admin-accent) 45%, #fff);
       font-weight: 700;
       cursor: pointer;
     }

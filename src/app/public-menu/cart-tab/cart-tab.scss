@@ -307,8 +307,10 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: var(--color-text);
-    color: white;
+    // Fixed dark pill (not the text colour): text colour is light in dark mode, which made a white toast.
+    background: #1c1917;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 10px 16px;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
